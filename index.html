@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Esohe's Portfolio</title>
+<style>
+:root{
+--waffle:#d9a85f;
+--syrup:#8b5a2b;
+--cream:#fff7e6;
+--cat:#d6d6d6;
+--accent:#a56cc1;
+}
+*{box-sizing:border-box}
+body{
+margin:0;
+font-family:'Segoe UI',Arial,sans-serif;
+background:linear-gradient(180deg,#fef8ee,#f7eefc);
+color:#333;
+}
+nav{background:linear-gradient(90deg,#8b5a2b,#a56cc1);padding:18px;display:flex;justify-content:center;gap:25px;position:sticky;top:0;box-shadow:0 2px 10px rgba(0,0,0,.2);z-index:1000}
+nav a{color:white;text-decoration:none;font-weight:bold;cursor:pointer}
+.page{display:none;padding:30px;max-width:1100px;margin:auto}
+.active{display:block}
+.hero{
+background:linear-gradient(135deg,var(--waffle),var(--cat));
+padding:70px;border-radius:20px;text-align:center;
+}
+.card{transition:.3s;
+background:white;padding:20px;margin:20px 0;border-radius:16px;
+box-shadow:0 8px 20px rgba(0,0,0,.15)
+}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.tile{
+background:linear-gradient(135deg,var(--accent),var(--waffle));
+color:white;height:180px;border-radius:16px;
+display:flex;align-items:center;justify-content:center;
+font-size:1.3rem;font-weight:bold;transition:.3s;
+}
+.tile:hover{transform:scale(1.04)}
+button{
+background:var(--accent);color:white;border:none;
+padding:12px 20px;border-radius:10px;cursor:pointer
+}
+#funFact{margin-top:15px;font-weight:bold}
+</style>
+</head>
+<body>
+
+<nav>
+<a onclick="showPage('home')">Home</a>
+<a onclick="showPage('about')">About Me</a>
+<a onclick="showPage('resume')">Resume</a>
+<a onclick="showPage('projects')">Coding Projects</a>
+<a onclick="showPage('photos')">Photos</a>
+</nav>
+
+<section id="home" class="page active">
+<div class="hero">
+<h1>🐱🧇 Welcome, I'm Esohe!</h1>
+<p>Welcome to my interactive portfolio website inspired by two of my favorite things: cats and waffles.</p>
+<button onclick="randomFact()">Click For A Fun Fact</button>
+<div id="funFact"></div>
+</div>
+
+<div class="card">
+<h2>⭐ Featured Interests</h2>
+<p>Pokémon • Digital Art • Online Reading • Gaming • Cats • Waffles</p>
+</div>
+
+<div class="card">
+<h2>Quick Intro</h2>
+<p>Hi! I'm Esohe. I enjoy coding, Pokémon, cats, waffles, and building creative projects. Explore the site to learn more about me, my skills, and my projects.</p>
+</div>
+</section>
+
+<section id="about" class="page">
+<div class="card">
+<h2>About Me</h2>
+<p>Hi! I'm Esohe, a sophomore in high school who enjoys being creative, learning new things, and spending time on my favorite hobbies. I love cats, waffles, french fries, Pokémon, and grape soda. When I'm not at school, you'll usually find me creating digital art on my iPad, reading online, or playing online games with friends. Pokémon has always been one of my favorite interests, and my top favorite Pokémon are Hisuian Zoroark and Sylveon.</p>
+
+<h3>Favorite Pokémon</h3>
+<ul>
+<li>👻 Hisuian Zoroark</li>
+<li>🎀 Sylveon</li>
+</ul>
+</div>
+</section>
+
+<section id="resume" class="page">
+<div class="card">
+<h2>Resume</h2>
+<p><strong>Education:</strong> High School Student</p>
+
+<h3>Technical Skills</h3>
+<ul>
+<li>Python</li>
+<li>HTML</li>
+<li>CSS</li>
+<li>JavaScript</li>
+<li>Problem Solving</li>
+<li>Web Development</li>
+</ul>
+
+<h3>Experience</h3>
+<p>Experience working with and helping kids in educational and community environments.</p>
+</div>
+</section>
+
+<section id="projects" class="page">
+<div class="card">
+<h2>Coding Projects</h2>
+<p>My projects reflect both my technical skills and my personal interests. I enjoy creating programs that are interactive, engaging, and centered around topics I am passionate about, such as Pokémon, anime, and creative problem-solving.</p>
+
+<h3>Johto-App</h3><p><a href="johto-app-v2.html" target="_blank">Open Johto-App Project</a></p><p><em>For GitHub Pages, keep johto-app-v2.html in the same repository folder as this portfolio.</em></p>
+<p>Johto-App is a Pokémon team-building website designed to help players create stronger and more unique teams in the Johto region from Pokémon Gold, Silver, Crystal, HeartGold, and SoulSilver.</p>
+<p>One of Johto's biggest challenges is its limited Pokémon distribution, which makes it difficult for players to build diverse teams. This project aims to solve that problem by providing information about Pokémon stats, abilities, typings, and team-building options in an easy-to-understand format.</p>
+<p><strong>Skills Used:</strong> Website Design, User Interface Development, Problem Solving, Project Planning, and Data Organization.</p>
+<p>This project combines my love of Pokémon with my interest in coding and web development.</p>
+</div>
+
+<div class="card">
+<h3>Cat Chat Bot</h3>
+<p>Cat Chat Bot is an interactive chatbot that allows users to communicate with a cat-themed virtual assistant.</p>
+<p>The chatbot responds to user input and provides fun and engaging interactions through programmed responses. I created this project to explore how conversational programs work and to practice building programs that respond dynamically to users.</p>
+<p><strong>Skills Used:</strong> Python Programming, Conditional Statements, User Input Handling, Logic Design, and Interactive Programming.</p>
+<p>This project helped me better understand how chatbots process information and respond to different situations.</p>
+<p><a href="https://academy.cs.cmu.edu/sharing/floralWhiteCat294576" target="_blank">Open Cat Chat Bot Project</a></p>
+</div>
+
+
+<div class="card">
+<h3>Anime List Project</h3>
+<p>The Anime List Project is an interactive program that helps users organize and view anime recommendations and personal favorites.</p>
+<p>The project was designed to create a simple and user-friendly way to keep track of anime while practicing programming concepts related to organization, lists, and user interaction.</p>
+<p><strong>Skills Used:</strong> Python, Data Organization, Variables and Lists, User Interaction, and Program Structure.</p>
+<p>While building this project, I learned how to design a program around a personal interest and make information easier for users to access and manage.</p>
+<p><a href="https://academy.cs.cmu.edu/sharing/blackKangaroo122378" target="_blank">Open Anime List Project</a></p>
+</div>
+
+</section>
+
+<section id="photos" class="page">
+<h2>Favorites Gallery</h2>
+
+
+<div class="grid">
+<div style="background:white;padding:10px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.15);text-align:center;">
+<img src="hisuian_zoroark.jpeg" alt="Hisuian Zoroark" style="width:100%;max-height:250px;object-fit:contain;border-radius:12px;">
+<p><strong>👻 Hisuian Zoroark</strong></p>
+</div>
+
+
+
+<div style="background:white;padding:10px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.15);text-align:center;">
+<img src="sylveon.jpg" alt="Sylveon" style="width:100%;max-height:250px;object-fit:contain;border-radius:12px;">
+<p><strong>🎀 Sylveon</strong></p>
+</div>
+
+
+<div style="background:white;padding:10px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.15);text-align:center;">
+<img src="appletun.jpg" alt="Appletun" style="width:100%;max-height:250px;object-fit:contain;border-radius:12px;">
+<p><strong>🍎 Appletun</strong></p>
+</div>
+
+
+<div style="background:white;padding:10px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.15);text-align:center;">
+<img src="images.webp" alt="Furret" style="width:100%;max-height:250px;object-fit:contain;border-radius:12px;">
+<p><strong>🦦 Furret</strong></p>
+</div>
+
+
+<div style="background:white;padding:10px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.15);text-align:center;">
+<img src="mainecoon_generated.png" alt="Maine Coon" style="width:100%;max-height:250px;object-fit:contain;border-radius:12px;">
+<p><strong>🐱 Maine Coon Cats</strong></p>
+</div>
+
+
+<div style="background:white;padding:10px;border-radius:16px;box-shadow:0 8px 20px rgba(0,0,0,.15);text-align:center;">
+<img src="grapesoda_generated.png" alt="Grape Soda" style="width:100%;max-height:250px;object-fit:contain;border-radius:12px;">
+<p><strong>🍇 Grape Soda</strong></p>
+</div>
+
+</div>
+
+<div class="card">
+<p>These are some of my favorite Pokémon!</p>
+</div>
+</section>
+
+<script>
+function showPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+}
+
+function randomFact(){
+ const facts=[
+ "My favorite Pokémon is Hisuian Zoroark!",
+ "I love waffles 🧇",
+ "Cats are awesome 🐱",
+ "Grape soda is my favorite drink 🍇",
+ "The Johto-App is one of my coding projects!"
+ ];
+ document.getElementById('funFact').textContent =
+ facts[Math.floor(Math.random()*facts.length)];
+}
+</script>
+
+</body>
+</html>
