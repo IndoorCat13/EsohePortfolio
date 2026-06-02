@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Johto & Kanto Team Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e0a;--surface:#111811;--surface2:#172017;
+  --border:#2a3d2a;--border-hi:#4a6a4a;
+  --green:#5dfc8d;--green-dim:#2a7a4a;--green-glow:rgba(93,252,141,0.12);
+  --yellow:#f5e642;--red:#fc5d5d;--blue:#5db8fc;--orange:#fcb45d;
+  --text:#c8dcc8;--text-dim:#5a7a5a;
+  --scan:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.08) 2px,rgba(0,0,0,0.08) 4px);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Press Start 2P',monospace;font-size:10px;line-height:1.7;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:var(--scan);pointer-events:none;z-index:9998;opacity:0.6}
+
+/* NAV */
+nav{border-bottom:2px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:200;display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+.nav-logo{padding:0 16px;font-size:10px;color:var(--green);text-shadow:0 0 12px rgba(93,252,141,0.5);white-space:nowrap;display:flex;align-items:center;border-right:2px solid var(--border);letter-spacing:0.06em}
+.nav-logo span{color:var(--yellow)}
+.nav-tabs{display:flex}
+.nav-tab{font-family:'Press Start 2P',monospace;font-size:7px;padding:0 14px;height:46px;border:none;border-right:2px solid var(--border);background:none;color:var(--text-dim);cursor:pointer;white-space:nowrap;letter-spacing:0.05em;transition:all 0.1s;display:flex;align-items:center;gap:5px}
+.nav-tab:hover{background:var(--surface2);color:var(--text)}
+.nav-tab.active{background:var(--green-glow);color:var(--green);border-bottom:2px solid var(--green)}
+.header-preview{display:flex;gap:4px;align-items:center;padding:0 12px;margin-left:auto;border-left:2px solid var(--border)}
+.htp-slot{width:28px;height:28px;border:2px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:14px}
+.htp-slot.filled{border-color:var(--green-dim)}
+
+/* PAGE SYSTEM */
+.page{display:none}
+.page.active{display:block}
+
+/* ========== SHARED STYLES ========== */
+.sec-label{font-size:7px;color:var(--text-dim);letter-spacing:0.25em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.search-input{width:100%;background:var(--bg);border:2px solid var(--border);color:var(--green);font-family:'Press Start 2P',monospace;font-size:8px;padding:8px 10px;outline:none;margin-bottom:14px;caret-color:var(--green)}
+.search-input::placeholder{color:var(--text-dim)}
+.search-input:focus{border-color:var(--green-dim);box-shadow:0 0 0 2px var(--green-glow)}
+.t-btn{font-family:'Press Start 2P',monospace;font-size:6px;padding:4px 3px;border:2px solid transparent;cursor:pointer;color:white;text-shadow:1px 1px 0 rgba(0,0,0,0.6);letter-spacing:0.04em;text-align:center}
+.t-btn:hover{filter:brightness(1.2)}
+.t-btn.on{border-color:white;filter:brightness(1.3)}
+.clear-btn{width:100%;font-family:'Press Start 2P',monospace;font-size:7px;padding:6px;background:var(--surface2);border:2px solid var(--border);color:var(--text-dim);cursor:pointer;margin-top:4px}
+.clear-btn:hover{border-color:var(--border-hi);color:var(--text)}
+.sort-row{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:14px}
+.sort-btn{font-family:'Press Start 2P',monospace;font-size:6px;padding:5px 4px;background:var(--surface2);border:2px solid var(--border);color:var(--text-dim);cursor:pointer;text-align:center}
+.sort-btn:hover{border-color:var(--border-hi);color:var(--text)}
+.sort-btn.on{border-color:var(--green-dim);color:var(--green);background:var(--green-glow)}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:10px}
+.poke-card{background:var(--surface);border:2px solid var(--border);padding:10px 8px 8px;text-align:center;cursor:pointer;transition:border-color 0.15s,background 0.15s,transform 0.1s;position:relative;user-select:none}
+.poke-card:hover{border-color:var(--border-hi);transform:translateY(-1px)}
+.poke-card.in-team{border-color:var(--green);background:var(--green-glow)}
+.poke-card.in-team::after{content:'✓';position:absolute;top:3px;right:5px;font-size:8px;color:var(--green)}
+.poke-card.locked{opacity:0.35;cursor:not-allowed;transform:none!important}
+.pc-num{font-size:6px;color:var(--text-dim);display:block;margin-bottom:3px}
+.pc-sprite{font-size:2rem;display:block;margin-bottom:5px;line-height:1}
+.pc-name{font-size:7px;color:var(--text);display:block;margin-bottom:6px;letter-spacing:0.03em}
+.pc-types{display:flex;gap:2px;justify-content:center;flex-wrap:wrap}
+.t-chip{font-family:'Press Start 2P',monospace;font-size:5px;padding:2px 4px;color:white;text-shadow:1px 1px 0 rgba(0,0,0,0.5);letter-spacing:0.03em}
+.poke-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px}
+.count-bar{font-size:7px;color:var(--text-dim);margin-bottom:12px;letter-spacing:0.1em}
+.count-bar span{color:var(--green)}
+.no-res{font-size:8px;color:var(--text-dim);text-align:center;padding:3rem 1rem;grid-column:1/-1;line-height:2}
+.action-btn{flex:1;font-family:'Press Start 2P',monospace;font-size:7px;padding:7px 4px;border:2px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;transition:all 0.15s;letter-spacing:0.03em}
+.action-btn:hover:not(:disabled){border-color:var(--border-hi)}
+.action-btn.primary{background:var(--green-glow);border-color:var(--green-dim);color:var(--green)}
+.action-btn.primary:hover:not(:disabled){background:rgba(93,252,141,0.2);border-color:var(--green)}
+.action-btn:disabled{opacity:0.3;cursor:not-allowed}
+
+/* ========== BUILDER LAYOUT ========== */
+.builder-wrap{display:grid;grid-template-columns:240px 1fr 270px;min-height:calc(100vh - 46px)}
+.b-left{border-right:2px solid var(--border);padding:14px;overflow-y:auto;max-height:calc(100vh - 46px);position:sticky;top:46px}
+.b-mid{padding:14px;overflow-y:auto;max-height:calc(100vh - 46px)}
+.b-right{border-left:2px solid var(--border);padding:14px;overflow-y:auto;max-height:calc(100vh - 46px);position:sticky;top:46px}
+
+/* REGION TAB inside builder */
+.region-tabs{display:flex;gap:0;margin-bottom:14px;border:2px solid var(--border)}
+.region-tab{flex:1;font-family:'Press Start 2P',monospace;font-size:7px;padding:6px 4px;border:none;cursor:pointer;text-align:center;letter-spacing:0.05em}
+.region-tab.johto{background:var(--surface2);color:var(--yellow)}
+.region-tab.kanto{background:var(--surface2);color:var(--blue)}
+.region-tab.both{background:var(--surface2);color:var(--green)}
+.region-tab.active{filter:brightness(1.4);border-bottom:3px solid currentColor}
+
+/* TEAM */
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
+.team-slot{border:2px dashed var(--border);padding:8px 6px;text-align:center;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;background:var(--bg)}
+.team-slot.filled{border-style:solid;border-color:var(--green-dim);background:var(--surface)}
+.team-slot .empty-txt{font-size:6px;color:var(--text-dim);line-height:1.8}
+.ts-sprite{font-size:1.8rem;display:block}
+.ts-name{font-size:6px;color:var(--text);margin-top:3px;display:block}
+.ts-types{display:flex;gap:2px;justify-content:center;margin-top:4px;flex-wrap:wrap}
+.ts-rm{position:absolute;top:2px;right:3px;font-family:'Press Start 2P',monospace;font-size:5px;background:transparent;border:none;color:var(--text-dim);cursor:pointer;padding:2px;line-height:1}
+.ts-rm:hover{color:var(--red)}
+.team-actions{display:flex;gap:6px;margin-bottom:14px}
+.coverage-row{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:14px}
+.cov-tag{font-size:5px;padding:2px 5px;color:white;text-shadow:1px 1px 0 rgba(0,0,0,0.5);font-family:'Press Start 2P',monospace;opacity:0.85}
+.eval-box{border:2px solid var(--border);background:var(--bg);padding:12px}
+.eval-empty{text-align:center;padding:16px 0;font-size:7px;color:var(--text-dim);line-height:2}
+.eval-content{font-family:'VT323',monospace;font-size:17px;color:var(--text);line-height:1.55}
+.eval-score-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.big-score{font-family:'Press Start 2P',monospace;font-size:28px;line-height:1}
+.score-label{font-size:14px;color:var(--text-dim)}
+.eval-section{margin-bottom:12px}
+.eval-section-title{font-family:'Press Start 2P',monospace;font-size:7px;letter-spacing:0.1em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.eval-section-title.good{color:var(--green)}
+.eval-section-title.bad{color:var(--red)}
+.eval-section-title.neutral{color:var(--yellow)}
+.dot-anim span{display:inline-block;color:var(--green);font-size:14px;animation:dotbounce 1.2s ease-in-out infinite}
+.dot-anim span:nth-child(2){animation-delay:0.2s}
+.dot-anim span:nth-child(3){animation-delay:0.4s}
+@keyframes dotbounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 6px rgba(93,252,141,0.15)}50%{box-shadow:0 0 18px rgba(93,252,141,0.35)}}
+.eval-box.glowing{animation:glow-pulse 2s ease-in-out 3}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:500;align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:3px solid var(--green-dim);box-shadow:0 0 40px rgba(93,252,141,0.1);max-width:440px;width:100%;max-height:85vh;overflow-y:auto;padding:20px;position:relative}
+.modal-close{position:absolute;top:8px;right:10px;font-family:'Press Start 2P',monospace;font-size:8px;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px}
+.modal-close:hover{color:var(--red)}
+.modal-sprite{font-size:3.5rem;text-align:center;display:block;margin-bottom:8px}
+.modal-name{font-size:14px;color:var(--green);text-align:center;text-shadow:0 0 10px rgba(93,252,141,0.4)}
+.modal-num{font-size:7px;color:var(--text-dim);text-align:center;margin:4px 0 10px}
+.modal-types-row{display:flex;gap:5px;justify-content:center;margin-bottom:14px}
+.modal-sec-title{font-size:7px;color:var(--yellow);letter-spacing:0.1em;margin-bottom:6px;margin-top:12px;border-bottom:1px solid var(--border);padding-bottom:4px}
+.modal-desc{font-family:'VT323',monospace;font-size:17px;color:var(--text);line-height:1.5;margin-bottom:10px}
+.stat-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.stat-lbl{font-size:6px;color:var(--text-dim);width:42px;flex-shrink:0}
+.stat-bar-bg{flex:1;height:9px;background:var(--bg);border:1px solid var(--border)}
+.stat-bar{height:100%;transition:width 0.5s}
+.stat-val{font-size:6px;color:var(--text);width:26px;text-align:right;flex-shrink:0}
+.ability-item{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.ability-name{font-family:'VT323',monospace;font-size:16px;color:var(--text)}
+.ability-badge{font-size:6px;padding:2px 6px;border:1px solid var(--green-dim);color:var(--green);background:var(--green-glow)}
+.ability-badge.hidden{border-color:#a06000;color:var(--yellow);background:rgba(245,230,66,0.08)}
+.modal-add-btn{width:100%;margin-top:14px;font-family:'Press Start 2P',monospace;font-size:8px;padding:9px;border:2px solid var(--green-dim);background:var(--green-glow);color:var(--green);cursor:pointer;transition:all 0.15s;letter-spacing:0.05em}
+.modal-add-btn:hover:not(:disabled){background:rgba(93,252,141,0.2);border-color:var(--green)}
+.modal-add-btn.remove{border-color:#7a1a1a;background:rgba(252,93,93,0.08);color:var(--red)}
+.modal-add-btn:disabled{opacity:0.3;cursor:not-allowed}
+.modal-fav-btn{width:100%;margin-top:6px;font-family:'Press Start 2P',monospace;font-size:8px;padding:8px;border:2px solid #7a6000;background:rgba(245,230,66,0.07);color:var(--yellow);cursor:pointer;transition:all 0.15s}
+.modal-fav-btn:hover{background:rgba(245,230,66,0.15)}
+
+/* ========== TRAINER CREATOR ========== */
+.trainer-page{padding:20px;max-width:760px;margin:0 auto}
+.trainer-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.trainer-canvas-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+#trainerCanvas{border:3px solid var(--green-dim);background:var(--surface);image-rendering:pixelated;cursor:default}
+.trainer-controls{background:var(--surface);border:2px solid var(--border);padding:16px}
+.ctrl-group{margin-bottom:16px}
+.ctrl-label{font-size:7px;color:var(--text-dim);letter-spacing:0.2em;margin-bottom:8px;display:block}
+.swatch-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.swatch{width:22px;height:22px;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s}
+.swatch:hover{transform:scale(1.15)}
+.swatch.active{border-color:white;transform:scale(1.15)}
+.option-row{display:flex;gap:4px;flex-wrap:wrap}
+.opt-btn{font-family:'Press Start 2P',monospace;font-size:6px;padding:4px 8px;background:var(--surface2);border:2px solid var(--border);color:var(--text-dim);cursor:pointer}
+.opt-btn:hover{border-color:var(--border-hi);color:var(--text)}
+.opt-btn.active{border-color:var(--green-dim);color:var(--green);background:var(--green-glow)}
+.quote-input{width:100%;background:var(--bg);border:2px solid var(--border);color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;padding:8px;outline:none;resize:none;height:60px;caret-color:var(--green)}
+.quote-input:focus{border-color:var(--green-dim)}
+.trainer-name-input{width:100%;background:var(--bg);border:2px solid var(--border);color:var(--green);font-family:'Press Start 2P',monospace;font-size:8px;padding:7px;outline:none;margin-bottom:8px;caret-color:var(--green)}
+.save-trainer-btn{width:100%;font-family:'Press Start 2P',monospace;font-size:8px;padding:9px;border:2px solid var(--green-dim);background:var(--green-glow);color:var(--green);cursor:pointer;margin-top:8px}
+.save-trainer-btn:hover{background:rgba(93,252,141,0.2)}
+.trainer-card-saved{border:2px solid var(--border);background:var(--surface);padding:14px;text-align:center;margin-top:12px}
+.trainer-card-saved .tcs-name{font-size:10px;color:var(--green);margin-bottom:6px}
+.trainer-card-saved .tcs-quote{font-family:'VT323',monospace;font-size:18px;color:var(--text);font-style:italic;line-height:1.4}
+
+/* ========== FAVOURITES ========== */
+.favs-page{padding:20px;max-width:900px;margin:0 auto}
+.fav-form{background:var(--surface);border:2px solid var(--border);padding:16px;margin-bottom:20px}
+.fav-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.fav-select{width:100%;background:var(--bg);border:2px solid var(--border);color:var(--green);font-family:'Press Start 2P',monospace;font-size:7px;padding:7px;outline:none;cursor:pointer}
+.fav-select:focus{border-color:var(--green-dim)}
+.fav-textarea{width:100%;background:var(--bg);border:2px solid var(--border);color:var(--text);font-family:'VT323',monospace;font-size:18px;padding:10px;outline:none;resize:vertical;min-height:80px;caret-color:var(--green);line-height:1.5}
+.fav-textarea::placeholder{color:var(--text-dim)}
+.fav-textarea:focus{border-color:var(--green-dim)}
+.fav-submit{font-family:'Press Start 2P',monospace;font-size:8px;padding:9px 16px;border:2px solid var(--green-dim);background:var(--green-glow);color:var(--green);cursor:pointer}
+.fav-submit:hover{background:rgba(93,252,141,0.2)}
+.favs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.fav-card{background:var(--surface);border:2px solid var(--border);padding:14px;position:relative;transition:border-color 0.2s}
+.fav-card:hover{border-color:var(--border-hi)}
+.fav-card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.fav-sprite{font-size:2.5rem;flex-shrink:0}
+.fav-info{}
+.fav-name{font-size:8px;color:var(--green);display:block;margin-bottom:3px}
+.fav-num{font-size:6px;color:var(--text-dim)}
+.fav-types{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap}
+.fav-reason{font-family:'VT323',monospace;font-size:17px;color:var(--text);line-height:1.55;border-top:1px solid var(--border);padding-top:8px;margin-top:2px}
+.fav-del{position:absolute;top:6px;right:8px;font-family:'Press Start 2P',monospace;font-size:6px;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:3px}
+.fav-del:hover{color:var(--red)}
+.fav-date{font-size:5px;color:var(--text-dim);margin-top:6px;letter-spacing:0.1em}
+.fav-empty{text-align:center;padding:3rem;font-size:8px;color:var(--text-dim);line-height:2.5;grid-column:1/-1}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border)}
+::-webkit-scrollbar-thumb:hover{background:var(--border-hi)}
+
+@media(max-width:800px){
+  .builder-wrap{grid-template-columns:1fr}
+  .b-left,.b-right,.b-mid{max-height:none;position:static;border:none;border-bottom:2px solid var(--border)}
+  .trainer-layout{grid-template-columns:1fr}
+  .fav-form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⚔ <span>PKMN</span> APP</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('builder')">🗡 TEAM BUILDER</button>
+    <button class="nav-tab" onclick="showPage('trainer')">🧑 MY TRAINER</button>
+    <button class="nav-tab" onclick="showPage('favs')">⭐ FAVOURITES</button>
+  </div>
+  <div class="header-preview" id="headerPreview"></div>
+</nav>
+
+<!-- ============================================================
+     PAGE: TEAM BUILDER
+============================================================ -->
+<div id="page-builder" class="page active">
+<div class="builder-wrap">
+
+  <!-- LEFT FILTER -->
+  <div class="b-left">
+    <div class="sec-label">REGION</div>
+    <div class="region-tabs">
+      <button class="region-tab johto active" id="rtab-johto" onclick="setRegion('johto')">JOHTO</button>
+      <button class="region-tab kanto" id="rtab-kanto" onclick="setRegion('kanto')">KANTO</button>
+      <button class="region-tab both" id="rtab-both" onclick="setRegion('both')">BOTH</button>
+    </div>
+    <div class="sec-label">SEARCH</div>
+    <input class="search-input" id="searchInput" type="text" placeholder="MON NAME..." oninput="render()">
+    <div class="sec-label">SORT BY</div>
+    <div class="sort-row">
+      <button class="sort-btn on" id="sort-num" onclick="setSort('num')">NO.</button>
+      <button class="sort-btn" id="sort-bst" onclick="setSort('bst')">BST↓</button>
+      <button class="sort-btn" id="sort-atk" onclick="setSort('atk')">ATK↓</button>
+      <button class="sort-btn" id="sort-spd" onclick="setSort('spd')">SPD↓</button>
+    </div>
+    <div class="sec-label">TYPE</div>
+    <div class="type-grid" id="typeGrid"></div>
+    <button class="clear-btn" onclick="clearType()">CLEAR FILTER</button>
+  </div>
+
+  <!-- MIDDLE GRID -->
+  <div class="b-mid">
+    <div class="count-bar" id="countBar">Loading...</div>
+    <div class="poke-grid" id="pokeGrid"></div>
+  </div>
+
+  <!-- RIGHT TEAM + EVAL -->
+  <div class="b-right">
+    <div class="sec-label">YOUR TEAM (<span id="teamCt">0</span>/6)</div>
+    <div class="team-grid" id="teamGrid"></div>
+    <div class="sec-label">TYPE COVERAGE</div>
+    <div class="coverage-row" id="coverageRow"><span style="font-size:7px;color:var(--text-dim)">Add Pokémon to see coverage</span></div>
+    <div class="team-actions">
+      <button class="action-btn" onclick="clearTeam()">✖ CLEAR</button>
+      <button class="action-btn primary" id="evalBtn" onclick="evaluateTeam()" disabled>▶ ANALYSE</button>
+    </div>
+    <div class="sec-label">TEAM ANALYSIS</div>
+    <div class="eval-box" id="evalBox">
+      <div class="eval-empty">Add Pokémon &amp; hit<br>ANALYSE TEAM</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================
+     PAGE: TRAINER CREATOR
+============================================================ -->
+<div id="page-trainer" class="page">
+<div class="trainer-page">
+  <div class="sec-label" style="margin-bottom:16px">MY TRAINER</div>
+  <div class="trainer-layout">
+
+    <div class="trainer-canvas-wrap">
+      <canvas id="trainerCanvas" width="160" height="200"></canvas>
+      <div id="trainerCardSaved" class="trainer-card-saved" style="display:none;width:100%">
+        <div class="tcs-name" id="savedTrainerName"></div>
+        <canvas id="trainerCanvasSaved" width="80" height="100" style="image-rendering:pixelated;margin:8px auto;display:block;border:2px solid var(--green-dim)"></canvas>
+        <div class="tcs-quote" id="savedTrainerQuote"></div>
+      </div>
+    </div>
+
+    <div class="trainer-controls">
+      <div class="ctrl-group">
+        <span class="ctrl-label">TRAINER NAME</span>
+        <input class="trainer-name-input" id="trainerNameInput" type="text" maxlength="12" placeholder="TRAINER...">
+      </div>
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">SKIN TONE</span>
+        <div class="swatch-row" id="skinSwatches"></div>
+      </div>
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">HAIR COLOUR</span>
+        <div class="swatch-row" id="hairSwatches"></div>
+      </div>
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">HAIR STYLE</span>
+        <div class="option-row" id="hairStyleOpts"></div>
+      </div>
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">OUTFIT</span>
+        <div class="option-row" id="outfitOpts"></div>
+      </div>
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">TRAINER QUOTE</span>
+        <textarea class="quote-input" id="trainerQuote" maxlength="80" placeholder="I wanna be the very best..."></textarea>
+      </div>
+
+      <button class="save-trainer-btn" onclick="saveTrainer()">💾 SAVE TRAINER</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================
+     PAGE: FAVOURITES
+============================================================ -->
+<div id="page-favs" class="page">
+<div class="favs-page">
+  <div class="sec-label" style="margin-bottom:16px">MY FAVOURITE POKÉMON</div>
+
+  <div class="fav-form">
+    <div class="sec-label">ADD A FAVOURITE</div>
+    <div class="fav-form-row">
+      <div>
+        <label style="font-size:7px;color:var(--text-dim);display:block;margin-bottom:6px;letter-spacing:0.15em">CHOOSE POKÉMON</label>
+        <select class="fav-select" id="favSelect"></select>
+      </div>
+      <div>
+        <label style="font-size:7px;color:var(--text-dim);display:block;margin-bottom:6px;letter-spacing:0.15em">REGION</label>
+        <select class="fav-select" id="favRegionSelect">
+          <option value="all">All Regions</option>
+          <option value="johto">Johto Only</option>
+          <option value="kanto">Kanto Only</option>
+        </select>
+      </div>
+    </div>
+    <label style="font-size:7px;color:var(--text-dim);display:block;margin-bottom:6px;letter-spacing:0.15em">WHY DO YOU LOVE THIS POKÉMON?</label>
+    <textarea class="fav-textarea" id="favReason" placeholder="Tell us why this Pokémon is special to you..." rows="3"></textarea>
+    <div style="margin-top:10px;display:flex;justify-content:flex-end">
+      <button class="fav-submit" onclick="addFavourite()">⭐ ADD TO FAVOURITES</button>
+    </div>
+  </div>
+
+  <div class="favs-grid" id="favsGrid">
+    <div class="fav-empty">No favourites yet!<br>Add your first favourite Pokémon above.</div>
+  </div>
+</div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-bg" id="modalBg" onclick="maybeCloseModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✖</button>
+    <span class="modal-sprite" id="mSprite"></span>
+    <div class="modal-name" id="mName"></div>
+    <div class="modal-num" id="mNum"></div>
+    <div class="modal-types-row" id="mTypes"></div>
+    <div class="modal-sec-title">POKÉDEX ENTRY</div>
+    <div class="modal-desc" id="mDesc"></div>
+    <div class="modal-sec-title">BASE STATS</div>
+    <div id="mStats"></div>
+    <div class="modal-sec-title">ABILITIES</div>
+    <div id="mAbilities"></div>
+    <button class="modal-add-btn" id="mAddBtn">➕ ADD TO TEAM</button>
+    <button class="modal-fav-btn" id="mFavBtn">⭐ ADD TO FAVOURITES</button>
+  </div>
+</div>
+
+<script>
+// ===== TYPE COLORS =====
+const TC = {
+  fire:'#b52b2b',water:'#1a5fa8',grass:'#1a7a3a',normal:'#6a6a6a',
+  psychic:'#8833aa',ghost:'#3d2080',dragon:'#0d3d70',dark:'#1a1a2e',
+  steel:'#5a6e6e',ice:'#0d8a78',fighting:'#7a2e00',electric:'#a88800',
+  poison:'#5a1a7a',rock:'#6a4000',ground:'#8a6500',flying:'#2a5aaa',
+  bug:'#2a5a32',fairy:'#9a2060'
+};
+const STAT_COL={hp:'#e53935',atk:'#e65100',def:'#2e7d32',spatk:'#1565c0',spdef:'#6a1b9a',spd:'#f57f17'};
+const STAT_MAX={hp:255,atk:190,def:230,spatk:194,spdef:230,spd:180};
+
+// ===== JOHTO DATA =====
+const JOHTO_MONS = [
+  {id:152,name:'Chikorita',s:'🌿',t:['grass'],bst:318,st:{hp:45,atk:49,def:65,spatk:49,spdef:65,spd:45},ab:['Overgrow'],ha:'Leaf Guard',desc:'A sweet aroma from its head leaf soothes foes and allies alike.',region:'johto'},
+  {id:153,name:'Bayleef',s:'🍃',t:['grass'],bst:405,st:{hp:60,atk:62,def:80,spatk:63,spdef:80,spd:60},ab:['Overgrow'],ha:'Leaf Guard',desc:'Buds around its neck emit a spicy fragrance that invigorates anyone nearby.',region:'johto'},
+  {id:154,name:'Meganium',s:'🌺',t:['grass'],bst:525,st:{hp:80,atk:82,def:100,spatk:83,spdef:100,spd:80},ab:['Overgrow'],ha:'Leaf Guard',desc:'Its soothing aura can calm any wild Pokémon. A natural healer.',region:'johto'},
+  {id:155,name:'Cyndaquil',s:'🔥',t:['fire'],bst:309,st:{hp:39,atk:52,def:43,spatk:60,spdef:50,spd:65},ab:['Blaze'],ha:'Flash Fire',desc:'Timid but fierce when threatened. The flames on its back ignite with its courage.',region:'johto'},
+  {id:156,name:'Quilava',s:'🌋',t:['fire'],bst:405,st:{hp:58,atk:64,def:58,spatk:80,spdef:65,spd:80},ab:['Blaze'],ha:'Flash Fire',desc:'Its flames burn fiercer the more focused it becomes.',region:'johto'},
+  {id:157,name:'Typhlosion',s:'🌩️',t:['fire'],bst:534,st:{hp:78,atk:84,def:78,spatk:109,spdef:85,spd:100},ab:['Blaze'],ha:'Flash Fire',desc:'109 SpAtk makes it one of the best Fire-type wallbreakers in Johto.',region:'johto'},
+  {id:158,name:'Totodile',s:'🐊',t:['water'],bst:314,st:{hp:50,atk:65,def:64,spatk:44,spdef:48,spd:43},ab:['Torrent'],ha:'Sheer Force',desc:'A small but ferocious crocodile that loves to gnaw on everything.',region:'johto'},
+  {id:159,name:'Croconaw',s:'🦷',t:['water'],bst:405,st:{hp:65,atk:80,def:80,spatk:59,spdef:63,spd:58},ab:['Torrent'],ha:'Sheer Force',desc:'Once it bites down, it will never let go.',region:'johto'},
+  {id:160,name:'Feraligatr',s:'🦖',t:['water'],bst:530,st:{hp:85,atk:105,def:100,spatk:79,spdef:83,spd:78},ab:['Torrent'],ha:'Sheer Force',desc:'Sheer Force + Waterfall is a classic combination. Powerful physical sweeper.',region:'johto'},
+  {id:161,name:'Sentret',s:'🦫',t:['normal'],bst:215,st:{hp:35,atk:46,def:34,spatk:35,spdef:45,spd:20},ab:['Run Away','Keen Eye'],ha:'Frisk',desc:'Uses its tail to sense danger. Extremely cautious.',region:'johto'},
+  {id:162,name:'Furret',s:'🐿️',t:['normal'],bst:415,st:{hp:85,atk:76,def:64,spatk:45,spdef:55,spd:90},ab:['Run Away','Keen Eye'],ha:'Frisk',desc:'Long and slender with surprising speed.',region:'johto'},
+  {id:163,name:'Hoothoot',s:'🦉',t:['normal','flying'],bst:262,st:{hp:60,atk:30,def:30,spatk:36,spdef:56,spd:50},ab:['Insomnia','Keen Eye'],ha:'Tinted Lens',desc:'Always balances on one leg. Excellent vision in darkness.',region:'johto'},
+  {id:164,name:'Noctowl',s:'🌙',t:['normal','flying'],bst:452,st:{hp:100,atk:50,def:50,spatk:76,spdef:96,spd:70},ab:['Insomnia','Keen Eye'],ha:'Tinted Lens',desc:'Insomnia makes it immune to sleep strategies.',region:'johto'},
+  {id:169,name:'Crobat',s:'🦇',t:['poison','flying'],bst:535,st:{hp:85,atk:90,def:80,spatk:70,spdef:80,spd:130},ab:['Inner Focus'],ha:'Infiltrator',desc:'130 Speed — one of Johto\'s top threats. Evolves via happiness.',region:'johto'},
+  {id:170,name:'Chinchou',s:'💡',t:['water','electric'],bst:330,st:{hp:75,atk:38,def:38,spatk:56,spdef:56,spd:67},ab:['Volt Absorb','Illuminate'],ha:'Water Absorb',desc:'Unique dual Water/Electric type. Volt Absorb gives useful immunities.',region:'johto'},
+  {id:171,name:'Lanturn',s:'🔦',t:['water','electric'],bst:460,st:{hp:125,atk:58,def:58,spatk:76,spdef:76,spd:67},ab:['Volt Absorb','Illuminate'],ha:'Water Absorb',desc:'Massive HP pool. Reliable pivot in competitive play.',region:'johto'},
+  {id:172,name:'Pichu',s:'⚡',t:['electric'],bst:205,st:{hp:20,atk:40,def:15,spatk:35,spdef:35,spd:60},ab:['Static'],ha:'Lightning Rod',desc:'Baby form — evolve it before using.',region:'johto'},
+  {id:175,name:'Togepi',s:'🥚',t:['fairy'],bst:245,st:{hp:35,atk:20,def:65,spatk:40,spdef:65,spd:20},ab:['Hustle','Serene Grace'],ha:'Super Luck',desc:'Baby form. Evolve into Togetic.',region:'johto'},
+  {id:176,name:'Togetic',s:'✨',t:['fairy','flying'],bst:405,st:{hp:55,atk:40,def:85,spatk:80,spdef:105,spd:40},ab:['Hustle','Serene Grace'],ha:'Super Luck',desc:'Serene Grace doubles flinch/para rates. Solid support.',region:'johto'},
+  {id:177,name:'Natu',s:'🦜',t:['psychic','flying'],bst:320,st:{hp:40,atk:50,def:45,spatk:70,spdef:45,spd:70},ab:['Synchronize','Early Bird'],ha:'Magic Bounce',desc:'Magic Bounce is exceptional for competitive use.',region:'johto'},
+  {id:178,name:'Xatu',s:'🌀',t:['psychic','flying'],bst:470,st:{hp:65,atk:75,def:70,spatk:95,spdef:70,spd:95},ab:['Synchronize','Early Bird'],ha:'Magic Bounce',desc:'Magic Bounce Xatu is a strong hazard reflector.',region:'johto'},
+  {id:179,name:'Mareep',s:'🐑',t:['electric'],bst:280,st:{hp:55,atk:40,def:40,spatk:65,spdef:45,spd:35},ab:['Static'],ha:'Plus',desc:'Slow but evolves into a powerhouse.',region:'johto'},
+  {id:181,name:'Ampharos',s:'⚡',t:['electric'],bst:510,st:{hp:90,atk:75,def:85,spatk:115,spdef:90,spd:55},ab:['Static'],ha:'Plus',desc:'115 SpAtk is outstanding. A cornerstone Johto team member.',region:'johto'},
+  {id:182,name:'Bellossom',s:'🌸',t:['grass'],bst:490,st:{hp:75,atk:80,def:95,spatk:90,spdef:100,spd:50},ab:['Chlorophyll'],ha:'Healer',desc:'Chlorophyll doubles speed in sun — viable sweeper.',region:'johto'},
+  {id:183,name:'Marill',s:'💧',t:['water','fairy'],bst:250,st:{hp:70,atk:20,def:50,spatk:20,spdef:50,spd:40},ab:['Thick Fat','Huge Power'],ha:'Sap Sipper',desc:'Huge Power doubles Attack — Azumarill is competitively terrifying.',region:'johto'},
+  {id:184,name:'Azumarill',s:'🫧',t:['water','fairy'],bst:420,st:{hp:100,atk:50,def:80,spatk:60,spdef:80,spd:50},ab:['Thick Fat','Huge Power'],ha:'Sap Sipper',desc:'Huge Power Azumarill hits like a truck. A sleeper pick.',region:'johto'},
+  {id:185,name:'Sudowoodo',s:'🌳',t:['rock'],bst:410,st:{hp:70,atk:100,def:115,spatk:30,spdef:65,spd:30},ab:['Sturdy','Rock Head'],ha:'Rattled',desc:'Strong Attack and Defense, terrible Special stats and Speed.',region:'johto'},
+  {id:186,name:'Politoed',s:'🐸',t:['water'],bst:500,st:{hp:90,atk:75,def:75,spatk:90,spdef:100,spd:70},ab:['Water Absorb','Damp'],ha:'Drizzle',desc:'Drizzle auto-sets rain. Cornerstone of rain teams.',region:'johto'},
+  {id:189,name:'Jumpluff',s:'🌬️',t:['grass','flying'],bst:460,st:{hp:75,atk:55,def:70,spatk:55,spdef:95,spd:110},ab:['Chlorophyll','Leaf Guard'],ha:'Infiltrator',desc:'110 Speed. Great Spore/Sleep Powder user and support specialist.',region:'johto'},
+  {id:192,name:'Sunflora',s:'☀️',t:['grass'],bst:425,st:{hp:75,atk:75,def:55,spatk:105,spdef:85,spd:30},ab:['Chlorophyll','Solar Power'],ha:'Early Bird',desc:'High SpAtk but agonizingly slow. Solar Power in sun is powerful.',region:'johto'},
+  {id:193,name:'Yanma',s:'🪲',t:['bug','flying'],bst:390,st:{hp:65,atk:65,def:45,spatk:75,spdef:45,spd:95},ab:['Speed Boost','Compound Eyes'],ha:'Frisk',desc:'Speed Boost is an excellent ability. Snowballs quickly.',region:'johto'},
+  {id:195,name:'Quagsire',s:'🐟',t:['water','ground'],bst:430,st:{hp:95,atk:85,def:85,spatk:65,spdef:65,spd:35},ab:['Damp','Water Absorb'],ha:'Unaware',desc:'Unaware ignores all stat boosts. Nightmare for setup sweepers.',region:'johto'},
+  {id:196,name:'Espeon',s:'🔮',t:['psychic'],bst:525,st:{hp:65,atk:65,def:60,spatk:130,spdef:95,spd:110},ab:['Synchronize'],ha:'Magic Bounce',desc:'130 SpAtk and 110 Speed. Best Johto Eeveelution for offense.',region:'johto'},
+  {id:197,name:'Umbreon',s:'🌑',t:['dark'],bst:525,st:{hp:95,atk:65,def:110,spatk:60,spdef:130,spd:65},ab:['Synchronize'],ha:'Inner Focus',desc:'Exceptional bulk. The definitive Johto stall wall.',region:'johto'},
+  {id:198,name:'Murkrow',s:'🪶',t:['dark','flying'],bst:405,st:{hp:60,atk:85,def:42,spatk:85,spdef:42,spd:91},ab:['Insomnia','Super Luck'],ha:'Prankster',desc:'Prankster is devastating competitively. Fast with dual offenses.',region:'johto'},
+  {id:199,name:'Slowking',s:'👑',t:['water','psychic'],bst:490,st:{hp:95,atk:75,def:80,spatk:100,spdef:110,spd:30},ab:['Oblivious','Own Tempo'],ha:'Regenerator',desc:'Regenerator Slowking is one of the best pivots in competitive play.',region:'johto'},
+  {id:200,name:'Misdreavus',s:'👻',t:['ghost'],bst:435,st:{hp:60,atk:60,def:60,spatk:85,spdef:85,spd:85},ab:['Levitate'],ha:'Levitate',desc:'Balanced stats. Gets Will-O-Wisp and Hex for competitive use.',region:'johto'},
+  {id:203,name:'Girafarig',s:'🦒',t:['normal','psychic'],bst:455,st:{hp:70,atk:80,def:65,spatk:90,spdef:65,spd:85},ab:['Inner Focus','Early Bird'],ha:'Sap Sipper',desc:'Overlooked mixed attacker. Sap Sipper gives Grass immunity.',region:'johto'},
+  {id:205,name:'Forretress',s:'🔩',t:['bug','steel'],bst:465,st:{hp:75,atk:90,def:140,spatk:60,spdef:60,spd:40},ab:['Sturdy'],ha:'Overcoat',desc:'140 Defense. Premier hazard setter. Spikes/Stealth Rock king.',region:'johto'},
+  {id:207,name:'Gligar',s:'🦂',t:['ground','flying'],bst:430,st:{hp:65,atk:75,def:105,spatk:35,spdef:65,spd:85},ab:['Hyper Cutter','Sand Veil'],ha:'Immunity',desc:'Great physical bulk and speed. Immunity blocks Toxic.',region:'johto'},
+  {id:208,name:'Steelix',s:'⛓️',t:['steel','ground'],bst:510,st:{hp:75,atk:85,def:200,spatk:55,spdef:65,spd:30},ab:['Rock Head','Sturdy'],ha:'Sheer Force',desc:'200 Defense is insane. Sheer Force Earthquake is devastating.',region:'johto'},
+  {id:210,name:'Granbull',s:'🐕',t:['fairy'],bst:450,st:{hp:90,atk:120,def:75,spatk:60,spdef:60,spd:45},ab:['Intimidate','Quick Feet'],ha:'Rattled',desc:'120 Attack on a Fairy type. Play Rough hits hard.',region:'johto'},
+  {id:211,name:'Qwilfish',s:'🐡',t:['water','poison'],bst:440,st:{hp:65,atk:95,def:85,spatk:55,spdef:55,spd:85},ab:['Poison Point','Swift Swim'],ha:'Intimidate',desc:'Intimidate Qwilfish is a solid physical check and Spikes setter.',region:'johto'},
+  {id:212,name:'Scizor',s:'✂️',t:['bug','steel'],bst:500,st:{hp:70,atk:130,def:100,spatk:55,spdef:80,spd:65},ab:['Swarm','Technician'],ha:'Light Metal',desc:'Technician Bullet Punch is one of the most powerful priority moves.',region:'johto'},
+  {id:213,name:'Shuckle',s:'🪨',t:['bug','rock'],bst:505,st:{hp:20,atk:10,def:230,spatk:10,spdef:230,spd:5},ab:['Sturdy','Gluttony'],ha:'Contrary',desc:'Extreme defenses, zero offense. A stall wall.',region:'johto'},
+  {id:214,name:'Heracross',s:'🪲',t:['bug','fighting'],bst:500,st:{hp:80,atk:125,def:75,spatk:40,spdef:95,spd:85},ab:['Swarm','Guts'],ha:'Moxie',desc:'One of Johto\'s best. Guts + Flame Orb or Moxie sweeping is terrifying.',region:'johto'},
+  {id:215,name:'Sneasel',s:'❄️',t:['dark','ice'],bst:430,st:{hp:55,atk:95,def:55,spatk:35,spdef:75,spd:115},ab:['Inner Focus','Keen Eye'],ha:'Pickpocket',desc:'115 Speed is elite. Frail but hits fast.',region:'johto'},
+  {id:217,name:'Ursaring',s:'🐻',t:['normal'],bst:500,st:{hp:90,atk:130,def:75,spatk:75,spdef:75,spd:55},ab:['Guts','Quick Feet'],ha:'Unnerve',desc:'130 Attack and Guts. Flame Orb Ursaring is devastating.',region:'johto'},
+  {id:219,name:'Magcargo',s:'🐌',t:['fire','rock'],bst:410,st:{hp:60,atk:50,def:120,spatk:90,spdef:80,spd:30},ab:['Magma Armor','Flame Body'],ha:'Weak Armor',desc:'Unique Fire/Rock typing. Slow but surprisingly bulky.',region:'johto'},
+  {id:221,name:'Piloswine',s:'🦣',t:['ice','ground'],bst:450,st:{hp:100,atk:100,def:80,spatk:60,spdef:60,spd:50},ab:['Oblivious','Snow Cloak'],ha:'Thick Fat',desc:'Great mixed bulk. Thick Fat covers its weaknesses.',region:'johto'},
+  {id:224,name:'Octillery',s:'🐙',t:['water'],bst:480,st:{hp:75,atk:105,def:75,spatk:105,spdef:75,spd:45},ab:['Suction Cups','Sniper'],ha:'Moody',desc:'Balanced 105/105 offenses. Sniper + crit moves is a strong niche.',region:'johto'},
+  {id:226,name:'Mantine',s:'🦈',t:['water','flying'],bst:485,st:{hp:65,atk:40,def:70,spatk:80,spdef:140,spd:70},ab:['Swift Swim','Water Absorb'],ha:'Water Veil',desc:'140 SpDef is elite. Water Absorb grants Water immunity.',region:'johto'},
+  {id:227,name:'Skarmory',s:'⚔️',t:['steel','flying'],bst:465,st:{hp:65,atk:80,def:140,spatk:40,spdef:70,spd:70},ab:['Keen Eye','Sturdy'],ha:'Weak Armor',desc:'140 Defense and typing make it one of the best physical walls.',region:'johto'},
+  {id:229,name:'Houndoom',s:'🐾',t:['dark','fire'],bst:500,st:{hp:75,atk:90,def:50,spatk:110,spdef:80,spd:95},ab:['Early Bird','Flash Fire'],ha:'Unnerve',desc:'110 SpAtk on a fast Dark/Fire. A powerful wallbreaker.',region:'johto'},
+  {id:230,name:'Kingdra',s:'🐲',t:['water','dragon'],bst:540,st:{hp:75,atk:95,def:95,spatk:95,spdef:95,spd:85},ab:['Swift Swim','Sniper'],ha:'Damp',desc:'Balanced stats and Dragon/Water typing makes it near unwallable.',region:'johto'},
+  {id:232,name:'Donphan',s:'🦏',t:['ground'],bst:500,st:{hp:90,atk:120,def:120,spatk:60,spdef:60,spd:50},ab:['Sturdy'],ha:'Sand Veil',desc:'Massive physical bulk and Attack. Rapid Spin removes hazards.',region:'johto'},
+  {id:237,name:'Hitmontop',s:'🌀',t:['fighting'],bst:455,st:{hp:50,atk:95,def:95,spatk:35,spdef:110,spd:70},ab:['Intimidate','Technician'],ha:'Steadfast',desc:'Intimidate + Rapid Spin makes it a great defensive pivot.',region:'johto'},
+  {id:241,name:'Miltank',s:'🐄',t:['normal'],bst:490,st:{hp:95,atk:80,def:105,spatk:40,spdef:70,spd:100},ab:['Thick Fat','Scrappy'],ha:'Sap Sipper',desc:'Whitney\'s notorious Miltank. 100 Speed + Milk Drink + Rollout is a nightmare.',region:'johto'},
+  {id:242,name:'Blissey',s:'💕',t:['normal'],bst:540,st:{hp:255,atk:10,def:10,spatk:75,spdef:135,spd:55},ab:['Natural Cure','Serene Grace'],ha:'Healer',desc:'255 HP and 135 SpDef. The premier special wall in competitive.',region:'johto'},
+  {id:243,name:'Raikou',s:'⚡',t:['electric'],bst:580,st:{hp:90,atk:85,def:75,spatk:115,spdef:100,spd:115},ab:['Pressure'],ha:'Volt Absorb',desc:'115 SpAtk and 115 Speed. One of Johto\'s strongest.',region:'johto'},
+  {id:244,name:'Entei',s:'🔥',t:['fire'],bst:580,st:{hp:115,atk:115,def:85,spatk:90,spdef:75,spd:100},ab:['Pressure'],ha:'Flash Fire',desc:'115 HP and 115 Attack. A formidable physical threat.',region:'johto'},
+  {id:245,name:'Suicune',s:'💧',t:['water'],bst:580,st:{hp:100,atk:75,def:115,spatk:90,spdef:115,spd:85},ab:['Pressure'],ha:'Inner Focus',desc:'Exceptional bulk. Calm Mind Suicune is a famous setup sweeper.',region:'johto'},
+  {id:248,name:'Tyranitar',s:'🦖',t:['rock','dark'],bst:600,st:{hp:100,atk:134,def:110,spatk:95,spdef:100,spd:61},ab:['Sand Stream'],ha:'Unnerve',desc:'134 Attack and Sand Stream. A tier-defining competitive threat.',region:'johto'},
+];
+
+// ===== KANTO DATA =====
+const KANTO_MONS = [
+  {id:1,name:'Bulbasaur',s:'🌱',t:['grass','poison'],bst:318,st:{hp:45,atk:49,def:49,spatk:65,spdef:65,spd:45},ab:['Overgrow'],ha:'Chlorophyll',desc:'Its seed grows larger as it absorbs nutrients.',region:'kanto'},
+  {id:2,name:'Ivysaur',s:'🌿',t:['grass','poison'],bst:405,st:{hp:60,atk:62,def:63,spatk:80,spdef:80,spd:60},ab:['Overgrow'],ha:'Chlorophyll',desc:'The bud on its back begins to bloom into a large flower.',region:'kanto'},
+  {id:3,name:'Venusaur',s:'🌻',t:['grass','poison'],bst:525,st:{hp:80,atk:82,def:83,spatk:100,spdef:100,spd:80},ab:['Overgrow'],ha:'Chlorophyll',desc:'Thick Plant can take a hit. Chlorophyll makes it a dangerous sun sweeper.',region:'kanto'},
+  {id:4,name:'Charmander',s:'🦎',t:['fire'],bst:309,st:{hp:39,atk:52,def:43,spatk:60,spdef:50,spd:65},ab:['Blaze'],ha:'Solar Power',desc:'The flame on its tail is a sign of life force. If it goes out, it perishes.',region:'kanto'},
+  {id:5,name:'Charmeleon',s:'🔥',t:['fire'],bst:405,st:{hp:58,atk:64,def:58,spatk:80,spdef:65,spd:80},ab:['Blaze'],ha:'Solar Power',desc:'Fiercely aggressive and powerful. Train carefully.',region:'kanto'},
+  {id:6,name:'Charizard',s:'🐉',t:['fire','flying'],bst:534,st:{hp:78,atk:84,def:78,spatk:109,spdef:85,spd:100},ab:['Blaze'],ha:'Solar Power',desc:'109 SpAtk and Solar Power in sun. One of the most iconic Pokémon ever.',region:'kanto'},
+  {id:7,name:'Squirtle',s:'🐢',t:['water'],bst:314,st:{hp:44,atk:48,def:65,spatk:50,spdef:64,spd:43},ab:['Torrent'],ha:'Rain Dish',desc:'Squirts water from its mouth. Its shell is extremely hard.',region:'kanto'},
+  {id:8,name:'Wartortle',s:'🌊',t:['water'],bst:405,st:{hp:59,atk:63,def:80,spatk:65,spdef:80,spd:58},ab:['Torrent'],ha:'Rain Dish',desc:'Its tail is covered in rich fur and grows darker with age.',region:'kanto'},
+  {id:9,name:'Blastoise',s:'💦',t:['water'],bst:530,st:{hp:79,atk:83,def:100,spatk:85,spdef:105,spd:78},ab:['Torrent'],ha:'Rain Dish',desc:'Powerful hydro cannons on its back. Excellent bulk and Rain Dish recovery.',region:'kanto'},
+  {id:25,name:'Pikachu',s:'⚡',t:['electric'],bst:320,st:{hp:35,atk:55,def:30,spatk:50,spdef:40,spd:90},ab:['Static'],ha:'Lightning Rod',desc:'The iconic mascot. Lightning Rod is its best ability competitively.',region:'kanto'},
+  {id:26,name:'Raichu',s:'⚡',t:['electric'],bst:485,st:{hp:60,atk:90,def:55,spatk:90,spdef:80,spd:110},ab:['Static'],ha:'Lightning Rod',desc:'Fast and hits hard from both sides. Lightning Rod absorbs Electric moves.',region:'kanto'},
+  {id:35,name:'Clefairy',s:'🌙',t:['fairy'],bst:323,st:{hp:70,atk:45,def:48,spatk:60,spdef:65,spd:35},ab:['Cute Charm','Magic Guard'],ha:'Friend Guard',desc:'Magic Guard makes it immune to residual damage — strong competitive trait.',region:'kanto'},
+  {id:36,name:'Clefable',s:'🌟',t:['fairy'],bst:483,st:{hp:95,atk:70,def:73,spatk:95,spdef:90,spd:60},ab:['Cute Charm','Magic Guard'],ha:'Unaware',desc:'Magic Guard Clefable is one of competitive\'s best utility Pokémon.',region:'kanto'},
+  {id:39,name:'Jigglypuff',s:'🎵',t:['normal','fairy'],bst:270,st:{hp:115,atk:45,def:20,spatk:45,spdef:25,spd:20},ab:['Cute Charm','Competitive'],ha:'Friend Guard',desc:'Massive HP but extremely fragile. Sing can be useful in trick room.',region:'kanto'},
+  {id:40,name:'Wigglytuff',s:'🎶',t:['normal','fairy'],bst:435,st:{hp:140,atk:70,def:45,spatk:85,spdef:50,spd:45},ab:['Cute Charm','Competitive'],ha:'Frisk',desc:'140 HP is genuinely impressive. Competitive raises SpAtk when stats drop.',region:'kanto'},
+  {id:52,name:'Meowth',s:'😺',t:['normal'],bst:290,st:{hp:40,atk:45,def:35,spatk:40,spdef:40,spd:90},ab:['Pickup','Technician'],ha:'Unnerve',desc:'Technician boosts weaker moves. Fast but frail.',region:'kanto'},
+  {id:53,name:'Persian',s:'🐱',t:['normal'],bst:440,st:{hp:65,atk:70,def:60,spatk:65,spdef:65,spd:115},ab:['Limber','Technician'],ha:'Unnerve',desc:'115 Speed. Technician Fake Out is strong in doubles.',region:'kanto'},
+  {id:58,name:'Growlithe',s:'🐶',t:['fire'],bst:350,st:{hp:55,atk:70,def:45,spatk:70,spdef:50,spd:60},ab:['Intimidate','Flash Fire'],ha:'Justified',desc:'Intimidate on a Fire type is excellent utility.',region:'kanto'},
+  {id:59,name:'Arcanine',s:'🐕',t:['fire'],bst:555,st:{hp:90,atk:110,def:80,spatk:100,spdef:80,spd:95},ab:['Intimidate','Flash Fire'],ha:'Justified',desc:'Intimidate + 110 Attack. One of the best Fire types. Extreme Speed is deadly.',region:'kanto'},
+  {id:60,name:'Poliwag',s:'🌀',t:['water'],bst:300,st:{hp:40,atk:50,def:40,spatk:40,spdef:40,spd:90},ab:['Water Absorb','Damp'],ha:'Swift Swim',desc:'Swift Swim doubles speed in rain. Evolves into multiple powerful forms.',region:'kanto'},
+  {id:62,name:'Poliwrath',s:'💪',t:['water','fighting'],bst:510,st:{hp:90,atk:95,def:95,spatk:70,spdef:90,spd:70},ab:['Water Absorb','Damp'],ha:'Swift Swim',desc:'Great bulk and unique Water/Fighting typing. Water Absorb absorbs Water moves.',region:'kanto'},
+  {id:63,name:'Abra',s:'🔮',t:['psychic'],bst:310,st:{hp:25,atk:20,def:15,spatk:105,spdef:55,spd:90},ab:['Synchronize','Inner Focus'],ha:'Magic Guard',desc:'Magic Guard makes it immune to all residual damage. Very frail.',region:'kanto'},
+  {id:65,name:'Alakazam',s:'🧠',t:['psychic'],bst:500,st:{hp:55,atk:50,def:45,spatk:135,spdef:95,spd:120},ab:['Synchronize','Inner Focus'],ha:'Magic Guard',desc:'135 SpAtk and 120 Speed. Magic Guard Alakazam is deadly.',region:'kanto'},
+  {id:66,name:'Machop',s:'💪',t:['fighting'],bst:305,st:{hp:70,atk:80,def:50,spatk:35,spdef:35,spd:35},ab:['Guts','No Guard'],ha:'Steadfast',desc:'No Guard makes all moves bypass accuracy checks.',region:'kanto'},
+  {id:68,name:'Machamp',s:'🥊',t:['fighting'],bst:505,st:{hp:90,atk:130,def:80,spatk:65,spdef:85,spd:55},ab:['Guts','No Guard'],ha:'Steadfast',desc:'No Guard Machamp Dynamic Punch gives 100% confusion. A nightmare.',region:'kanto'},
+  {id:74,name:'Geodude',s:'🪨',t:['rock','ground'],bst:300,st:{hp:40,atk:80,def:100,spatk:30,spdef:30,spd:20},ab:['Rock Head','Sturdy'],ha:'Sand Veil',desc:'Rock Head allows Double-Edge without recoil damage.',region:'kanto'},
+  {id:76,name:'Golem',s:'🏔️',t:['rock','ground'],bst:495,st:{hp:80,atk:120,def:130,spatk:55,spdef:65,spd:45},ab:['Rock Head','Sturdy'],ha:'Sand Force',desc:'120 Attack and 130 Defense. Sturdy guarantees at least one action.',region:'kanto'},
+  {id:77,name:'Ponyta',s:'🐴',t:['fire'],bst:410,st:{hp:50,atk:85,def:55,spatk:65,spdef:65,spd:90},ab:['Run Away','Flash Fire'],ha:'Flame Body',desc:'Flash Fire Ponyta is a solid Fire-type option.',region:'kanto'},
+  {id:78,name:'Rapidash',s:'🦄',t:['fire'],bst:500,st:{hp:65,atk:100,def:70,spatk:80,spdef:80,spd:105},ab:['Run Away','Flash Fire'],ha:'Flame Body',desc:'105 Speed and Flash Fire. A fast physical Fire-type threat.',region:'kanto'},
+  {id:80,name:'Slowbro',s:'🐌',t:['water','psychic'],bst:490,st:{hp:95,atk:75,def:110,spatk:100,spdef:80,spd:30},ab:['Oblivious','Own Tempo'],ha:'Regenerator',desc:'Regenerator + massive bulk makes it an excellent pivot.',region:'kanto'},
+  {id:82,name:'Magneton',s:'🔌',t:['electric','steel'],bst:465,st:{hp:50,atk:60,def:95,spatk:120,spdef:70,spd:70},ab:['Magnet Pull','Sturdy'],ha:'Analytic',desc:'Magnet Pull traps Steel types. 120 SpAtk is excellent.',region:'kanto'},
+  {id:83,name:'Farfetch\'d',s:'🦆',t:['normal','flying'],bst:377,st:{hp:52,atk:90,def:55,spatk:58,spdef:62,spd:60},ab:['Keen Eye','Inner Focus'],ha:'Defiant',desc:'Defiant raises Attack when stats are lowered. Niche but real.',region:'kanto'},
+  {id:89,name:'Muk',s:'☣️',t:['poison'],bst:500,st:{hp:105,atk:105,def:75,spatk:65,spdef:100,spd:50},ab:['Stench','Sticky Hold'],ha:'Poison Touch',desc:'Excellent bulk and good offenses. Poison Touch gives passive poisoning.',region:'kanto'},
+  {id:91,name:'Cloyster',s:'🐚',t:['water','ice'],bst:525,st:{hp:50,atk:95,def:180,spatk:85,spdef:45,spd:70},ab:['Shell Armor','Skill Link'],ha:'Overcoat',desc:'180 Defense and Skill Link for multi-hit moves. Shell Smash + Skill Link is terrifying.',region:'kanto'},
+  {id:94,name:'Gengar',s:'👻',t:['ghost','poison'],bst:500,st:{hp:60,atk:65,def:60,spatk:130,spdef:75,spd:110},ab:['Cursed Body'],ha:'Levitate',desc:'130 SpAtk and 110 Speed. Levitate grants Ground immunity. A classic sweeper.',region:'kanto'},
+  {id:95,name:'Onix',s:'⛰️',t:['rock','ground'],bst:385,st:{hp:35,atk:45,def:160,spatk:30,spdef:45,spd:70},ab:['Rock Head','Sturdy'],ha:'Weak Armor',desc:'160 Defense but very weak offensively. Evolves into Steelix.',region:'kanto'},
+  {id:97,name:'Hypno',s:'🌀',t:['psychic'],bst:483,st:{hp:85,atk:73,def:70,spatk:73,spdef:115,spd:67},ab:['Insomnia','Forewarn'],ha:'Inner Focus',desc:'115 SpDef and Insomnia. A solid special wall with status immunity.',region:'kanto'},
+  {id:99,name:'Kingler',s:'🦀',t:['water'],bst:475,st:{hp:55,atk:130,def:115,spatk:50,spdef:50,spd:75},ab:['Hyper Cutter','Shell Armor'],ha:'Sheer Force',desc:'130 Attack and Sheer Force. One of the highest physical Attack stats in Gen 1.',region:'kanto'},
+  {id:101,name:'Electrode',s:'💣',t:['electric'],bst:490,st:{hp:60,atk:50,def:70,spatk:80,spdef:80,spd:150},ab:['Soundproof','Static'],ha:'Aftermath',desc:'150 Speed — one of the fastest Pokémon. Aftermath punishes KOs.',region:'kanto'},
+  {id:103,name:'Exeggutor',s:'🌴',t:['grass','psychic'],bst:530,st:{hp:95,atk:95,def:85,spatk:125,spdef:65,spd:55},ab:['Chlorophyll'],ha:'Harvest',desc:'125 SpAtk. Chlorophyll in sun is powerful. Harvest recycles Berries.',region:'kanto'},
+  {id:105,name:'Marowak',s:'🦴',t:['ground'],bst:425,st:{hp:60,atk:80,def:110,spatk:50,spdef:80,spd:45},ab:['Rock Head','Lightning Rod'],ha:'Battle Armor',desc:'Rock Head removes recoil from Double-Edge. Lightning Rod absorbs Electric.',region:'kanto'},
+  {id:106,name:'Hitmonlee',s:'🦵',t:['fighting'],bst:455,st:{hp:50,atk:120,def:53,spatk:35,spdef:110,spd:87},ab:['Limber','Reckless'],ha:'Unburden',desc:'Reckless powers up recoil moves. Unburden doubles Speed after item use.',region:'kanto'},
+  {id:107,name:'Hitmonchan',s:'🥊',t:['fighting'],bst:455,st:{hp:50,atk:105,def:79,spatk:35,spdef:110,spd:76},ab:['Keen Eye','Iron Fist'],ha:'Inner Focus',desc:'Iron Fist boosts punching moves. Great special bulk.',region:'kanto'},
+  {id:110,name:'Weezing',s:'💨',t:['poison'],bst:490,st:{hp:65,atk:90,def:120,spatk:85,spdef:70,spd:60},ab:['Levitate','Neutralizing Gas'],ha:'Stench',desc:'Levitate grants Ground immunity. Neutralizing Gas shuts down all abilities.',region:'kanto'},
+  {id:112,name:'Rhydon',s:'🦏',t:['ground','rock'],bst:485,st:{hp:105,atk:130,def:120,spatk:45,spdef:45,spd:40},ab:['Lightning Rod','Rock Head'],ha:'Reckless',desc:'Massive Attack and bulk. Lightning Rod absorbs Electric for itself.',region:'kanto'},
+  {id:113,name:'Chansey',s:'🥚',t:['normal'],bst:450,st:{hp:250,atk:5,def:5,spatk:35,spdef:105,spd:50},ab:['Natural Cure','Serene Grace'],ha:'Healer',desc:'Evolves into Blissey. Natural Cure is excellent for healing status.',region:'kanto'},
+  {id:114,name:'Tangela',s:'🍃',t:['grass'],bst:435,st:{hp:65,atk:55,def:115,spatk:100,spdef:40,spd:60},ab:['Chlorophyll','Leaf Guard'],ha:'Regenerator',desc:'115 Defense and Regenerator is excellent for a pivot. 100 SpAtk hits hard.',region:'kanto'},
+  {id:115,name:'Kangaskhan',s:'🦘',t:['normal'],bst:490,st:{hp:105,atk:95,def:80,spatk:40,spdef:80,spd:90},ab:['Early Bird','Scrappy'],ha:'Inner Focus',desc:'Scrappy lets it hit Ghost types with Normal moves. Excellent all-rounder.',region:'kanto'},
+  {id:117,name:'Seadra',s:'🐠',t:['water'],bst:440,st:{hp:55,atk:65,def:95,spatk:95,spdef:45,spd:85},ab:['Poison Point','Sniper'],ha:'Damp',desc:'Evolves into Kingdra. Sniper is a powerful crit-focused ability.',region:'kanto'},
+  {id:119,name:'Seaking',s:'🐟',t:['water'],bst:450,st:{hp:80,atk:92,def:65,spatk:65,spdef:80,spd:68},ab:['Swift Swim','Water Veil'],ha:'Lightning Rod',desc:'Lightning Rod in doubles absorbs Electric for teammates. Swift Swim in rain.',region:'kanto'},
+  {id:121,name:'Starmie',s:'⭐',t:['water','psychic'],bst:520,st:{hp:60,atk:75,def:85,spatk:100,spdef:85,spd:115},ab:['Illuminate','Natural Cure'],ha:'Analytic',desc:'115 Speed and 100 SpAtk. Natural Cure heals status. A premier competitive threat.',region:'kanto'},
+  {id:122,name:'Mr. Mime',s:'🎭',t:['psychic','fairy'],bst:460,st:{hp:40,atk:45,def:65,spatk:100,spdef:120,spd:90},ab:['Soundproof','Filter'],ha:'Technician',desc:'120 SpDef and Filter reduces super-effective damage. Underrated wall.',region:'kanto'},
+  {id:123,name:'Scyther',s:'🦗',t:['bug','flying'],bst:500,st:{hp:70,atk:110,def:80,spatk:55,spdef:80,spd:105},ab:['Swarm','Technician'],ha:'Steadfast',desc:'110 Attack and 105 Speed. Technician boosts Aerial Ace and Quick Attack.',region:'kanto'},
+  {id:124,name:'Jynx',s:'💋',t:['ice','psychic'],bst:455,st:{hp:65,atk:50,def:35,spatk:115,spdef:95,spd:95},ab:['Oblivious','Forewarn'],ha:'Dry Skin',desc:'115 SpAtk and fast. Dry Skin heals in rain and in water.',region:'kanto'},
+  {id:125,name:'Electabuzz',s:'⚡',t:['electric'],bst:490,st:{hp:65,atk:83,def:57,spatk:95,spdef:85,spd:105},ab:['Static'],ha:'Vital Spirit',desc:'Vital Spirit grants immunity to sleep. Decent mixed attacker.',region:'kanto'},
+  {id:126,name:'Magmar',s:'🔥',t:['fire'],bst:495,st:{hp:65,atk:95,def:57,spatk:100,spdef:85,spd:93},ab:['Flame Body'],ha:'Vital Spirit',desc:'100 SpAtk. Flame Body gives 30% burn chance on contact.',region:'kanto'},
+  {id:127,name:'Pinsir',s:'🦀',t:['bug'],bst:500,st:{hp:65,atk:125,def:100,spatk:55,spdef:70,spd:85},ab:['Hyper Cutter','Mold Breaker'],ha:'Moxie',desc:'125 Attack. Mold Breaker bypasses abilities. Moxie snowballs on KOs.',region:'kanto'},
+  {id:128,name:'Tauros',s:'🐂',t:['normal'],bst:490,st:{hp:75,atk:100,def:95,spatk:40,spdef:70,spd:110},ab:['Intimidate','Anger Point'],ha:'Sheer Force',desc:'110 Speed and Sheer Force. One of Gen 1\'s most feared sweepers.',region:'kanto'},
+  {id:130,name:'Gyarados',s:'🐉',t:['water','flying'],bst:540,st:{hp:95,atk:125,def:79,spatk:60,spdef:100,spd:81},ab:['Intimidate'],ha:'Moxie',desc:'Intimidate on switch. Moxie Gyarados after Dragon Dance is terrifying.',region:'kanto'},
+  {id:131,name:'Lapras',s:'🦕',t:['water','ice'],bst:535,st:{hp:130,atk:85,def:80,spatk:85,spdef:95,spd:60},ab:['Water Absorb','Shell Armor'],ha:'Hydration',desc:'130 HP makes it incredibly tanky. Water Absorb heals from Water moves.',region:'kanto'},
+  {id:134,name:'Vaporeon',s:'💧',t:['water'],bst:525,st:{hp:130,atk:65,def:60,spatk:110,spdef:95,spd:65},ab:['Water Absorb'],ha:'Hydration',desc:'130 HP and Water Absorb. Wish support is excellent. 110 SpAtk hits hard.',region:'kanto'},
+  {id:135,name:'Jolteon',s:'⚡',t:['electric'],bst:525,st:{hp:65,atk:65,def:60,spatk:110,spdef:95,spd:130},ab:['Volt Absorb'],ha:'Quick Feet',desc:'130 Speed and Volt Absorb. One of the fastest Eeveelutions.',region:'kanto'},
+  {id:136,name:'Flareon',s:'🔥',t:['fire'],bst:525,st:{hp:65,atk:130,def:60,spatk:95,spdef:110,spd:65},ab:['Flash Fire'],ha:'Guts',desc:'130 Attack and Guts. Guts with Flame Orb is devastating despite its slow speed.',region:'kanto'},
+  {id:137,name:'Porygon',s:'🤖',t:['normal'],bst:395,st:{hp:65,atk:60,def:70,spatk:85,spdef:75,spd:40},ab:['Trace','Download'],ha:'Analytic',desc:'Download boosts Attack or SpAtk based on the foe\'s defenses.',region:'kanto'},
+  {id:139,name:'Omastar',s:'🐙',t:['rock','water'],bst:495,st:{hp:70,atk:60,def:125,spatk:115,spdef:70,spd:55},ab:['Swift Swim','Shell Armor'],ha:'Weak Armor',desc:'115 SpAtk and 125 Defense. Swift Swim in rain is deadly.',region:'kanto'},
+  {id:141,name:'Kabutops',s:'🦂',t:['rock','water'],bst:495,st:{hp:60,atk:115,def:105,spatk:65,spdef:70,spd:80},ab:['Swift Swim','Battle Armor'],ha:'Weak Armor',desc:'115 Attack and Swift Swim. A fearsome physical Rain sweeper.',region:'kanto'},
+  {id:142,name:'Aerodactyl',s:'🦅',t:['rock','flying'],bst:515,st:{hp:80,atk:105,def:65,spatk:60,spdef:75,spd:130},ab:['Rock Head','Pressure'],ha:'Unnerve',desc:'130 Speed and Rock Head for Double-Edge. One of the fastest Pokémon.',region:'kanto'},
+  {id:143,name:'Snorlax',s:'😴',t:['normal'],bst:540,st:{hp:160,atk:110,def:65,spatk:65,spdef:110,spd:30},ab:['Immunity','Thick Fat'],ha:'Gluttony',desc:'160 HP and Thick Fat. Immunity blocks Toxic. Impossible to wear down.',region:'kanto'},
+  {id:144,name:'Articuno',s:'❄️',t:['ice','flying'],bst:580,st:{hp:90,atk:85,def:100,spatk:95,spdef:125,spd:85},ab:['Pressure'],ha:'Snow Cloak',desc:'125 SpDef and solid bulk. Snow Cloak in Hail gives evasion.',region:'kanto'},
+  {id:145,name:'Zapdos',s:'⚡',t:['electric','flying'],bst:580,st:{hp:90,atk:90,def:85,spatk:125,spdef:90,spd:100},ab:['Pressure'],ha:'Static',desc:'125 SpAtk and 100 Speed. One of the best Legendary birds competitively.',region:'kanto'},
+  {id:146,name:'Moltres',s:'🔥',t:['fire','flying'],bst:580,st:{hp:90,atk:100,def:90,spatk:125,spdef:85,spd:90},ab:['Pressure'],ha:'Flame Body',desc:'125 SpAtk and Flame Body. Flame Body burns contact move users.',region:'kanto'},
+  {id:147,name:'Dratini',s:'🐉',t:['dragon'],bst:300,st:{hp:41,atk:64,def:45,spatk:50,spdef:50,spd:50},ab:['Shed Skin'],ha:'Marvel Scale',desc:'Marvel Scale boosts Defense when statused. Worth training for Dragonite.',region:'kanto'},
+  {id:149,name:'Dragonite',s:'🐲',t:['dragon','flying'],bst:600,st:{hp:91,atk:134,def:95,spatk:100,spdef:100,spd:80},ab:['Inner Focus'],ha:'Multiscale',desc:'Multiscale halves damage at full HP. 134 Attack with Dragon Dance is devastating.',region:'kanto'},
+  {id:150,name:'Mewtwo',s:'👾',t:['psychic'],bst:680,st:{hp:106,atk:110,def:90,spatk:154,spdef:90,spd:130},ab:['Pressure'],ha:'Unnerve',desc:'154 SpAtk and 130 Speed. The most powerful non-Mega Pokémon in the original games.',region:'kanto'},
+];
+
+const ALL_MONS = [...JOHTO_MONS, ...KANTO_MONS];
+
+// ===== STATE =====
+const TC_LIST = [...new Set(ALL_MONS.flatMap(m => m.t))].sort();
+let activeType = null;
+let sortMode = 'num';
+let team = [];
+let modalMon = null;
+let currentRegion = 'johto';
+let favourites = JSON.parse(localStorage.getItem('pkmn_favs') || '[]');
+let trainerData = JSON.parse(localStorage.getItem('pkmn_trainer') || 'null');
+
+// ===== NAVIGATION =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  if (id === 'builder') tabs[0].classList.add('active');
+  if (id === 'trainer') { tabs[1].classList.add('active'); drawTrainer(); }
+  if (id === 'favs') { tabs[2].classList.add('active'); renderFavs(); }
+}
+
+// ===== REGION =====
+function setRegion(r) {
+  currentRegion = r;
+  ['johto','kanto','both'].forEach(x => document.getElementById('rtab-'+x).classList.remove('active'));
+  document.getElementById('rtab-'+r).classList.add('active');
+  rebuildTypeGrid();
+  render();
+}
+
+function getActiveMons() {
+  if (currentRegion === 'johto') return JOHTO_MONS;
+  if (currentRegion === 'kanto') return KANTO_MONS;
+  return ALL_MONS;
+}
+
+// ===== TYPE FILTER =====
+function rebuildTypeGrid() {
+  const g = document.getElementById('typeGrid');
+  g.innerHTML = '';
+  const types = [...new Set(getActiveMons().flatMap(m => m.t))].sort();
+  if (!types.includes(activeType)) activeType = null;
+  types.forEach(tp => {
+    const b = document.createElement('button');
+    b.className = 't-btn';
+    b.dataset.t = tp;
+    b.textContent = tp.toUpperCase();
+    b.style.background = TC[tp] || '#555';
+    if (activeType === tp) b.classList.add('on');
+    b.onclick = () => {
+      activeType = activeType === tp ? null : tp;
+      document.querySelectorAll('.t-btn').forEach(x => x.classList.toggle('on', x.dataset.t === activeType));
+      render();
+    };
+    g.appendChild(b);
+  });
+}
+
+function clearType() {
+  activeType = null;
+  document.querySelectorAll('.t-btn').forEach(x => x.classList.remove('on'));
+  render();
+}
+
+function setSort(m) {
+  sortMode = m;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('sort-' + m).classList.add('on');
+  render();
+}
+
+// ===== RENDER POKEMON GRID =====
+function render() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const teamFull = team.length >= 6;
+  let list = getActiveMons().filter(m => {
+    return m.name.toLowerCase().includes(q) && (!activeType || m.t.includes(activeType));
+  });
+  if (sortMode === 'bst') list.sort((a,b) => b.bst - a.bst);
+  else if (sortMode === 'atk') list.sort((a,b) => b.st.atk - a.st.atk);
+  else if (sortMode === 'spd') list.sort((a,b) => b.st.spd - a.st.spd);
+  else list.sort((a,b) => a.id - b.id);
+
+  document.getElementById('countBar').innerHTML = `<span>${list.length}</span> Pokémon · ${currentRegion.toUpperCase()}`;
+  const grid = document.getElementById('pokeGrid');
+  grid.innerHTML = '';
+  if (!list.length) { grid.innerHTML = '<div class="no-res">NO MON FOUND</div>'; return; }
+
+  list.forEach(m => {
+    const inTeam = team.some(t => t.id === m.id);
+    const card = document.createElement('div');
+    card.className = 'poke-card' + (inTeam ? ' in-team' : '') + (teamFull && !inTeam ? ' locked' : '');
+    const regionBadge = m.region === 'kanto' ? `<span style="position:absolute;top:3px;left:4px;font-size:5px;color:var(--blue);font-family:'Press Start 2P',monospace">K</span>` : `<span style="position:absolute;top:3px;left:4px;font-size:5px;color:var(--yellow);font-family:'Press Start 2P',monospace">J</span>`;
+    card.innerHTML = `${currentRegion==='both'?regionBadge:''}
+      <span class="pc-num">#${String(m.id).padStart(3,'0')}</span>
+      <span class="pc-sprite">${m.s}</span>
+      <span class="pc-name">${m.name.toUpperCase()}</span>
+      <div class="pc-types">${m.t.map(t=>`<span class="t-chip" style="background:${TC[t]||'#555'}">${t.toUpperCase()}</span>`).join('')}</div>
+    `;
+    card.onclick = () => { if (inTeam) { openModal(m); return; } if (!teamFull) addToTeam(m); };
+    card.ondblclick = () => openModal(m);
+    grid.appendChild(card);
+  });
+}
+
+// ===== TEAM =====
+function addToTeam(mon) {
+  if (team.length >= 6 || team.some(t => t.id === mon.id)) return;
+  team.push(mon);
+  updateTeam();
+}
+function removeFromTeam(id) {
+  team = team.filter(t => t.id !== id);
+  updateTeam();
+}
+function clearTeam() {
+  team = [];
+  updateTeam();
+  document.getElementById('evalBox').innerHTML = '<div class="eval-empty">Add Pokémon &amp; hit<br>ANALYSE TEAM</div>';
+  document.getElementById('evalBox').classList.remove('glowing');
+}
+function updateTeam() {
+  document.getElementById('teamCt').textContent = team.length;
+  document.getElementById('evalBtn').disabled = team.length < 1;
+  const hp = document.getElementById('headerPreview');
+  hp.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const s = document.createElement('div');
+    s.className = 'htp-slot' + (team[i] ? ' filled' : '');
+    s.textContent = team[i] ? team[i].s : '';
+    hp.appendChild(s);
+  }
+  const tg = document.getElementById('teamGrid');
+  tg.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'team-slot' + (team[i] ? ' filled' : '');
+    if (team[i]) {
+      const m = team[i];
+      slot.innerHTML = `<button class="ts-rm" onclick="removeFromTeam(${m.id})">✖</button>
+        <span class="ts-sprite">${m.s}</span>
+        <span class="ts-name">${m.name.toUpperCase()}</span>
+        <div class="ts-types">${m.t.map(t=>`<span class="t-chip" style="background:${TC[t]||'#555'}">${t.slice(0,3).toUpperCase()}</span>`).join('')}</div>`;
+    } else {
+      slot.innerHTML = '<span class="empty-txt">EMPTY<br>SLOT</span>';
+    }
+    tg.appendChild(slot);
+  }
+  const cov = document.getElementById('coverageRow');
+  if (!team.length) { cov.innerHTML = '<span style="font-size:7px;color:var(--text-dim)">Add Pokémon to see coverage</span>'; }
+  else {
+    const types = [...new Set(team.flatMap(m => m.t))];
+    cov.innerHTML = types.map(t => `<span class="cov-tag" style="background:${TC[t]||'#555'}">${t.toUpperCase()}</span>`).join('');
+  }
+  render();
+}
+
+// ===== MODAL =====
+function openModal(m) {
+  modalMon = m;
+  document.getElementById('mSprite').textContent = m.s;
+  document.getElementById('mName').textContent = m.name.toUpperCase();
+  document.getElementById('mNum').textContent = `#${String(m.id).padStart(3,'0')} · ${m.region.toUpperCase()} · BST ${m.bst}`;
+  document.getElementById('mTypes').innerHTML = m.t.map(t=>`<span class="t-chip" style="background:${TC[t]||'#555'};padding:3px 8px;font-size:7px">${t.toUpperCase()}</span>`).join('');
+  document.getElementById('mDesc').textContent = m.desc;
+  const sn = {hp:'HP',atk:'ATK',def:'DEF',spatk:'SpATK',spdef:'SpDEF',spd:'SPD'};
+  document.getElementById('mStats').innerHTML = Object.entries(m.st).map(([k,v]) => `
+    <div class="stat-row"><span class="stat-lbl">${sn[k]}</span>
+    <div class="stat-bar-bg"><div class="stat-bar" style="width:${Math.round(v/STAT_MAX[k]*100)}%;background:${STAT_COL[k]}"></div></div>
+    <span class="stat-val">${v}</span></div>`).join('');
+  document.getElementById('mAbilities').innerHTML = [
+    ...m.ab.map(a=>`<div class="ability-item"><span class="ability-name">${a}</span><span class="ability-badge">ABILITY</span></div>`),
+    `<div class="ability-item"><span class="ability-name">${m.ha}</span><span class="ability-badge hidden">HIDDEN</span></div>`
+  ].join('');
+  const inTeam = team.some(t => t.id === m.id);
+  const btn = document.getElementById('mAddBtn');
+  if (inTeam) { btn.textContent = '✖ REMOVE FROM TEAM'; btn.className = 'modal-add-btn remove'; btn.disabled = false; btn.onclick = () => { removeFromTeam(m.id); closeModal(); }; }
+  else if (team.length >= 6) { btn.textContent = 'TEAM FULL'; btn.className = 'modal-add-btn'; btn.disabled = true; }
+  else { btn.textContent = '➕ ADD TO TEAM'; btn.className = 'modal-add-btn'; btn.disabled = false; btn.onclick = () => { addToTeam(m); closeModal(); }; }
+  document.getElementById('mFavBtn').onclick = () => { quickAddFav(m); closeModal(); };
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+function maybeCloseModal(e) { if (e.target === document.getElementById('modalBg')) closeModal(); }
+
+// ===== EVALUATOR =====
+const SUPER_EFFECTIVE={fire:['grass','ice','bug','steel'],water:['fire','ground','rock'],grass:['water','ground','rock'],electric:['water','flying'],ice:['grass','ground','flying','dragon'],fighting:['normal','ice','rock','dark','steel'],poison:['grass','fairy'],ground:['fire','electric','poison','rock','steel'],flying:['grass','fighting','bug'],psychic:['fighting','poison'],bug:['grass','psychic','dark'],rock:['fire','ice','flying','bug'],ghost:['psychic','ghost'],dragon:['dragon'],dark:['psychic','ghost'],steel:['ice','rock','fairy'],fairy:['fighting','dragon','dark'],normal:[]};
+const WEAK_TO={normal:['fighting'],fire:['water','ground','rock'],water:['grass','electric'],grass:['fire','ice','poison','flying','bug'],electric:['ground'],ice:['fire','fighting','rock','steel'],fighting:['flying','psychic','fairy'],poison:['ground','psychic'],ground:['water','grass','ice'],flying:['electric','ice','rock'],psychic:['bug','ghost','dark'],bug:['fire','flying','rock'],rock:['water','grass','fighting','ground','steel'],ghost:['ghost','dark'],dragon:['ice','dragon','fairy'],dark:['fighting','bug','fairy'],steel:['fire','fighting','ground'],fairy:['poison','steel']};
+
+function evaluateTeam() {
+  if (!team.length) return;
+  const box = document.getElementById('evalBox');
+  box.classList.remove('glowing');
+  box.innerHTML = `<div style="text-align:center;padding:20px 0"><div class="dot-anim"><span>▪</span><span>▪</span><span>▪</span></div><p style="font-size:7px;color:var(--text-dim);margin-top:10px">ANALYSING...</p></div>`;
+  setTimeout(() => { const r = runAnalysis(); renderEval(r); }, 500);
+}
+
+function runAnalysis() {
+  const strengths=[], weaknesses=[], tips=[];
+  const teamTypes=[...new Set(team.flatMap(m=>m.t))];
+  const coveredOffense=[...new Set(teamTypes.flatMap(t=>SUPER_EFFECTIVE[t]||[]))];
+  const uncoveredOffense=['fire','water','grass','electric','ice','fighting','ground','rock','flying','psychic','dark','steel','dragon','ghost','fairy','bug'].filter(t=>!coveredOffense.includes(t));
+  if(coveredOffense.length>=10) strengths.push(`Excellent offensive coverage — hits ${coveredOffense.length} types super effectively.`);
+  else if(coveredOffense.length>=7) strengths.push(`Decent offensive coverage across ${coveredOffense.length} types.`);
+  else weaknesses.push(`Limited offense — only ${coveredOffense.length} types covered SE. ${uncoveredOffense.slice(0,3).map(t=>t.toUpperCase()).join(', ')} may wall you.`);
+
+  const weaknessCounts={};
+  team.forEach(m=>m.t.forEach(type=>(WEAK_TO[type]||[]).forEach(w=>{weaknessCounts[w]=(weaknessCounts[w]||0)+1})));
+  Object.entries(weaknessCounts).filter(([,c])=>c>=3).sort((a,b)=>b[1]-a[1]).forEach(([type,count])=>weaknesses.push(`${type.toUpperCase()} threatens ${count} members — a single ${type}-type could sweep.`));
+
+  const doubleWeakMons=team.filter(m=>{const wks=m.t.flatMap(t=>WEAK_TO[t]||[]);return wks.length!==new Set(wks).size});
+  if(doubleWeakMons.length) weaknesses.push(`${doubleWeakMons.map(m=>m.name).join(' & ')} have a double weakness — a SE hit could OHKO them.`);
+
+  const Object_entries_wk=Object.entries(weaknessCounts).filter(([,c])=>c===1);
+  if(!Object.entries(weaknessCounts).some(([,c])=>c>=3)&&Object_entries_wk.length<=3) strengths.push('Solid defensive spread — no type threatens more than 2 members.');
+
+  const fastMons=team.filter(m=>m.st.spd>=90), slowMons=team.filter(m=>m.st.spd<50);
+  const avgSpd=Math.round(team.reduce((a,m)=>a+m.st.spd,0)/team.length);
+  if(fastMons.length>=3) strengths.push(`High-tempo speed — ${fastMons.map(m=>m.name).slice(0,3).join(', ')} all hit 90+ Speed.`);
+  else if(slowMons.length>=3) weaknesses.push(`Sluggish team — ${slowMons.map(m=>m.name).join(', ')} are all below 50 Speed.`);
+  else if(avgSpd<65) weaknesses.push(`Below-average avg Speed of ${avgSpd}. Fast threats will outspeed consistently.`);
+
+  const highBST=team.filter(m=>m.bst>=500), lowBST=team.filter(m=>m.bst<=350);
+  if(highBST.length>=3) strengths.push(`Power house roster — ${highBST.slice(0,3).map(m=>m.name).join(', ')} all hit 500+ BST.`);
+  if(lowBST.length>=2) weaknesses.push(`${lowBST.map(m=>m.name).join(' & ')} drag the power down with sub-350 BST.`);
+
+  const physMons=team.filter(m=>m.st.atk>=90), specMons=team.filter(m=>m.st.spatk>=90);
+  if(physMons.length>=2&&specMons.length>=2) strengths.push(`Balanced mixed offense forces foes to maintain both defensive stats.`);
+  else if(physMons.length>=4&&specMons.length<=1) weaknesses.push(`Heavy physical bias — one physical wall could shut down multiple members.`);
+  else if(specMons.length>=4&&physMons.length<=1) weaknesses.push(`Heavy special bias — Blissey or Umbreon can hard-wall multiple members.`);
+
+  const bulky=team.filter(m=>(m.st.hp+m.st.def+m.st.spdef)>=230);
+  const frail=team.filter(m=>(m.st.hp+m.st.def+m.st.spdef)<=160);
+  if(bulky.length>=3) strengths.push(`Durable core — ${bulky.map(m=>m.name).join(', ')} have 230+ combined bulk.`);
+  if(frail.length>=3) weaknesses.push(`${frail.map(m=>m.name).join(', ')} are quite frail — priority moves are a serious threat.`);
+
+  const powerAbs=['Guts','Huge Power','Technician','Sheer Force','Moxie','Speed Boost','Magic Bounce','Drizzle','Sand Stream','Prankster','Multiscale','Intimidate','No Guard'];
+  const powerAbMons=team.filter(m=>[...m.ab,m.ha].some(a=>powerAbs.includes(a)));
+  if(powerAbMons.length>=2) strengths.push(`Strong abilities — ${powerAbMons.slice(0,2).map(m=>{const a=[...m.ab,m.ha].find(x=>powerAbs.includes(x));return`${m.name} (${a})`}).join(', ')}.`);
+
+  const weatherSetter=team.find(m=>[...m.ab,m.ha].some(a=>['Drizzle','Sand Stream'].includes(a)));
+  const weatherAbuser=team.find(m=>[...m.ab,m.ha].some(a=>['Swift Swim','Chlorophyll','Sand Rush'].includes(a)));
+  if(weatherSetter&&weatherAbuser) strengths.push(`Weather synergy — ${weatherSetter.name} sets, ${weatherAbuser.name} abuses for double Speed.`);
+
+  const johtoCount=team.filter(m=>m.region==='johto').length;
+  const kantoCount=team.filter(m=>m.region==='kanto').length;
+  if(johtoCount>0&&kantoCount>0) strengths.push(`Mixed-region team with ${johtoCount} Johto + ${kantoCount} Kanto Pokémon — maximises the available gene pool.`);
+  else if(kantoCount===team.length) tips.push('Pure Kanto team — consider a Johto legendary for a power boost.');
+
+  const typeCounts={};
+  team.forEach(m=>m.t.forEach(t=>{typeCounts[t]=(typeCounts[t]||0)+1}));
+  Object.entries(typeCounts).filter(([,c])=>c>=3).forEach(([t,c])=>weaknesses.push(`${c}× ${t.toUpperCase()} types is risky — one coverage move threatens multiple members.`));
+
+  const uniqueTypes=[...new Set(team.flatMap(m=>m.t))].length;
+  if(uniqueTypes>=8) strengths.push(`High type diversity (${uniqueTypes} types) — hard to predict and counter.`);
+  else if(uniqueTypes<=3&&team.length>=4) weaknesses.push(`Very low type diversity (${uniqueTypes} types) — predictable and easy to counter.`);
+
+  let score=5;
+  score+=Math.min(strengths.length*0.4,3);
+  score-=Math.min(weaknesses.length*0.5,3);
+  score=Math.max(1,Math.min(10,Math.round(score*10)/10));
+
+  const ratings=[{min:9,label:'Elite Squad'},{min:8,label:'Solid Competitive Build'},{min:7,label:'Well-Rounded Core'},{min:6,label:'Decent but Patchable'},{min:5,label:'Work in Progress'},{min:3,label:'Needs Rebuilding'},{min:0,label:'Start Over, Trainer'}];
+  const rating=ratings.find(r=>score>=r.min)?.label||'Unrated';
+  const avgBST=Math.round(team.reduce((a,m)=>a+m.bst,0)/team.length);
+  let verdict='';
+  if(score>=8){verdict=`Strong build with good synergy. Avg BST of ${avgBST} is ${avgBST>=490?'excellent':'healthy'}. ${weaknesses.length?'Address the flagged weaknesses and this becomes a top-tier team.':'Near-perfect construction.'}`}
+  else if(score>=6){verdict=`Serviceable team that covers most bases. Avg BST ${avgBST} — ${avgBST>=470?'power is on your side':'consider swapping weak links'}. Patch the flagged weaknesses to compete at higher levels.`}
+  else{verdict=`Significant issues holding this team back. Avg BST ${avgBST} is ${avgBST<430?'low — prioritise evolved forms':'okay but synergy is the problem'}. Focus on type coverage and removing the weakest links first.`}
+  if(tips.length) verdict+=' Tip: '+tips[0];
+  return{score,rating,strengths,weaknesses,verdict};
+}
+
+function renderEval({score,rating,strengths,weaknesses,verdict}){
+  const box=document.getElementById('evalBox');
+  const sc=score>=7?'var(--green)':score>=5?'var(--yellow)':'var(--red)';
+  let html='<div class="eval-content">';
+  html+=`<div class="eval-score-row"><span class="big-score" style="color:${sc}">${score}/10</span><div><div style="font-size:13px;color:var(--text);line-height:1.3">${rating}</div><div class="score-label">${team.length} MON · AVG BST ${Math.round(team.reduce((a,m)=>a+m.bst,0)/team.length)}</div></div></div>`;
+  if(strengths.length) html+=`<div class="eval-section"><div class="eval-section-title good">▲ STRENGTHS (${strengths.length})</div>${strengths.map(s=>`<p style="margin-bottom:8px;padding-left:10px;border-left:2px solid var(--green-dim)">▲ ${s}</p>`).join('')}</div>`;
+  if(weaknesses.length) html+=`<div class="eval-section"><div class="eval-section-title bad">▼ WEAKNESSES (${weaknesses.length})</div>${weaknesses.map(w=>`<p style="margin-bottom:8px;padding-left:10px;border-left:2px solid rgba(252,93,93,0.4)">▼ ${w}</p>`).join('')}</div>`;
+  html+=`<div class="eval-section"><div class="eval-section-title neutral">◆ VERDICT</div><p>${verdict}</p></div></div>`;
+  box.innerHTML=html;
+  box.classList.add('glowing');
+}
+
+// ===== TRAINER CREATOR =====
+const SKIN_TONES=['#FDDBB4','#F5C28A','#E8A96B','#C88050','#A0603A','#7A3A20','#4A2010'];
+const HAIR_COLORS=['#1a0a00','#3d1a00','#7a3a00','#c8a040','#f0e040','#e05030','#d030b0','#2050e0','#208050','#e0e0e0'];
+const HAIR_STYLES=['SHORT','LONG','SPIKY','CURLY','BALD'];
+const OUTFITS=['RED','BLUE','GREEN','YELLOW','BLACK','WHITE','PURPLE'];
+
+let trainerOpts={skin:0,hair:0,hairStyle:0,outfit:0};
+
+function initTrainer(){
+  const ss=document.getElementById('skinSwatches');
+  SKIN_TONES.forEach((c,i)=>{
+    const s=document.createElement('div');
+    s.className='swatch'+(i===trainerOpts.skin?' active':'');
+    s.style.background=c;
+    s.onclick=()=>{trainerOpts.skin=i;document.querySelectorAll('#skinSwatches .swatch').forEach((x,j)=>x.classList.toggle('active',j===i));drawTrainer()};
+    ss.appendChild(s);
+  });
+  const hs=document.getElementById('hairSwatches');
+  HAIR_COLORS.forEach((c,i)=>{
+    const s=document.createElement('div');
+    s.className='swatch'+(i===trainerOpts.hair?' active':'');
+    s.style.background=c;
+    s.onclick=()=>{trainerOpts.hair=i;document.querySelectorAll('#hairSwatches .swatch').forEach((x,j)=>x.classList.toggle('active',j===i));drawTrainer()};
+    hs.appendChild(s);
+  });
+  const hso=document.getElementById('hairStyleOpts');
+  HAIR_STYLES.forEach((h,i)=>{
+    const b=document.createElement('button');
+    b.className='opt-btn'+(i===trainerOpts.hairStyle?' active':'');
+    b.textContent=h;
+    b.onclick=()=>{trainerOpts.hairStyle=i;document.querySelectorAll('#hairStyleOpts .opt-btn').forEach((x,j)=>x.classList.toggle('active',j===i));drawTrainer()};
+    hso.appendChild(b);
+  });
+  const oo=document.getElementById('outfitOpts');
+  OUTFITS.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt-btn'+(i===trainerOpts.outfit?' active':'');
+    b.textContent=o;
+    b.onclick=()=>{trainerOpts.outfit=i;document.querySelectorAll('#outfitOpts .opt-btn').forEach((x,j)=>x.classList.toggle('active',j===i));drawTrainer()};
+    oo.appendChild(b);
+  });
+  if(trainerData){
+    trainerOpts={...trainerData.opts};
+    document.getElementById('trainerNameInput').value=trainerData.name||'';
+    document.getElementById('trainerQuote').value=trainerData.quote||'';
+    updateAllSwatchOpts();
+    showSavedTrainer();
+  }
+  drawTrainer();
+}
+
+function updateAllSwatchOpts(){
+  document.querySelectorAll('#skinSwatches .swatch').forEach((x,i)=>x.classList.toggle('active',i===trainerOpts.skin));
+  document.querySelectorAll('#hairSwatches .swatch').forEach((x,i)=>x.classList.toggle('active',i===trainerOpts.hair));
+  document.querySelectorAll('#hairStyleOpts .opt-btn').forEach((x,i)=>x.classList.toggle('active',i===trainerOpts.hairStyle));
+  document.querySelectorAll('#outfitOpts .opt-btn').forEach((x,i)=>x.classList.toggle('active',i===trainerOpts.outfit));
+}
+
+function drawTrainer(targetId='trainerCanvas'){
+  const canvas=document.getElementById(targetId);
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const scale=W/160;
+  ctx.clearRect(0,0,W,H);
+  ctx.imageSmoothingEnabled=false;
+
+  const skin=SKIN_TONES[trainerOpts.skin];
+  const hair=HAIR_COLORS[trainerOpts.hair];
+  const outfitColors=[['#e03020','#c02010'],['#2050c0','#1030a0'],['#208040','#106030'],['#d0b020','#a08010'],['#202020','#101010'],['#e8e8e8','#c0c0c0'],['#8020c0','#601090']];
+  const [oc1,oc2]=outfitColors[trainerOpts.outfit];
+
+  const px=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x*scale,y*scale,w*scale,h*scale)};
+
+  // Body / torso
+  px(56,80,48,50,oc1);
+  px(60,90,40,35,oc2);
+
+  // Collar
+  px(72,78,16,10,skin);
+
+  // Arms
+  px(36,80,22,40,oc1);
+  px(102,80,22,40,oc1);
+
+  // Hands
+  px(36,118,20,12,skin);
+  px(104,118,20,12,skin);
+
+  // Legs
+  px(58,128,18,42,oc2==='#101010'?'#1a1a3a':'#1a1a1a');
+  px(84,128,18,42,oc2==='#101010'?'#1a1a3a':'#1a1a1a');
+
+  // Shoes
+  px(54,168,26,16,'#101010');
+  px(80,168,26,16,'#101010');
+
+  // Neck
+  px(68,68,24,16,skin);
+
+  // Head
+  px(48,28,64,50,skin);
+
+  // Ears
+  px(44,44,10,16,skin);
+  px(106,44,10,16,skin);
+
+  // Eyes
+  ctx.fillStyle='#fff';
+  ctx.fillRect(60*scale,48*scale,14*scale,10*scale);
+  ctx.fillRect(86*scale,48*scale,14*scale,10*scale);
+  ctx.fillStyle='#1a0a00';
+  ctx.fillRect(65*scale,50*scale,7*scale,7*scale);
+  ctx.fillRect(91*scale,50*scale,7*scale,7*scale);
+  // Eye shine
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(67*scale,51*scale,2*scale,2*scale);
+  ctx.fillRect(93*scale,51*scale,2*scale,2*scale);
+
+  // Nose
+  px(76,60,8,6,SKIN_TONES[Math.min(trainerOpts.skin+2,SKIN_TONES.length-1)]);
+
+  // Mouth - smile
+  ctx.fillStyle='#8a3020';
+  ctx.fillRect(66*scale,66*scale,28*scale,4*scale);
+  ctx.fillStyle='#fff';
+  ctx.fillRect(68*scale,66*scale,24*scale,3*scale);
+
+  // HAIR
+  const hs=trainerOpts.hairStyle;
+  ctx.fillStyle=hair;
+  if(hs===0){// SHORT
+    ctx.fillRect(48*scale,22*scale,64*scale,16*scale); // top
+    ctx.fillRect(44*scale,28*scale,10*scale,20*scale); // left
+    ctx.fillRect(106*scale,28*scale,10*scale,20*scale); // right
+    ctx.fillRect(48*scale,22*scale,64*scale,10*scale);
+  } else if(hs===1){// LONG
+    ctx.fillRect(48*scale,22*scale,64*scale,12*scale);
+    ctx.fillRect(44*scale,28*scale,12*scale,70*scale); // long sides
+    ctx.fillRect(104*scale,28*scale,12*scale,70*scale);
+    ctx.fillRect(52*scale,22*scale,56*scale,10*scale);
+  } else if(hs===2){// SPIKY
+    ctx.fillRect(48*scale,26*scale,64*scale,12*scale);
+    // spikes
+    [[54,8],[68,4],[82,6],[96,10]].forEach(([x,y])=>{
+      ctx.beginPath();ctx.moveTo((x-6)*scale,26*scale);ctx.lineTo(x*scale,y*scale);ctx.lineTo((x+6)*scale,26*scale);ctx.fill();
+    });
+    ctx.fillRect(44*scale,28*scale,10*scale,18*scale);
+    ctx.fillRect(106*scale,28*scale,10*scale,18*scale);
+  } else if(hs===3){// CURLY
+    for(let cx2=50;cx2<110;cx2+=12){
+      for(let cy2=14;cy2<34;cy2+=10){
+        ctx.beginPath();ctx.arc(cx2*scale,cy2*scale,6*scale,0,Math.PI*2);ctx.fill();
+      }
+    }
+    ctx.fillRect(44*scale,28*scale,10*scale,18*scale);
+    ctx.fillRect(106*scale,28*scale,10*scale,18*scale);
+  }
+  // BALD = no hair drawn
+
+  // Hat brim (always)
+  if(hs!==1){
+    ctx.fillStyle=oc2;
+    ctx.fillRect(44*scale,34*scale,72*scale,6*scale);
+    ctx.fillStyle=oc1;
+    ctx.fillRect(56*scale,20*scale,48*scale,16*scale);
+    ctx.fillStyle='#ffffff';
+    ctx.fillRect(60*scale,24*scale,40*scale,8*scale);
+  }
+}
+
+function saveTrainer(){
+  const name=document.getElementById('trainerNameInput').value.trim()||'TRAINER';
+  const quote=document.getElementById('trainerQuote').value.trim()||'Ready to battle!';
+  trainerData={name,quote,opts:{...trainerOpts}};
+  localStorage.setItem('pkmn_trainer',JSON.stringify(trainerData));
+  showSavedTrainer();
+  // flash
+  const btn=document.querySelector('.save-trainer-btn');
+  btn.textContent='✓ SAVED!';
+  setTimeout(()=>btn.textContent='💾 SAVE TRAINER',1500);
+}
+
+function showSavedTrainer(){
+  if(!trainerData) return;
+  const card=document.getElementById('trainerCardSaved');
+  card.style.display='block';
+  document.getElementById('savedTrainerName').textContent=trainerData.name.toUpperCase();
+  document.getElementById('savedTrainerQuote').textContent='"'+trainerData.quote+'"';
+  setTimeout(()=>{
+    const saved=document.getElementById('trainerCanvasSaved');
+    const main=document.getElementById('trainerCanvas');
+    const ctx=saved.getContext('2d');
+    ctx.imageSmoothingEnabled=false;
+    ctx.drawImage(main,0,0,saved.width,saved.height);
+  },100);
+}
+
+// ===== FAVOURITES =====
+function populateFavSelect(){
+  const allSort=[...ALL_MONS].sort((a,b)=>a.id-b.id);
+  const sel=document.getElementById('favSelect');
+  const regionSel=document.getElementById('favRegionSelect');
+  const region=regionSel.value;
+  sel.innerHTML='';
+  allSort.filter(m=>region==='all'||m.region===region).forEach(m=>{
+    const o=document.createElement('option');
+    o.value=m.id;
+    o.textContent=`#${String(m.id).padStart(3,'0')} ${m.name} (${m.region})`;
+    sel.appendChild(o);
+  });
+}
+
+function addFavourite(){
+  const sel=document.getElementById('favSelect');
+  const reason=document.getElementById('favReason').value.trim();
+  if(!sel.value||!reason){alert('Please select a Pokémon and write your reason!');return;}
+  const mon=ALL_MONS.find(m=>m.id===parseInt(sel.value));
+  if(!mon) return;
+  const fav={id:mon.id,name:mon.name,s:mon.s,t:mon.t,region:mon.region,reason,date:new Date().toLocaleDateString()};
+  favourites.unshift(fav);
+  localStorage.setItem('pkmn_favs',JSON.stringify(favourites));
+  document.getElementById('favReason').value='';
+  renderFavs();
+}
+
+function quickAddFav(m){
+  const reason=prompt(`Why do you love ${m.name}?`)||'A true favourite!';
+  const fav={id:m.id,name:m.name,s:m.s,t:m.t,region:m.region,reason,date:new Date().toLocaleDateString()};
+  favourites.unshift(fav);
+  localStorage.setItem('pkmn_favs',JSON.stringify(favourites));
+}
+
+function deleteFav(idx){
+  favourites.splice(idx,1);
+  localStorage.setItem('pkmn_favs',JSON.stringify(favourites));
+  renderFavs();
+}
+
+function renderFavs(){
+  const grid=document.getElementById('favsGrid');
+  if(!favourites.length){grid.innerHTML='<div class="fav-empty">No favourites yet!<br><br>Add a Pokémon you love and write why it\'s special to you.</div>';return;}
+  grid.innerHTML=favourites.map((f,i)=>`
+    <div class="fav-card">
+      <button class="fav-del" onclick="deleteFav(${i})">✖</button>
+      <div class="fav-card-top">
+        <span class="fav-sprite">${f.s}</span>
+        <div class="fav-info">
+          <span class="fav-name">${f.name.toUpperCase()}</span>
+          <span class="fav-num">#${String(f.id).padStart(3,'0')} · ${f.region.toUpperCase()}</span>
+          <div class="fav-types">${f.t.map(t=>`<span class="t-chip" style="background:${TC[t]||'#555'}">${t.slice(0,3).toUpperCase()}</span>`).join('')}</div>
+        </div>
+      </div>
+      <div class="fav-reason">${f.reason}</div>
+      <div class="fav-date">Added ${f.date}</div>
+    </div>`).join('');
+}
+
+// ===== INIT =====
+rebuildTypeGrid();
+render();
+updateTeam();
+initTrainer();
+populateFavSelect();
+renderFavs();
+document.getElementById('favRegionSelect').onchange=populateFavSelect;
+document.getElementById('trainerNameInput').oninput=drawTrainer;
+</script>
+</body>
+</html>
