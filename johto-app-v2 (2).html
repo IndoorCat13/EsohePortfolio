@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✿ Pokémon Atelier ✿</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Palette from the image */
+  --gotham:    #7c7470;   /* warm taupe dark */
+  --lip-gloss: #decdc7;   /* pale blush beige */
+  --blowing:   #f5dbdd;   /* soft bubblegum pink */
+  --ballerina: #f6d2e1;   /* light lavender-pink */
+  --tussie:    #f1cade;   /* muted rose */
+  --mecha:     #dac5c6;   /* dusty mauve */
+
+  --bg:        #1e1318;   /* deep rose-black */
+  --surface:   #2a1a22;   /* dark plum surface */
+  --surface2:  #351e2b;   /* slightly lighter plum */
+  --border:    #7a4a60;   /* muted rose-plum border */
+  --border-hi: #c87a9a;   /* bright rose border hover */
+
+  --pink:      #f5dbdd;   /* primary accent = Blowing Kisses */
+  --pink-dim:  #c47090;   /* dimmer rose */
+  --pink-glow: rgba(245,219,221,0.12);
+  --rose:      #f6d2e1;   /* Ballerina — secondary accent */
+  --mauve:     #dac5c6;   /* Mega Metal Mecha */
+  --gotham-lt: #decdc7;   /* Lip Gloss — headings */
+
+  --red:       #e05070;   /* error / danger */
+  --yellow:    #f0b8c8;   /* warm pink-yellow for labels */
+  --blue:      #c0a0d0;   /* soft purple-blue */
+  --green:     #f5dbdd;   /* repurposed — primary highlight */
+  --green-dim: #c47090;
+  --green-glow:rgba(245,219,221,0.12);
+
+  --text:      #f6d2e1;   /* Ballerina — main text */
+  --text-dim:  #9a7080;   /* muted rose text */
+
+  --scan:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(245,200,215,0.03) 3px,rgba(245,200,215,0.03) 6px);
+}
+html{scroll-behavior:smooth}
+body{
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(246,210,225,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(218,197,198,0.05) 0%, transparent 60%);
+  color:var(--text);
+  font-family:'Press Start 2P',monospace;
+  font-size:10px;line-height:1.7;min-height:100vh;overflow-x:hidden
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:var(--scan);
+  pointer-events:none;z-index:9998;opacity:1
+}
+/* lace curtain overlay top */
+body::after{
+  content:'❧ ✦ ❧ ✦ ❧ ✦ ❧ ✦ ❧ ✦ ❧ ✦ ❧ ✦ ❧ ✦ ❧ ✦ ❧ ✦ ❧ ✦ ❧ ✦ ❧';
+  position:fixed;bottom:0;left:0;right:0;
+  font-size:9px;color:rgba(245,219,221,0.08);
+  letter-spacing:0.5em;text-align:center;
+  pointer-events:none;z-index:9997;padding:4px 0;
+  white-space:nowrap;overflow:hidden;
+}
+
+/* NAV */
+nav{
+  border-bottom:2px solid var(--border);
+  background: linear-gradient(180deg, #2d1a25 0%, var(--surface) 100%);
+  position:sticky;top:0;z-index:200;display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;
+  box-shadow: 0 2px 20px rgba(196,112,144,0.15);
+}
+nav::-webkit-scrollbar{display:none}
+.nav-logo{
+  padding:0 16px;
+  font-family:'UnifrakturMaguntia',serif;
+  font-size:18px;
+  color:var(--lip-gloss);
+  text-shadow:0 0 14px rgba(245,219,221,0.6), 0 0 30px rgba(196,112,144,0.3);
+  white-space:nowrap;display:flex;align-items:center;
+  border-right:2px solid var(--border);letter-spacing:0.06em
+}
+.nav-logo span{color:var(--rose)}
+.nav-tabs{display:flex}
+.nav-tab{
+  font-family:'Press Start 2P',monospace;font-size:7px;
+  padding:0 14px;height:46px;border:none;
+  border-right:2px solid var(--border);
+  background:none;color:var(--text-dim);cursor:pointer;
+  white-space:nowrap;letter-spacing:0.05em;transition:all 0.15s;
+  display:flex;align-items:center;gap:5px
+}
+.nav-tab:hover{background:var(--surface2);color:var(--text)}
+.nav-tab.active{
+  background:var(--pink-glow);
+  color:var(--lip-gloss);
+  border-bottom:2px solid var(--pink);
+  text-shadow:0 0 8px rgba(245,219,221,0.5);
+}
+.header-preview{display:flex;gap:4px;align-items:center;padding:0 12px;margin-left:auto;border-left:2px solid var(--border)}
+.htp-slot{
+  width:28px;height:28px;
+  border:2px solid var(--border);
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+.htp-slot.filled{border-color:var(--pink-dim);box-shadow:0 0 6px rgba(196,112,144,0.3)}
+
+/* PAGE SYSTEM */
+.page{display:none}
+.page.active{display:block}
+
+/* ========== SHARED STYLES ========== */
+.sec-label{
+  font-size:7px;color:var(--text-dim);letter-spacing:0.25em;
+  text-transform:uppercase;margin-bottom:10px;
+  display:flex;align-items:center;gap:6px
+}
+.sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+.search-input{
+  width:100%;background:rgba(30,19,24,0.8);
+  border:2px solid var(--border);color:var(--lip-gloss);
+  font-family:'Press Start 2P',monospace;font-size:8px;
+  padding:8px 10px;outline:none;margin-bottom:14px;caret-color:var(--pink);
+}
+.search-input::placeholder{color:var(--text-dim)}
+.search-input:focus{border-color:var(--pink-dim);box-shadow:0 0 0 2px var(--pink-glow)}
+.t-btn{font-family:'Press Start 2P',monospace;font-size:6px;padding:4px 3px;border:2px solid transparent;cursor:pointer;color:white;text-shadow:1px 1px 0 rgba(0,0,0,0.6);letter-spacing:0.04em;text-align:center}
+.t-btn:hover{filter:brightness(1.2)}
+.t-btn.on{border-color:rgba(255,255,255,0.8);filter:brightness(1.3);box-shadow:0 0 6px rgba(245,219,221,0.3)}
+.clear-btn{
+  width:100%;font-family:'Press Start 2P',monospace;font-size:7px;padding:6px;
+  background:var(--surface2);border:2px solid var(--border);color:var(--text-dim);cursor:pointer;margin-top:4px
+}
+.clear-btn:hover{border-color:var(--border-hi);color:var(--text)}
+.sort-row{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:14px}
+.sort-btn{font-family:'Press Start 2P',monospace;font-size:6px;padding:5px 4px;background:var(--surface2);border:2px solid var(--border);color:var(--text-dim);cursor:pointer;text-align:center}
+.sort-btn:hover{border-color:var(--border-hi);color:var(--text)}
+.sort-btn.on{border-color:var(--pink-dim);color:var(--lip-gloss);background:var(--pink-glow)}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:10px}
+
+/* CARDS */
+.poke-card{
+  background:var(--surface);
+  border:2px solid var(--border);
+  padding:10px 8px 8px;text-align:center;cursor:pointer;
+  transition:border-color 0.15s,background 0.15s,transform 0.1s,box-shadow 0.15s;
+  position:relative;user-select:none;
+}
+.poke-card:hover{border-color:var(--border-hi);transform:translateY(-2px);box-shadow:0 4px 16px rgba(196,112,144,0.2)}
+.poke-card.in-team{border-color:var(--pink);background:var(--pink-glow);box-shadow:0 0 12px rgba(245,219,221,0.15)}
+.poke-card.in-team::after{content:'✿';position:absolute;top:3px;right:5px;font-size:8px;color:var(--pink)}
+.poke-card.locked{opacity:0.35;cursor:not-allowed;transform:none!important}
+.pc-num{font-size:6px;color:var(--text-dim);display:block;margin-bottom:3px}
+.pc-sprite{font-size:2rem;display:block;margin-bottom:5px;line-height:1}
+.pc-name{font-size:7px;color:var(--lip-gloss);display:block;margin-bottom:6px;letter-spacing:0.03em}
+.pc-types{display:flex;gap:2px;justify-content:center;flex-wrap:wrap}
+.t-chip{font-family:'Press Start 2P',monospace;font-size:5px;padding:2px 4px;color:white;text-shadow:1px 1px 0 rgba(0,0,0,0.5);letter-spacing:0.03em}
+.poke-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px}
+.count-bar{font-size:7px;color:var(--text-dim);margin-bottom:12px;letter-spacing:0.1em}
+.count-bar span{color:var(--lip-gloss)}
+.no-res{font-size:8px;color:var(--text-dim);text-align:center;padding:3rem 1rem;grid-column:1/-1;line-height:2}
+.action-btn{
+  flex:1;font-family:'Press Start 2P',monospace;font-size:7px;padding:7px 4px;
+  border:2px solid var(--border);background:var(--surface2);color:var(--text);
+  cursor:pointer;transition:all 0.15s;letter-spacing:0.03em
+}
+.action-btn:hover:not(:disabled){border-color:var(--border-hi)}
+.action-btn.primary{background:var(--pink-glow);border-color:var(--pink-dim);color:var(--lip-gloss)}
+.action-btn.primary:hover:not(:disabled){background:rgba(245,219,221,0.2);border-color:var(--pink);box-shadow:0 0 10px rgba(245,219,221,0.2)}
+.action-btn:disabled{opacity:0.3;cursor:not-allowed}
+
+/* ========== BUILDER LAYOUT ========== */
+.builder-wrap{display:grid;grid-template-columns:240px 1fr 270px;min-height:calc(100vh - 46px)}
+.b-left{border-right:2px solid var(--border);padding:14px;overflow-y:auto;max-height:calc(100vh - 46px);position:sticky;top:46px}
+.b-mid{padding:14px;overflow-y:auto;max-height:calc(100vh - 46px)}
+.b-right{border-left:2px solid var(--border);padding:14px;overflow-y:auto;max-height:calc(100vh - 46px);position:sticky;top:46px}
+
+/* REGION TAB */
+.region-tabs{display:flex;gap:0;margin-bottom:14px;border:2px solid var(--border)}
+.region-tab{flex:1;font-family:'Press Start 2P',monospace;font-size:7px;padding:6px 4px;border:none;cursor:pointer;text-align:center;letter-spacing:0.05em;background:var(--surface2)}
+.region-tab.johto{color:var(--rose)}
+.region-tab.kanto{color:var(--blue)}
+.region-tab.both{color:var(--lip-gloss)}
+.region-tab.active{filter:brightness(1.5);border-bottom:3px solid currentColor;background:var(--pink-glow)}
+
+/* TEAM */
+.team-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px}
+.team-slot{
+  border:2px dashed var(--border);padding:8px 6px;text-align:center;min-height:80px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;background:var(--bg);
+}
+.team-slot.filled{border-style:solid;border-color:var(--pink-dim);background:var(--surface);box-shadow:inset 0 0 10px rgba(245,219,221,0.05)}
+.team-slot .empty-txt{font-size:6px;color:var(--text-dim);line-height:1.8}
+.ts-sprite{font-size:1.8rem;display:block}
+.ts-name{font-size:6px;color:var(--lip-gloss);margin-top:3px;display:block}
+.ts-types{display:flex;gap:2px;justify-content:center;margin-top:4px;flex-wrap:wrap}
+.ts-rm{position:absolute;top:2px;right:3px;font-family:'Press Start 2P',monospace;font-size:5px;background:transparent;border:none;color:var(--text-dim);cursor:pointer;padding:2px;line-height:1}
+.ts-rm:hover{color:var(--red)}
+.team-actions{display:flex;gap:6px;margin-bottom:14px}
+.coverage-row{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:14px}
+.cov-tag{font-size:5px;padding:2px 5px;color:white;text-shadow:1px 1px 0 rgba(0,0,0,0.5);font-family:'Press Start 2P',monospace;opacity:0.85}
+.eval-box{border:2px solid var(--border);background:rgba(30,19,24,0.6);padding:12px}
+.eval-empty{text-align:center;padding:16px 0;font-size:7px;color:var(--text-dim);line-height:2}
+.eval-content{font-family:'VT323',monospace;font-size:17px;color:var(--text);line-height:1.55}
+.eval-score-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.big-score{font-family:'Press Start 2P',monospace;font-size:28px;line-height:1}
+.score-label{font-size:14px;color:var(--text-dim)}
+.eval-section{margin-bottom:12px}
+.eval-section-title{font-family:'Press Start 2P',monospace;font-size:7px;letter-spacing:0.1em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.eval-section-title.good{color:var(--rose)}
+.eval-section-title.bad{color:var(--red)}
+.eval-section-title.neutral{color:var(--lip-gloss)}
+.dot-anim span{display:inline-block;color:var(--pink);font-size:14px;animation:dotbounce 1.2s ease-in-out infinite}
+.dot-anim span:nth-child(2){animation-delay:0.2s}
+.dot-anim span:nth-child(3){animation-delay:0.4s}
+@keyframes dotbounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 6px rgba(245,219,221,0.15)}50%{box-shadow:0 0 20px rgba(245,219,221,0.35),0 0 40px rgba(196,112,144,0.15)}}
+.eval-box.glowing{animation:glow-pulse 2s ease-in-out 3}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(10,5,8,0.92);z-index:500;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(2px)}
+.modal-bg.open{display:flex}
+.modal{
+  background: linear-gradient(160deg, #2d1a25 0%, var(--surface) 100%);
+  border:3px solid var(--pink-dim);
+  box-shadow:0 0 40px rgba(245,219,221,0.12),0 0 80px rgba(196,112,144,0.1);
+  max-width:440px;width:100%;max-height:85vh;overflow-y:auto;padding:20px;position:relative;
+}
+.modal::before{
+  content:'✿ ✦ ✿ ✦ ✿ ✦ ✿ ✦ ✿';
+  display:block;text-align:center;font-size:8px;
+  color:rgba(245,219,221,0.25);letter-spacing:0.3em;margin-bottom:12px;
+}
+.modal-close{position:absolute;top:8px;right:10px;font-family:'Press Start 2P',monospace;font-size:8px;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:4px}
+.modal-close:hover{color:var(--red)}
+.modal-sprite{font-size:3.5rem;text-align:center;display:block;margin-bottom:8px;filter:drop-shadow(0 0 8px rgba(245,219,221,0.3))}
+.modal-name{font-size:14px;color:var(--lip-gloss);text-align:center;text-shadow:0 0 14px rgba(245,219,221,0.5),0 0 30px rgba(196,112,144,0.3)}
+.modal-num{font-size:7px;color:var(--text-dim);text-align:center;margin:4px 0 10px}
+.modal-types-row{display:flex;gap:5px;justify-content:center;margin-bottom:14px}
+.modal-sec-title{font-size:7px;color:var(--rose);letter-spacing:0.1em;margin-bottom:6px;margin-top:12px;border-bottom:1px solid var(--border);padding-bottom:4px}
+.modal-desc{font-family:'VT323',monospace;font-size:17px;color:var(--text);line-height:1.5;margin-bottom:10px}
+.stat-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.stat-lbl{font-size:6px;color:var(--text-dim);width:42px;flex-shrink:0}
+.stat-bar-bg{flex:1;height:9px;background:rgba(30,19,24,0.8);border:1px solid var(--border)}
+.stat-bar{height:100%;transition:width 0.5s}
+.stat-val{font-size:6px;color:var(--text);width:26px;text-align:right;flex-shrink:0}
+.ability-item{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.ability-name{font-family:'VT323',monospace;font-size:16px;color:var(--text)}
+.ability-badge{font-size:6px;padding:2px 6px;border:1px solid var(--pink-dim);color:var(--lip-gloss);background:var(--pink-glow)}
+.ability-badge.hidden{border-color:#b08060;color:#f0c8a0;background:rgba(240,200,160,0.08)}
+.modal-add-btn{width:100%;margin-top:14px;font-family:'Press Start 2P',monospace;font-size:8px;padding:9px;border:2px solid var(--pink-dim);background:var(--pink-glow);color:var(--lip-gloss);cursor:pointer;transition:all 0.15s;letter-spacing:0.05em}
+.modal-add-btn:hover:not(:disabled){background:rgba(245,219,221,0.2);border-color:var(--pink);box-shadow:0 0 12px rgba(245,219,221,0.2)}
+.modal-add-btn.remove{border-color:#7a2030;background:rgba(224,80,112,0.08);color:var(--red)}
+.modal-add-btn:disabled{opacity:0.3;cursor:not-allowed}
+.modal-fav-btn{width:100%;margin-top:6px;font-family:'Press Start 2P',monospace;font-size:8px;padding:8px;border:2px solid #a07090;background:rgba(218,197,198,0.07);color:var(--mecha);cursor:pointer;transition:all 0.15s}
+.modal-fav-btn:hover{background:rgba(218,197,198,0.15)}
+
+/* ========== TRAINER CREATOR ========== */
+.trainer-page{padding:20px;max-width:760px;margin:0 auto}
+.trainer-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.trainer-canvas-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+#trainerCanvas{
+  border:3px solid var(--pink-dim);
+  background:var(--surface);
+  image-rendering:pixelated;cursor:default;
+  box-shadow:0 0 24px rgba(245,219,221,0.15),0 0 60px rgba(196,112,144,0.1);
+}
+.trainer-controls{
+  background:linear-gradient(160deg,#2d1a25,var(--surface));
+  border:2px solid var(--border);padding:16px;
+}
+.ctrl-group{margin-bottom:16px}
+.ctrl-label{font-size:7px;color:var(--text-dim);letter-spacing:0.2em;margin-bottom:8px;display:block}
+.swatch-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.swatch{width:22px;height:22px;border:2px solid var(--border);cursor:pointer;transition:transform 0.1s;border-radius:2px}
+.swatch:hover{transform:scale(1.15)}
+.swatch.active{border-color:var(--lip-gloss);transform:scale(1.15);box-shadow:0 0 6px rgba(245,219,221,0.4)}
+.option-row{display:flex;gap:4px;flex-wrap:wrap}
+.opt-btn{font-family:'Press Start 2P',monospace;font-size:6px;padding:4px 8px;background:var(--surface2);border:2px solid var(--border);color:var(--text-dim);cursor:pointer}
+.opt-btn:hover{border-color:var(--border-hi);color:var(--text)}
+.opt-btn.active{border-color:var(--pink-dim);color:var(--lip-gloss);background:var(--pink-glow)}
+.quote-input{width:100%;background:rgba(30,19,24,0.8);border:2px solid var(--border);color:var(--lip-gloss);font-family:'Press Start 2P',monospace;font-size:7px;padding:8px;outline:none;resize:none;height:60px;caret-color:var(--pink)}
+.quote-input:focus{border-color:var(--pink-dim)}
+.trainer-name-input{width:100%;background:rgba(30,19,24,0.8);border:2px solid var(--border);color:var(--lip-gloss);font-family:'Press Start 2P',monospace;font-size:8px;padding:7px;outline:none;margin-bottom:8px;caret-color:var(--pink)}
+.save-trainer-btn{width:100%;font-family:'Press Start 2P',monospace;font-size:8px;padding:9px;border:2px solid var(--pink-dim);background:var(--pink-glow);color:var(--lip-gloss);cursor:pointer;margin-top:8px;transition:all 0.15s}
+.save-trainer-btn:hover{background:rgba(245,219,221,0.2);box-shadow:0 0 12px rgba(245,219,221,0.2)}
+.trainer-card-saved{
+  border:2px solid var(--pink-dim);
+  background:linear-gradient(160deg,rgba(245,219,221,0.06),rgba(30,19,24,0.8));
+  padding:14px;text-align:center;margin-top:12px;
+  box-shadow:0 0 20px rgba(245,219,221,0.1);
+}
+.trainer-card-saved .tcs-name{font-size:10px;color:var(--lip-gloss);margin-bottom:6px;text-shadow:0 0 10px rgba(245,219,221,0.4)}
+.trainer-card-saved .tcs-quote{font-family:'VT323',monospace;font-size:18px;color:var(--rose);font-style:italic;line-height:1.4}
+
+/* ========== FAVOURITES ========== */
+.favs-page{padding:20px;max-width:900px;margin:0 auto}
+.fav-form{
+  background:linear-gradient(160deg,#2d1a25,var(--surface));
+  border:2px solid var(--border);padding:16px;margin-bottom:20px;
+}
+.fav-form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.fav-select{width:100%;background:rgba(30,19,24,0.8);border:2px solid var(--border);color:var(--lip-gloss);font-family:'Press Start 2P',monospace;font-size:7px;padding:7px;outline:none;cursor:pointer}
+.fav-select:focus{border-color:var(--pink-dim)}
+.fav-textarea{width:100%;background:rgba(30,19,24,0.8);border:2px solid var(--border);color:var(--text);font-family:'VT323',monospace;font-size:18px;padding:10px;outline:none;resize:vertical;min-height:80px;caret-color:var(--pink);line-height:1.5}
+.fav-textarea::placeholder{color:var(--text-dim)}
+.fav-textarea:focus{border-color:var(--pink-dim)}
+.fav-submit{font-family:'Press Start 2P',monospace;font-size:8px;padding:9px 16px;border:2px solid var(--pink-dim);background:var(--pink-glow);color:var(--lip-gloss);cursor:pointer;transition:all 0.15s}
+.fav-submit:hover{background:rgba(245,219,221,0.2)}
+.favs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.fav-card{
+  background:linear-gradient(160deg,rgba(245,219,221,0.04),var(--surface));
+  border:2px solid var(--border);padding:14px;position:relative;
+  transition:border-color 0.2s,box-shadow 0.2s;
+}
+.fav-card:hover{border-color:var(--pink-dim);box-shadow:0 4px 20px rgba(196,112,144,0.15)}
+.fav-card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.fav-sprite{font-size:2.5rem;flex-shrink:0;filter:drop-shadow(0 0 6px rgba(245,219,221,0.2))}
+.fav-info{}
+.fav-name{font-size:8px;color:var(--lip-gloss);display:block;margin-bottom:3px}
+.fav-num{font-size:6px;color:var(--text-dim)}
+.fav-types{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap}
+.fav-reason{font-family:'VT323',monospace;font-size:17px;color:var(--text);line-height:1.55;border-top:1px solid var(--border);padding-top:8px;margin-top:2px}
+.fav-del{position:absolute;top:6px;right:8px;font-family:'Press Start 2P',monospace;font-size:6px;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:3px}
+.fav-del:hover{color:var(--red)}
+.fav-date{font-size:5px;color:var(--text-dim);margin-top:6px;letter-spacing:0.1em}
+.fav-empty{text-align:center;padding:3rem;font-size:8px;color:var(--text-dim);line-height:2.5;grid-column:1/-1}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border)}
+::-webkit-scrollbar-thumb:hover{background:var(--border-hi)}
+
+@media(max-width:800px){
+  .builder-wrap{grid-template-columns:1fr}
+  .b-left,.b-right,.b-mid{max-height:none;position:static;border:none;border-bottom:2px solid var(--border)}
+  .trainer-layout{grid-template-columns:1fr}
+  .fav-form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">✿ <span>Pokémon</span> Atelier</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('builder')">✦ TEAM BUILDER</button>
+    <button class="nav-tab" onclick="showPage('trainer')">🎀 MY TRAINER</button>
+    <button class="nav-tab" onclick="showPage('favs')">🌸 FAVOURITES</button>
+  </div>
+  <div class="header-preview" id="headerPreview"></div>
+</nav>
+
+<!-- ============================================================
+     PAGE: TEAM BUILDER
+============================================================ -->
+<div id="page-builder" class="page active">
+<div class="builder-wrap">
+
+  <!-- LEFT FILTER -->
+  <div class="b-left">
+    <div class="sec-label">REGION</div>
+    <div class="region-tabs">
+      <button class="region-tab johto active" id="rtab-johto" onclick="setRegion('johto')">JOHTO</button>
+      <button class="region-tab kanto" id="rtab-kanto" onclick="setRegion('kanto')">KANTO</button>
+      <button class="region-tab both" id="rtab-both" onclick="setRegion('both')">BOTH</button>
+    </div>
+    <div class="sec-label">SEARCH</div>
+    <input class="search-input" id="searchInput" type="text" placeholder="MON NAME..." oninput="render()">
+    <div class="sec-label">SORT BY</div>
+    <div class="sort-row">
+      <button class="sort-btn on" id="sort-num" onclick="setSort('num')">NO.</button>
+      <button class="sort-btn" id="sort-bst" onclick="setSort('bst')">BST↓</button>
+      <button class="sort-btn" id="sort-atk" onclick="setSort('atk')">ATK↓</button>
+      <button class="sort-btn" id="sort-spd" onclick="setSort('spd')">SPD↓</button>
+    </div>
+    <div class="sec-label">TYPE</div>
+    <div class="type-grid" id="typeGrid"></div>
+    <button class="clear-btn" onclick="clearType()">CLEAR FILTER</button>
+  </div>
+
+  <!-- MIDDLE GRID -->
+  <div class="b-mid">
+    <div class="count-bar" id="countBar">Loading...</div>
+    <div class="poke-grid" id="pokeGrid"></div>
+  </div>
+
+  <!-- RIGHT TEAM + EVAL -->
+  <div class="b-right">
+    <div class="sec-label">YOUR TEAM (<span id="teamCt">0</span>/6)</div>
+    <div class="team-grid" id="teamGrid"></div>
+    <div class="sec-label">TYPE COVERAGE</div>
+    <div class="coverage-row" id="coverageRow"><span style="font-size:7px;color:var(--text-dim)">Add Pokémon to see coverage</span></div>
+    <div class="team-actions">
+      <button class="action-btn" onclick="clearTeam()">✖ CLEAR</button>
+      <button class="action-btn primary" id="evalBtn" onclick="evaluateTeam()" disabled>▶ ANALYSE</button>
+    </div>
+    <div class="sec-label">TEAM ANALYSIS</div>
+    <div class="eval-box" id="evalBox">
+      <div class="eval-empty">Add Pokémon &amp; hit<br>ANALYSE TEAM</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================
+     PAGE: TRAINER CREATOR
+============================================================ -->
+<div id="page-trainer" class="page">
+<div class="trainer-page">
+  <div class="sec-label" style="margin-bottom:16px">MY TRAINER</div>
+  <div class="trainer-layout">
+
+    <div class="trainer-canvas-wrap">
+      <canvas id="trainerCanvas" width="160" height="200"></canvas>
+      <div id="trainerCardSaved" class="trainer-card-saved" style="display:none;width:100%">
+        <div class="tcs-name" id="savedTrainerName"></div>
+        <canvas id="trainerCanvasSaved" width="80" height="100" style="image-rendering:pixelated;margin:8px auto;display:block;border:2px solid var(--green-dim)"></canvas>
+        <div class="tcs-quote" id="savedTrainerQuote"></div>
+      </div>
+    </div>
+
+    <div class="trainer-controls">
+      <div class="ctrl-group">
+        <span class="ctrl-label">TRAINER NAME</span>
+        <input class="trainer-name-input" id="trainerNameInput" type="text" maxlength="12" placeholder="TRAINER...">
+      </div>
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">SKIN TONE</span>
+        <div class="swatch-row" id="skinSwatches"></div>
+      </div>
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">HAIR COLOUR</span>
+        <div class="swatch-row" id="hairSwatches"></div>
+      </div>
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">HAIR STYLE</span>
+        <div class="option-row" id="hairStyleOpts"></div>
+      </div>
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">OUTFIT</span>
+        <div class="option-row" id="outfitOpts"></div>
+      </div>
+
+      <div class="ctrl-group">
+        <span class="ctrl-label">TRAINER QUOTE</span>
+        <textarea class="quote-input" id="trainerQuote" maxlength="80" placeholder="I wanna be the very best..."></textarea>
+      </div>
+
+      <button class="save-trainer-btn" onclick="saveTrainer()">💾 SAVE TRAINER</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================
+     PAGE: FAVOURITES
+============================================================ -->
+<div id="page-favs" class="page">
+<div class="favs-page">
+  <div class="sec-label" style="margin-bottom:16px">MY FAVOURITE POKÉMON</div>
+
+  <div class="fav-form">
+    <div class="sec-label">ADD A FAVOURITE</div>
+    <div class="fav-form-row">
+      <div>
+        <label style="font-size:7px;color:var(--text-dim);display:block;margin-bottom:6px;letter-spacing:0.15em">CHOOSE POKÉMON</label>
+        <select class="fav-select" id="favSelect"></select>
+      </div>
+      <div>
+        <label style="font-size:7px;color:var(--text-dim);display:block;margin-bottom:6px;letter-spacing:0.15em">REGION</label>
+        <select class="fav-select" id="favRegionSelect">
+          <option value="all">All Regions</option>
+          <option value="johto">Johto Only</option>
+          <option value="kanto">Kanto Only</option>
+        </select>
+      </div>
+    </div>
+    <label style="font-size:7px;color:var(--text-dim);display:block;margin-bottom:6px;letter-spacing:0.15em">WHY DO YOU LOVE THIS POKÉMON?</label>
+    <textarea class="fav-textarea" id="favReason" placeholder="Tell us why this Pokémon is special to you..." rows="3"></textarea>
+    <div style="margin-top:10px;display:flex;justify-content:flex-end">
+      <button class="fav-submit" onclick="addFavourite()">⭐ ADD TO FAVOURITES</button>
+    </div>
+  </div>
+
+  <div class="favs-grid" id="favsGrid">
+    <div class="fav-empty">No favourites yet!<br>Add your first favourite Pokémon above.</div>
+  </div>
+</div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-bg" id="modalBg" onclick="maybeCloseModal(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✖</button>
+    <span class="modal-sprite" id="mSprite"></span>
+    <div class="modal-name" id="mName"></div>
+    <div class="modal-num" id="mNum"></div>
+    <div class="modal-types-row" id="mTypes"></div>
+    <div class="modal-sec-title">POKÉDEX ENTRY</div>
+    <div class="modal-desc" id="mDesc"></div>
+    <div class="modal-sec-title">BASE STATS</div>
+    <div id="mStats"></div>
+    <div class="modal-sec-title">ABILITIES</div>
+    <div id="mAbilities"></div>
+    <button class="modal-add-btn" id="mAddBtn">➕ ADD TO TEAM</button>
+    <button class="modal-fav-btn" id="mFavBtn">⭐ ADD TO FAVOURITES</button>
+  </div>
+</div>
+
+<script>
+const SPRITE_DATA = {
+  152: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB1UlEQVR4nO2aPU4DQQyFHUQTmqQE0eQIHAOlokKCA1BwABRBQSiQVhwgBQcAiYoqQpyAkoo6DSJl0iQNEhRhiGJl1js7PwbN+7rVeL2W/eyZ3aRBkZlM+l8h/LTb/UYIP5yNGE7/E0iAdgDa1O4rW2+bXg3V+67+XWcFFFDVMFZFYyMpInsFIAHaAWgjzoBQvd9qXa5cT6dXXnau2GZB9grYTPWg3WaTiIje53MiWlb6/uOaiIiOdi7W2r+Ne1HjggJSP5ArwbaeCihAMvA92y+nekFE9sobzLpRgrm/7m6Ak6BAshnAK2+mP782u4GklFBAAVUNeS9JM2E4+3E9W610URTlD7Ju+wt/3a3P0tuPbx/L/TOggLo3SoowlfpVgie2yrtWnAMFSAbdmz2vt0GuhF7P7Wwv9bwvUEAoR6YX704O1q67zoTQ094GFBDaYVUl+PoPBRQQy7GkhLr+QpO9AsSvwr7nAE5VRdSt+PDsFb8NupD8m+D580vp+mg0ThTJAihAMuA9FXomaJO9ApAA7QC0Sb4LSHQ620RENDh8ivK/QE72CkACtAPQBgnQDkAb513A9W3LcPqw/ydPkNkrAAnQDkAbJEA7AAAAAAAAAADQ4BvV84tmD4S2wgAAAABJRU5ErkJggg==',
+  153: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB1klEQVR4nO2aPU4DMRCFJ4gmNFDQIAq25AycIOIAFDkAgg4atIIaaUUDHYgDpOAAKOIAOUPKpUBQUECTlFAEE8WKPev1z4D8vior27OjmTdj7246FJn64+QrhJ1i46YTwo7OSgyj/wkEQNoBaVrXlam2Va2Gqn1X+669AgpoOjFWRmPDKSJ7BSAA0g5Iw/aAULW/s369cP38eeo1zxVTL8heAaupbrTd7RIR0ct0SkTzTN++XhIR0fHWxdL5o7ejqH5BAalvqCvBNJ4KKICb4Hu2n3f1OyIyZ16hxpUS1Pq2uwFOggzJeoCeedX99Wu1G3BKCQUU0HSiXktcT3icbM5+TBYzXVWV/UalaWBmb3/t3bq8fz+029eAAtou5BShMvWrBE9MmXfNuA4UwE3Yu9r1ehrUlVCWxiK3ro8FFBDKkKrFwWFv6bhrTwjd7U1AAaENNlWCr/1QQAGxDHNKaGsvNNkrgH0r7HsO0GmqiLYZH52N8W3QheTvBM+fxtbxuq7TOPIDFMBN0GsqdE+QJnsFIADSDkiTfBfgKIqCiIgGB8Mo/wvUyV4BCIC0A9IgANIOSOO8C7g+bSn6D70/eYLMXgEIgLQD0iAA0g4AAAAAAAAAgATflJCLrsn1feAAAAAASUVORK5CYII=',
+  154: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB00lEQVR4nO2av0oDQRDGJxLQYGshWHiPYG1lGXwDO8uQSrsDa+Gw0SqktPMNJGWq1JaWZyFYWNhIFAQt4hKyZG9u/46y368Jx+7ODTPfzO7dpUORqT/OvkPYKbZuOiHs6GzEMPqfQACkHZDGua5Mta1qNVTt29q37RVQQNuJsTIaG04R2SsAAZB2QBq2B4Sq/f3N65Xrp89zr3m2mHpB9groprrRXq9HRETP8zkRLTN9935JREQn2xdr58/eBlH9ggJS31BXgmk8FVAAN8H3bL/s6mMiMmdeocaVEtR6190AJ0GGZD1Az7zq/vq12g04pYQCCmg7Ua8lrifMvnZ+f1czXVVV841K08DC3mH3tXH58HbabF8DCnBdyClCZUopwRdT5m0zrgMFcBOOxwdeT4O6EsrSWOSN62MBBYQypGpxdHq0dty2J4Tu9iaggNAG2yrB134ooIBYhjkluNoLTfYKYN8K+54DdNoqwjXj94MHfBu0Ifk7wavpY+N4Xb8k8mQBFMBN0GsqdE+QJnsFIADSDkiTfBfgKIpdIiIa9SdR/heok70CEABpB6RBAKQdkMZ6F7B92lIMJ/0/eYLMXgEIgLQD0iAA0g4AAAAAAAAAgAQ/hhqM3BzpAcYAAAAASUVORK5CYII=',
+  155: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABdElEQVR4nO2YMXbCMBBENzwaOvcUiHu4SLqU9MkB4Aa5STgGZdKl8D0iCnqnogyVCuvZWJhdTfI0v5NZW8PsyHqWCCGEkHJ5yD2h37rflDq391m0zXJM8pfJloC489XG9da1B98ZWyeh+ATMrSdIXfNj91slgQmwenDo3Or9u/f3n8+n3utD9V7WJkkoPgHq62qo88vFQkRETudz5/pxt5Yp9VpJKD4B5rtA6GQ8jjs7tf5emADrCULnUjt5a/29FJ8As10gMLSvh7d5TGo9dwElzBNgBROghPkuoA2/BZSZ7ObXc3V1rTtXdcZN45OeW9eu97r37dX7Hj/aSf+l+ASYvwNWdS0i6QkI9YFj02hL6sAE5Jro5e0111Q3UXwCaABaABoagBaAhgagBaChAWgBaGgAWgCaf3cmyBMhZdS/BsdObgLxCc7YCZMVxSeABqAFoKEBaAFoaABaABoagBaAhgagBaChAWgBaGgAWgAhhCC5AH4tammSjMZbAAAAAElFTkSuQmCC',
+  156: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABfElEQVR4nO2YMW7CQBBFJ1EaOspIFLiEO7hImy4lEm0OQU6QHCUlR6BwwwmgXAqklFBRQrVSvLLxYmb2J9r/ujVj7+fPX6+8IoQQQvLlIfWEbjE5x9QVX9sk2h5TTPKXSZaAsPPDt6Kx7rB0tbF1ErJPwJP1BLFrvut+qyQwAVYP9p0bf24afz+uXxuvt9U7mZokIfsEqK+rts6PBgMREdmfTrXru4+p9KnXSkL2CTDfBXwnw3HY2b7198IEWE/gOxfbyVvr7yX7BJjtAp62fd2/zUNi67kLKGGeACuYACXMdwFt+C2gTG83V7Pnq2u9KIa1cVVto55blpPG684drt738v3T679knwDzd8C4LEUkPgG+3rOrKnVNv2ECUk00X7ynmuomsk8ADUALQEMD0ALQ0AC0ADQ0AC0ADQ1AC0Dz784EeSKkjPrXYNfJjSc8wek6YbIi+wTQALQANDQALQANDUALQEMD0ALQ0AC0ADQ0AC0ADQ1ACyCEECQXwK9qWcTUh8cAAAAASUVORK5CYII=',
+  157: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABe0lEQVR4nO2YMU7DQBBFJ4gmHZ0j0fgITu9LICg4BAcIJ4CjpMgx3Eb4CG6Q7I4uJSnCInllxxtnZj9o/6vi1dj78+evV14RQggh6bKIPWG7Kb5D6lbvdRRtNzEm+ctES4Df+ewpH6zrdk3v2joJySfg1nqC0DU/db9VEpgAqwe7zmVvH8MF+4fB4bH6VtYmSUg+Aerraqzz98uliIh8Hg698e51LXPqtZKQfALMdwHXSf/a7+zc+mthAqwncJ0L7eSl9deSfALMdgHH2L7u3uY+ofXcBZQwT4AVTIAS5ruANvwWUGa2m/Vzfnatr/K73nVV1UHPLcticLxtvs7eV2ybWf8l+QSYvwOysjz9CEzAb/0PXVUpK+rDBMSa6HHzEmuqi0g+ATQALQANDUALQEMD0ALQ0AC0ADQ0AC0Azb87E+SJkDLqX4NTJzcO/wRn6oTJiuQTQAPQAtDQALQANDQALQANDUALQEMD0ALQ0AC0ADQ0AC2AEEKQHAFKVWiYw1Cj7AAAAABJRU5ErkJggg==',
+  158: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABWklEQVR4nO2aMW7CQBBFxyhFOANNuvgIjkRByVG4QTgC3ICjULpACkeAzg09HXSkiFYKzi6O8bI/kd9rkO3Rztef2fWuhRkAAAD0lSz2gPPt+eK7vyieW+WKNU4Tg5iD/UcwQC1AzVOqRMVi553TanrfARigFqAm2ju1aY5/vL96778t93fFbed5ZtZ9v9D7Dnj4W6Be0dFwaGZmh9PJ+7wprt4JXaEDUiVyFa1fuwr/Nm4yefn6Dcz9ttABqRK5CoYq3zYuRNvTIh3w6ARu1XareL2ioX1AKM6tAbGgA1Il+rGT22z8cSnEfIMO6DpA6nN+WVZX1+5McC90gCpxMR6rUl/R+w7AALUANRigFqAGA9QC1GCAWoAaDFALUIMBagFqMEAtQA0GqAWo6fxF6FhVN5/vVtPMzCyfrfmP0F8EA9QC1GCAWoAaDFALUIMBagFqMEAtAABAySdMRFsHa5+NwwAAAABJRU5ErkJggg==',
+  159: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABfElEQVR4nO2YMW6DMBiF/1RdcgOkLtygsDP0CL1HK4VuOQa5SY6QSuylN2CplLVTxmRIHQkLggH/fpX8vg3nB7+8/2ELixBCCImXVegJs6o5u9Q1ZRZE20OISf4zwRJgd/4lS3vrDk3budZOQvQJeNSewPWdH7tfKwlMgNaDTee+Ns+9v398/vaOD9XnopOE6BPg/b0a6vzTei0iIj+nU2c8333LnHpfSYg+Aeq7gOmkfW13dm79UpgA7QlM51w7ObV+KdEnQG0XMAzu63+ruY1rPXcBT6ivAUOd9lW/FCYALWAq/BbwzGw3k3J/9zs/SdPOdVPXTs/NiqJ3/Ni2d+87Vq+z/kv0CVBfA4riuq+7JsDUG+pad1dgAkJN9L59CzXVJKJPAA1AC0BDA9AC0NAAtAA0NAAtAA0NQAtAo34q7BueCHnG+9fg2MnNrc46wRk7YdIi+gTQALQANDQALQANDUALQEMD0ALQ0AC0ADQ0AC0ADQ1ACyCEECQXzQNpktI/OwAAAAAASUVORK5CYII=',
+  160: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABYUlEQVR4nO2aMW7CQBBFx4iGGyDRUEJHlxQUKTlCjsAN4AjhBhwhR0iZgiJ0dKF0E4mSjjIp0ErB7MYxXvaB/F+DbI92vv7MrnctzIQQQgjRVLLYA07fdt+++8tJt1KuWOOU0Yo52D0iA2gBNO1UiQYvH945TdP4DpABtACaaO/Usjn+OXvw3h8u1hfFbeePmVn9/ULjO+Dqb4FiRXudjpmZfR0O3udlccVOqIs6IFUiV9Hitavwf+OeRv3jb2DuV0UdkCqRq2Co8lXjQlQ9LaoDrp3ArdpuFS9WNLQPCMW5NSAW6oBUic52cquVPy6FmF+oA+oOkPqc/77JT67dmeBS1AFU4sF4TKU+ofEdIANoATQygBZAIwNoATQygBZAIwNoATQygBZAIwNoATQygBZAU/uL0D7P/3y+Wz5nZmbd6av+I3SLyABaAI0MoAXQyABaAI0MoAXQyABagBBCkPwAtSxa11gZV7UAAAAASUVORK5CYII=',
+  161: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABVklEQVR4nO2aMW6DQBBFh8gNN4iUhlvYBUVuEcr4Fi4pfYu4xLdIQUFuQRMpN3BpV1uwYkUw632J+K8DRjtff2Z3WYSZEEIIIdZKFnvAn66+jt1/3tWzcsUaZ4qnmIP9R2QALYBmkypR17yPzmma1XeADKAF0ETbU6fm+PbtY/T+13l/V9yuOmVmy98XVt8BD98F/Iq+5LmZmX1fLqPPp+L8TliKOiBVIldR/9pV+LdxRVGYWXjuz0UdkCqRq2Co8nPjQsw9LaoDHp3ArdpuFfcrGnoPCMW5NSAW6oBUifxKt20biIy7z0+hDlg6QOpzft/3g2t3JrgXdQCVuCxLKvWA1XeADKAF0MgAWgCNDKAF0MgAWgCNDKAF0MgAWgCNDKAF0MgAWgDN4i9C/jc6n+rwmZmZNcdX/SP0F5EBtAAaGUALoJEBtAAaGUALoJEBtAAhhCC5ARDPW084oXOFAAAAAElFTkSuQmCC',
+  162: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABU0lEQVR4nO2aMY7CMBBFJysaboC0DbcgRe6x4RZb7hG25BaEe6QIt3CzEjegZCsXWDEhxPiD8l6XZOT5+jO24yhmAAAAMFeK1AOeuu9L3/1VuRuVK9U4Q3ykHOwdwQC1ADWLXIm6pu6d02pm3wEYoBagJtmeOjTHN1/73vvHw/ahuLJuCrPp7wuz74Cn7wJhRT+XSzMz+zufe58PxYWdMBU6IFciX9Hw2lf43rj1emVm8bk/FjogVyJfwVjlx8bFGHtapAOencCv2n4VDysaew+Ixfk1IBV0QK5EYaXbto1Ept3nh6ADpg6Q+5zv3Onq2p8JHoUOUCWuqkqV+orZdwAGqAWowQC1ADUYoBagBgPUAtRggFqAGgxQC1CDAWoBajBALUDN5C9Czrmbz+ufrjAza35L/hF6RTBALUANBqgFqMEAtQA1GKAWoAYD1AIAAJT8Aw9bWzdOwXgeAAAAAElFTkSuQmCC',
+  163: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABiElEQVR4nO2ZMVIDMQxF/zI06ehpUlLmBuQIHAEq6FhOAJyApaSCI3AEuEFKyjT0dClNpQINXu9OJAvG/3XJaO0f6UexFYAQQki7dLU3HPrzBACrk+Vo3Prqroq2gxqb/GWqOUAqL5QcsPnYAgD64cVVIx3gvUFKKf32/vvT/ehzp5e3P153XeeitXkHHHotrCt/vFgAAD53u0nP63hZz9oJzTvArQdIxaSSGqns480FAOD64RlT4ukAY9x6gCCVm9oD5sbvS/MOcOsBcvKT77Ymdw7Qv/+C9Arrk2HzDnDvAVI5oXQH0M6QO4EXzTvAvAfoW5+m5ABNzgFWvYAOsFqoVHkv9nUCHVAK6NdnJpVdro5mxW83XxbbYnh7Hf2MzTuACYgWEA0TEC0gGiYgWkA0TEC0gGiYgGgB0TAB0QKi4TzASsh/pfpM0ArOBI1w/2dIyE14cpOiXHxpwjMXOsB7A3FCrRnfXOiAWhtZTZfpAGOYgGgB0TAB0QKiYQKiBRBCCCGERPENJy14PpIRaFgAAAAASUVORK5CYII=',
+  164: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABdElEQVR4nO2ZwZHCMAxFfxgu1MAlJdABlBAqASoJWwkpATqghFyogWM46YBnncQgWbvj/26ZUayP9OM4AiCEEFIuVe6Ex6YZAKDZ1aNxu+M5i7ZFjiR/mWWuRNL51Phz15k6oXgHmD9nwzD82vnbz2n0vu2hfbuuqspEa/EOMNsDws6vVysAwOP5nHV/GC/raTuheAeY7QHSMelkiHT2tN8DANrLBXPi6QBlzM8B0rm5e0Bq/LcU7wCzPUBOcvJsh8TOAeH7X5C9QvtkSAdYLRw7+099BYZ01/7tmg5QRv0tkPrV9+n6Wk4o3gFqz5N152N86wQ6YCqg2WxUOlvXdVJ83/caadHd76O/sXgHsADeArxhAbwFeMMCeAvwhgXwFuANC+AtwBsWwFuAN5wHaAn5r6hPhXM5gTNBJbL9LxCb8MQmRbH4qQlPKnSAdQJxQq4ZXyp0QK5EWtNlOkAZFsBbgDcsgLcAb1gAbwGEEEIIIV68ANX1dyFvygk4AAAAAElFTkSuQmCC',
+  169: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABjklEQVR4nO2asVLDMAyGZY670mdgyUZHxm6EN2FrV7Y+Ahsdy9Y3IWyMrGxZeIZepzDpjvpwEjeSBaf/23qn2H+l36pjlwgAAIBfQukJd3XTERHVt8veuMX2qoi2ixKT/GUuS03Elc+NXze1qhPcO0B9nXVd92vlPx+Pvc/dPM9OPocQVLS6d4BaD4grfz2fExHR1+Ew6vk4nseTdoJ7B6j1AK4YVzKGK/ty/0ZERKvXOxoTDwcIo74P4MqN7QG58VNx7wC1HsA7OV7bMal9QPz7z3CvkN4ZuneAeg/gyjFDb4GxM5qPd3FNP4EDpAfMfes7d3ypXuDeAWIdVbvyKaY6AQ4YCthUe5HKVlWVFd+2rcS09NQ+9H5H9w5AAqwFWIMEWAuwBgmwFmANEmAtwBokwFqANUiAtQBrcB4gJeS/In4vUMoJOBMUQv1miEmd8KROilLxQyc8ubh3gNrNEK/RoZ4gdfZ3Lu4doJ6AdVMH7f/6TQEOsBZgDRJgLcAaJMBagDXuEwAAAAAAv3wDiEZ2iOYzHbAAAAAASUVORK5CYII=',
+  170: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABzElEQVR4nO2aoU7EMBjH/xDMCRwJJJhJHgExg+PcEhC8ATzACV6ABMEDcJoTyHPgMBO8AAlyhoQlOMQFBYJ8IWvarF37MUj/P3W7fu2afb+0XVeAEEIIIYQQkiNrWg0fXr9+AkDTNEH1ni/31fpkY/03b/YXSfa0JeMmoQYURdG5vj/bUTWCBsQ24Mq8EGuAoGUCDRhasS/zQioDTFIZQQNCK5iZvzvdtsZN5y0APQMEMWHv/NHLSHOdkb0BG76BrszvTibW+JfVCgAwnQ/uW1C/Qk0TaEBohb7MC1IuJny0B9a4ankbdP+hmXZBA/oCfOd7F67MC8vqBEC4CaG43jKzN4APYOwOjE3wLCArPBnd+9YBfWOAUJbfs0tdt6FdioIG+AbWdd253pTL4wUA4P3mqFN+8SS/HgAAsy27CVdv3fJZ1S3Xnh1oQKqGfjJuRzJt4jJD0F4n0ADfwLIsHf/b9wP+C9kbwAcwdgfGxntP0PVWmGoMcM0G5ugfux/APUGDaAOEVCYMfRfwNYMGGER/FzAZasLQzPO7QCRq3wZ9TYjNfCw0ILaB2F1jX3g+QAn1M0Kx8IyQMurnBEPRzrhJ9gYQQgghhJBc+QKjSaGWV3UYTAAAAABJRU5ErkJggg==',
+  171: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABx0lEQVR4nO2aP07DMBSHf0UsvQESSzY4QIdWygASA/dg6ciCYGBkoBsDQ+/BwgZDEB04AN26IHGDqlMZ0BOKZSv+9wjIv29q6mfHyvtkO44BQgghhBBCSIkMtBoe375vAWC1WgXV+5yfqvXJxs5v3uwvku1pS8ZNQg2oqqp1vbg6VDWCBqQ24Mq8kGqAoGUCDYit2JV5IZcBJrmMoAGhFczMv14eWOMmsyUAPQMEMWFv+uhlpLnOKN6AXd9AV+b3h0Nr/Md6DQCYzKL7FtSvUNMEGhBaoSvzgpSLCZvNsTXu6G4edP/YTLugAV0BvvO9C1fmhefzKYBwE0JxvWUWbwAfQN8d6JvgWUBWeDK6d60DusYAoa6/Z5emWYZ2KQka4Bu4aJrW9UCuT+4BANuHs1b5xYv8egIA3IzsJly/GeWjdrn27EADcjX0k3E7kmkTlxmC9jqBBvgGjuva+r+M3v+V4g3gA+i7A33jvSfoeivMNQa4ZgNz9E/dD+CeoEGyAUIuE2LfBXzNoAEGyd8FTGJNiM08vwskovZt0NeE1MynQgNSG0jdNfaF5wOUUD8jlArPCCmjfk4wFO2MmxRvACGEEEIIKZUveiqhKuaWzCMAAAAASUVORK5CYII=',
+  172: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB50lEQVR4nO2aMU7DMBSGHwgp6cbWSixhgrEDEgwMCI7ABTgA3IE7wAG4AEcAMTCAxNARJrIglY2tyVSG1KpixY2fY8eR3v9NqePYlt/nFzcJEZDNVqyOi+Jh2VSeple9jmm7z86GSG+zbYp4G6GNEG8AJiD2AGITPAe4rn2dULlAvAE7vhr6fMu8RJrb/uFJ3skM8QZ0Xle2kc+mt07t5zO761xNgAGuF7queVsTbCOvwzVBvAGYgNgDiI23fYAtSfJBRERlebTxfF+IN8D5LlDMp0siojz/s6p/cPytldwYat7Vfn2971u1n2W7RESUTma4C3BgG6Air2My4fxs3lj+s1isjpQJVeT3RqPG+s8vk8ZyFXkdWxNgAPcCkwHJ+HR1tDmSOsoEbn1lTvn72lgPBlhivQ8wRX6oqPG2mSDeAExA7AHExtt/AZWNk3GVnduyu57NufVN2Z8LDAjXdD2ypvPu9f0g3gDrnSB3H7DeGfqFu/axD2ghWA5Y3xUqE54e753aubi8rrXnGxgQuoOukQsVeYV4A7w9DxgaeB5gCSYg9gBi0/m9wNDAewEmnb8QGYoJ3MgrxBuACYg9gNh4//qyr5zguuZ1YECohkOZ4CvyChjQV0euRviOuI54AwAAAAAgl3+oQpm3NJqmHgAAAABJRU5ErkJggg==',
+  175: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB3ElEQVR4nO2arVLDQBRGLwwzaVU7g8TEgUtlBQokFTwCbwCyj4CEN+ARMEhQCGRx4GKQzBTVooqgV+TObrO72Z/M7HdUu93ebPc7uZmmJQJ5s5fqwOvFw0Y1PphcRV3TfsyD9ZFou61LvI3QRmRvADYg9QJSE7wHuJ77klC9AAb4KvSxuFMmXdLYS/2alsrxk8lNp88AA7oW0CUvcTVBl7zE1QQY4PpG0+QlpiaYJi+xNSF7A7ABqReQmugbUFQzKqqZ8+u+yd4A56vAevm4ISKq69po/nF1LUa+NTMPG88+3++N6pdlSUREg/ElrgI2WBvAyUt0JpxN58rxr9Vq+4hN+E/+aDhUzn95u1WOc/ISUxNggO0bdAYUo9Pto91JStgE2/lszu/Pq3IeDDDkwHSiLvm+wuttMyF7A7ABqReQGuMe0AZ3Y74atHV32c1t5+u6vy0wIFzpZrK6193n+wEG+C4oe4F9crvn+zr3GRgQqrA04flJ/W2ujfOLeaOeb2BA6AN0TS5U8kz2Bni7H9A3cD/AEGxA6gWkpvPvAn0DvwtY0vkfIn0xwTZ5JnsDsAGpF5Aa7/++jNUTXM95CQwIVTiUCb6SZ2BArAO5GuE7cUn2BgAAAAAgX/4AtuqZIwCrev0AAAAASUVORK5CYII=',
+  176: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhUlEQVR4nO2aMVLDMBBFVwwzcSrc07ikIzcgR+AG5GhwA44AN4CO0g19qBJXpkEwMZYVxbv6MPqvy8zK+t79kuV1RAghhJSLyz3hfvvUi4jIYz0ZV21WWbSd5ZjkL3Oea6LvyifGV/Xa1Al0gPUEfd+PVr6T18lxi4ubg/HOORMn0AFWFx5W/nK5FBGR993uqPHDeCsnFO8Asx3WV8xXcoivbPfxLCI/az4WTwcoY/4U8JU7dg9IjZ9L8Q4w2wP8Sc6v7SHdw/g5YHF3PR7/tVdonwzpAKsLB8/+kbfAX9xuD37SAcqoPwVS3/pOvb6WE4p3gNp6sq58iLlOoANiAW8v9yqVbZomKb5tW41p5Wq1mbzH4h3ABKAFoGEC0ALQMAFoAWiYALQANEwAWgAaJgAtAA37AVpC/ivqXeFcTmBPUIls3wVCHZ5QpygUH+vwpFK8A8y+Dvs1GtsTtHp/p1K8A8wTUNVrZ/1fvznQAWgBaJgAtAA0TABaAJriE0AIIYSQcvkEs7p5xR+Ax0IAAAAASUVORK5CYII=',
+  177: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABe0lEQVR4nO2ZMXLCQAxF5QwNJ4CZNHsLUpJbpIRb5AjcAsrcAkpyi21ScAJKp1LBDmt7g7Q/zP7XMSNbf6RvsZZFCCGEtEtXO+HmvOlFRHYhDsYtl6cq2l5qJPnPzGol0s6Xxh/eDq5OaN4B7s9Z3/d3O3+5vA9et1gcb353XeeitXkHuM2AtPOv87mIiPxcr5OuT+P1ftZOaN4BbjNAO6adTNHObr+3IiKyX+1lSjwdYIz7OUA7N3UGlMY/SvMOcJsBepLTZzsldw5I//8VnRXWJ8PmHeA+A7RzythbYOqMzxiMFd1CB1jfsPSt76/3t5oFzTvAbKJ6dz7Ho06gA8YC1l9rk86GEIriY4wWaeX0MbxbbN4BLABaABoWAC0ADQuAFoCGBUALQMMCoAWgYQHQAtBwH2Al5Fkx/y5QywncCRrh/mVIyW14cpuiXPzYhqcUOsA7gTqh1o6vFDqgViKr7TIdYAwLgBaAhgVAC0DDAqAFEEIIIYSg+AURK3iyMKXZ+AAAAABJRU5ErkJggg==',
+  178: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABfklEQVR4nO2ZoXbCQBBFJz01uPoKIivzC1VUwp8g+QRk/wQkqPIJkZUg6uuQqRrBHjbJlpl9cPZdxzmT3ZeZl2EzESGEEFIuVe4N57t5JyLy+fbbG1fXhyzannJscs8859pIK58av/3YujqheAe4P2dd112t/On03nvddPp18buqKhetxTvArQeElX+dTERE5Od8HnV9GK/rWTuheAe49QCtmFYyRCu72C9ERGQz28iYeDrAGPdzgFZubA9Ijb+V4h3g1gP0JKfPdkjsHBD+/yvaK6xPhsU7wL0HaOWUobfA0BnL7xdjRZfQAdYLpr71/Xd9q15QvAPMOqp35WPc6gQ6YCigWTcmla2bOin+2B4ttpV21fbeY/EOYALQAtAwAWgBaJgAtAA0TABaABomAC0ADROAFoCG8wArIY+K+XeBXE7gTNAI9y9DSmzCE5sUxeKHJjyp0AHeG6gTcs34UqEDcm1kNV2mA4xhAtAC0DABaAFomAC0AEIIIYQQFH8hwXgS/i6frQAAAABJRU5ErkJggg==',
+  179: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABWElEQVR4nO2YvY7CMBCEJyeKUF06kCjgESivoMijU6Sg5BFCgQQdVNDdVT4JyyYYOx4hz9clWXlHs5MfBxBCCCFEqVSpF7yf1r+u8/V8H9Qr1TpDfKVc7BORAWwBbCa5Gp36i/Oe9tOOosOm+ATIALYANsneqUP3+Gz57Tx/PlzfqpuvmgqI/14oPgGjvwXsiS6mUwDA8XZzXh+qs5MQixKQq5GZqH1sJvxqXVO3APz3fihKQK5GZoK+yYfW+QjdLSoBYzcwT23zFLcn6vsO8NU1dVp9SkCuRvaku65z1m2wySHnHyUgdoHwfX4cl/v24djsCd6l+ARE7wZzJ8BGCYhEBrAFsJEBbAFsZABbABsZwBbARgawBbCRAWwBbGQAWwAbGcAWwCb6n2Df90+v/7TrCgB22z31z5GP4hMgA9gC2MgAtgA2MoAtgI0MYAtgIwPYAoQQgskfv5Bfjwa7NgsAAAAASUVORK5CYII=',
+  181: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABeElEQVR4nO2YMW/CMBSE3aoSZctGpS7p1jFsDNn6E/o3+jMzdCMjY5ZKsGUDJhjAQ6yYOMl7vkq+b8LRS3zcu9iKjSGEEJIuT7EnPO2LS0jd61sdRdtzjEn+M9ES4Ha+rdveuqzIOmPtJCSfgBftCULf+aH7tZLABGg92HZusdp6Kj56r/rqT/u1ShKST4D4e+Xr/PtyaYwx5u947Fw/H9ZmSr1UEpJPgPouYDvpjt3OTq2fCxOgPYHtXGgnx9bPJfkEqO0CFt++bldzl9B67gJCqK8Bvk5L1c+FCUALGAu/BYSZ7ObuN3/4nZ/nWWdcVXXQc8uy6L3eNO3D+z43zaT/knwC1NeAxaq8/6pH1t84HypZQQ5MQKyJvr5/Yk01iuQTQAPQAtDQALQANDQALQANDUALQEMD0ALQqJ8KS8MTIWHEvwaHTm4s7gnO0AmTFskngAagBaChAWgBaGgAWgAaGoAWgIYGoAWgoQFoAWhoAFoAIYQguQL9cGaGy7aPZwAAAABJRU5ErkJggg==',
+  182: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABzUlEQVR4nO2ar3LCQBDGl05nCs9Qg6yoqIwrj4ELooIZJIZHwFQyg6gojkeopC6yAt3B9BmgqhVwZdjhsrncn6WT72dCkru9nd1v9xKgRZHZva5+QthpD3qtEHY4VzGM/icQAG0HtKldV7baNrUaqvZd7bv2Ciig6sBYGY2NpIjGKwAB0HZAG7EHhKr9m/zx5Px78e41zhVbL2i8Aq5TLXTb6RAR0dd2S0THTM9oRkREIxqdHf85f4vqFxSQekGuBNv9VEAB0gDfZ/u/rj7cH2yZN5j7Rglmft3dAE+CAsl6AM+86f783OwGklJCAQVUHchrSeoJL/n68Gl9cn36PC1faGy5nu8PT4v70um93aTcPgMKqDtRUoTJ1FEJftgy75pxDhQgDcjmmdfbIFfCZOyWManmfYECQhkytbhqn+/yrj0hdLe3AQWENlhVCb72QwEFxDIsKaGuvdBAAbEX4Jmrqoi6GS+GBX4bdCH5d4KDu3np/c3HJo0jB6AAaQCvKd93g0uj8QpAALQd0Cb5LiDRfegSEdEyW0b5XyCn8QpAALQd0AYB0HZAG+ddwPVty9Av+hf5BNl4BSAA2g5ogwBoOwAAAAAAAAAAGvwC/3OGrG6r8QoAAAAASUVORK5CYII=',
+  183: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB7ElEQVR4nO2ar04DQRCHB0JC60iQmHPgqELVYStKMIgK3oDKPsLJ8gYVCAyhohZXhSoO3BkkCa5FFQFT0sket7u3fy7Z3+fubjs73fl2Lrk7IpA2O7EmXk0Wa9X51nUnaE67ISdrIsFWu6ziVfg2InkDsACxE4iN9x5gu/clvnoBDHAVqD9+VVb6/mDlJP7VZ0t5fjo8qfUfYEDdAGWVl9iaUFZ5ia0JMMD2h7qVl+iaoFt5iakJyRuABYidQGz2Qk84650SEVFv9vLvdbp7C5JP8gZY3wWG09WaiKgoCq3xjzfHW8cPH+pxl4fbxxe3eiZkWUZERON+C3cBE4wN4MpLykx4HnWU59+XSyL6M4Erf9RuK8ef5Qvlea68RNeE5A1wdhcYDH72eFUlGb7OJlSNZ5OkOfP5l026G2CA7sCyvd9UON+qXpC8AViA2AnExtldYNONu/tEVN3dZTc3HV+3+zMwwFdgWdmy67bjXQEDXAfkvdn97QWmlasa72rvMzDAV2BpQp4/WcUZjc634rkGBvieoG7lfFWeSd4AZ0+EmgaeCGmCBYidQGxqvxdoGngvYEjtL0SaYoJp5ZnkDcACxE4gNs6/vgzVE2z3vAQG+ArsywRXlWdgQKiJbI1wXXFJ8gYAAAAAIF2+AXaUpJZ4OkQmAAAAAElFTkSuQmCC',
+  184: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB60lEQVR4nO2ar0/DQBTHHwQzRT2mCQkWJGIJQ4NAICeW8A8g6xhukn+AZAKJQIBmJBNIsCQkM/iiJodYXpa+XOnd9X40ue/Htb29e7v3udekLRFIm61YE5d3s5XqfHY9CJrTdsjJukiw1a6reBO+jUjeACxA7ARi470H2O59ia9eAANcBRqMP5SVfspKJ/Evykx5fjY+avUfYEDbAHWVl9iaUFd5ia0JMMD2h7qVl+iaoFt5iakJyRuABYidQGx2Qk/4eH5CRESXz2//XqeHzyD5JG+A9V1gNC1XRESLxUJr/OvNYeX4/ls97mq/enx6q2dCnudERDQdZbgLmGBsAFdeUmfC1+RYef5nuSSijQlc+b1eTzn+oHhXnufKS3RNSN4AZ3eB4XC9x5sqyfB1NqFpPJskzZnPf63yZWCA7sC6vd9VON+mXpC8AViA2AnExtldYNONd4moubvLbm46vm33Z2CAr8CysnXXbce7Aga4Dsh7s99f9wLTyjWNd7X3GRjgK7A0YTJ5sYpTFGeVeK6BAb4naFs5X5VnkjfA2ROhroEnQppgAWInEJvW7wW6Bt4LGNL6C5GumGBaeSZ5A7AAsROIjfOvL0P1BNs9L4EBvgL7MsFV5RkYEGoiWyNcV1ySvAEAAAAASJc/42mjMh1GEEoAAAAASUVORK5CYII=',
+  185: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABcUlEQVR4nO2YIZbCMBRF/3AQwxowXQILqADFSJaBBFdWABI5yxgJaipqcCyhhjWAAxXRnJaGkJ83c/KuS/lpHu+/NqcRIYQQki4fsRc8FNO7S93XroyibRBjkb9MtATYnS8Xk9a66c+5MdZOQvIJGGov4PrM983XSgIToHVj07n59rf19/K0br3eVX+QmUoSkk9A8Oeqq/Pj0UhERC7Xa+P6cTMTn/pQSUg+Aeq7gOmkPbY761v/LkyA9gKmc66dfLX+XZJPgNouYOja183b3Ma1nrtAINQToAUTEAj1XSA0/BYIjLeb36vs6bOefWaNcVVVTvfN87z1en2rn85b7muv/5J8AtTfAaajvglwnecLExBroaIoYi31EskngAagBaChAWgBaGgAWgAaGoAWgIYGoAWg+XdngjwRCkzwr8G+kxuDfYLTd8KkRfIJoAFoAWhoAFoAGhqAFoCGBqAFoKEBaAFoaABaABoagBZACCFIHooHaqIs9h46AAAAAElFTkSuQmCC',
+  186: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABd0lEQVR4nO2YMXLCMBBFNxlmMnTpKGhyBB/ARVIlJXQcxUfgKOlICVVS+AA+QhqKdHQMFVQq0IhYFrv6MPqvs5Ctz99vy14RQggh5fKQe8HZ+vUYM+/r4yeLtscci9wy2RLgV/6zeg7OW3S7s2PrJBSfgJH1ArH3fN/5VkkoPgFm95er3Or9O/j74W8eHH+arILj882biOgngQnQvuClyk/HYxER2e73Z+OuskPnayWh+ASY7wKukv6xX9nU+dfCBFgv4CoXW8mh86+l+ASY7QKOS+8B7mnuEzufu4AS5gmwgglQwnwX0IbfAsoku1ktq3/v9Rev49O2bdR167oOjv96nSKfrumS/kvxCTB/BriKpiYg9rxUmIBcCzVNk2upQRSfABqAFoCGBqAFoKEBaAFoaABaABoagBaA5u56guwIKaP+NdjXuXH4HZy+DpMVxSeABqAFoKEBaAFoaABaABoagBaAhgagBaChAWgBaGgAWgAhhCA5AXgmaXuDIy0eAAAAAElFTkSuQmCC',
+  189: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABu0lEQVR4nO2asU7DMBCG/yIGujNUYonEIzAkIyOPgMTCI3Ts2LFjH4EFiYmZMWMydGdBytKNvQxIsGChWnEcO7YP5P/bLF/Pp7v/Lk7UGSLTNM1XCD9VVc1C+NE5ieH0P8EESAcgjXdfmXpb9Wqo3nf17zorqICxhrEqGhubIrJXABMgHYA01hkQqvfLsjxat207yc4V0yzIXgGnqQ66mM8BAPvDAcBvpd+wAwBc4qrX/rmuo8ZFBaQ+UFeCaT8V2Ssg+k1Q9bqp8rYZoOx9nwa8CVpINgNMldfXSgmmGRGa7BUQ/HuA4rzsF9fmcTPod3W3Gtx/bz8H918+no7W6+stZ8AQ3jNAn666IlSlTEpwxVR5veKuUAE2g3W9nPQ2qCvB1uOm38eCCgjlSPXizdlt777rTHCd9r5QAaEdjlXCVP+hoAJiObYpwddfaKiA2AfolRurCN+K2+7+OlRA6gNfF83gftd1aQL5gQqwGeg9NfXd4K+RvQKYAOkApEn+FLBRFAUA4L5YRvlfoE72CmACpAOQhgmQDkCaJJMWAB66rdMNkk+BRDAB0gFIwwRIB0AIIYQQQgghEnwDyRqRZ9vq/JwAAAAASUVORK5CYII=',
+  192: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABuUlEQVR4nO2aMU4DMRBFJ4iCnAEKd9kjUAbRcAhASFyCdHThEkhI4RA0iByBctO5gDOEDhosESv2rL1jj5D/a6KNLe9k5s+3d5UJFeaun39LrPPQrScS6/gclFj0P4EEaAegTXZfhXrb9apU76eun+oVUMDQiaUqWhpOEc0rAAnQDkAb1gOken85e9u5XmzORs1LJeQFzSvgsNaNjqdTIiL63G6J6G+lr34/V3vnX7+fFo0LCqh9Q18JofFaNK+A4idB1+vhysc9wM3P3Q1wEmSo5gHhyvvXq8D8MjSvAPH3AY7l7GTv96+Pz9F1z28vo+OLzUd0/Maud667i/hvbF4B2R7gu6uvCFepkBJSCVXer3gqzSuA9YD+hQbt/09mHh3PVUJqz/vAAxjEFOCQUsLYyjugAAZxBTg4JeSS6vpQAEOxZwFXKSkljN3vQzSvgGIeEGKoInIrzvW8T/MKqP5O8J5sdNza+Lg0UAA3we8paU/QpnkFIAHaAWhTfRfgMMYQEdFRZ4v8L9CneQUgAdoBaIMEaAegTRWnJSL66k3SCRK7QCWQAO0AtEECtAMAAAAAAAAAAA1+AOxWg0UJjnb0AAAAAElFTkSuQmCC',
+  193: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB30lEQVR4nO2avU7DMBDHL6hDKvEGdMgjdGDMEKYgwcOUjaFbO7CFhwGpTMmQDQYeoQvP0EgghQUPMUljOz5fq7vf5vjjrLu/fLZjAIE3EdbATZO1fd/juDpq07WfKxcYg54Ts9AGr9ezFgDgY/sT9X0PDXsFoK0BOnqE0zTt1Nd13SnrCsGCvQJO1gGrXdaudv0ZwScn64BQoDug/cO2X5GXUOSlc39T2CsAbR8wFrUiLwEA4OHtprf+aj4HAICvw6EzXhRFXrODKADbgIrkP1ObbvF986217/ZXSvCNKADbgIqcaSRt20+FvQLQ99tD2WBo9VfZQcf36q8QBYw1aJrsxYehxwrubNo/ZfDqw24cV/fH6tkrINiN0P5z3ykny+R4u6y/3jeiACrDuiKoYK8AcQD1BKgRB1BPgBpxAPUEqBEHUE+AGuudYLqtrU51isXlIoidep1anSLZKyCYA5JlMngCpIS9AuRGyIeRc8b4ptX2DY/+AmQq+guSMUxfmLBXgDiAegLUTP7bEuIdjwnPt24vSdkrwPlWWGWFsdV5ajawXf1tYa8AcQD1BKjx/s89VFZwXfV1RAFYA2MpwVfkFaIAbAO+lOA78gpRQGiDporAirgOewUIgiAInPkFnFOTT9hcQ+4AAAAASUVORK5CYII=',
+  195: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABVElEQVR4nO2YMRKCMBREP44FnMFDaEnBIezEzmN4BI9hp3YegsJSb0DjGaDTwsmMZhIhBrPDZF8HZPJ39m8gQYQQQgghsZIMPWHbXh6m+2maO9Uaap4uJkNONkZoAFoAmmmoQuXxalzTdtr/CNGIPgE0AC0AzWDf1K41fljNjffXp9tP447lIhHx3y9En4C/fwX0js6yTERE7k1jfN41Tk+CL0xAqEKqo/q16nDfcfvla3+wt6x9V5iAUIVUB22ddx1nw/W0GH0CRrcPUO8AG0yAI8HeAXqnq6oyjwsh5g0mwHcC93O+H5tz+nGtzgS/wgSgChdFgSr9QfQJoAFoAWhoAFoAGhqAFoCGBqAFoKEBaAFoaABaABoagBaAhgagBaDx/iNU1/XX55ftMhERyXfnoP8O+xJ9AmgAWgAaGoAWgIYGoAWgoQFoAWhoAFoAIYQgeQIzyVkLyyLOfQAAAABJRU5ErkJggg==',
+  196: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABSElEQVR4nO2aMQ6CMBiFH8ZBb2DiIJsegsHR0ZvoUfQmjo4OHEK3Oph4A9l06iApYAH7NH3fBjT9X97/CpQACCGEECJWkr4nvJvi6To/SUdetfqap4lBn5P9IzKALYDNMFQhszs71zSb6BMgA9gC2PT2TG1a47PN3Hn+ur+0GpduFwnQ/X0h+gR8/SlQ7uh0PAYA3B4P5/WmceUkdEUJCFXIdrR8bDv86bjROgUA3Nfute+LEhCqkO1gVed9x1Xhu1uMPgF/9x5g7wFVKAGeBLsHlDud53mo0rUoAV0nCL3PLw7m7djuCdqiBLAKZ1nGKv1G9AmQAWwBbGQAWwAbGcAWwEYGsAWwkQFsAWxkAFsAGxnAFsBGBrAFsOn+TdCY2uvL3SoBgNP2qH+EfhEZwBbARgawBbCRAWwBbGQAWwAbGcAWIIQQTF41yFaCN7PA8gAAAABJRU5ErkJggg==',
+  197: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABPklEQVR4nO2asQ6CMBRFH8YB/8DEH6ibo25+upuObvADJo5ssukiMZIqFrBH03s26EvfzX2v0BLMhBBCCJEq2dgT1vX26ruf57ugXGPN08VkzMn+ERlAC6CZxkrk3Nq7pmmS7wAZQAugGe2d2rXGi2Lvvb9cbnrFleUhMxu+X0i+A77+FmhXdDGbmZnZ6XLxjnfFtTthKOqAWImairavmwp/Gnc85vcR/9oPRR0QK1FTwVeVD417RehpMfkO+Lt9wOMZ4EcdEEi0Z4BnJ/dR3LdRBwydIPY5f7Wqn66bM0Ff1AFUYufWVOonku8AGUALoJEBtAAaGUALoJEBtAAaGUALoJEBtAAaGUALoJEBtACawV+Eqqp6O34+l5mZ2Xzu9I/QLyIDaAE0MoAWQCMDaAE0MoAWQCMDaAFCCEFyA3WGVd0PX8yqAAAAAElFTkSuQmCC',
+  198: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABgElEQVR4nO2ZMVICQRBF/1okZBtSZWIIkXgLbyFXMPMIZHoEvYW3UCMITawi3IxwjUZgi9llpHu+1vyXQfVOf7r/zs42gBBCiHKpciecTuctADzcPvfGLZ7mWbRd5EjylxnlShQ6nxq/Xr+7OkEO8E7Qtu3Rzr/cf/Ret1q9/SwBAFVVuThBDvBauNv5y/EYAPC13Z50fTc+rGfthOId4LbDho6FTnYJnZ3NbgDs7vmheDnAGPenQOjcqXtAavy5FO8Atz0gnOT2nucHxM4Bd4/XR78Pe4X1yVAO8Fo4dvYfegvssnxdHHyWA4wxfwqkvvX9dn0rJxTvALP7ybvzMc51ghwwFDCZXJl0tq7rpPimaSzSYrP57P2NxTtABWALYKMCsAWwUQHYAtioAGwBbFQAtgA2KgBbABvNA6yE/FfMp8K5nKCZoBHZ/heITXhik6JY/NCEJxU5wDtBcEKuGV8qckCuRFbTZTnAGBWALYCNCsAWwEYFYAsQQgghhGDxDQvleGOxdFfYAAAAAElFTkSuQmCC',
+  199: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABgUlEQVR4nO2YP27CMBjFv6IuuUElBnIDeoAMPQI7S8dKLB3ZgBt07MgROEKHHABuYIZK5QSIiQ6Vh1j54yT+/Cr5/baEz/HjfS+2YhFCCCHp8hB7QrM93n3q8u1zFG2TGJP8Z6IlwO3809t7bd3P50flWjsJySfgUXsC33e+a7xWEpgArQfbzs0289rfb5f6cU31RnSSkHwCgr9XTZ2fZpmIiHxfr5X7591JhtSHSkLyCVDfBWwn3Wu3s0Prx8IEaE9gO+fbyb71Y0k+AWq7gKVpX7eruYtvPXeBQKivAU2dDlU/FiYALaAv/BYIzGA3v14Prd/5eZ5Xrsuy9HpuURS1940xreNe9otB/yX5BKivAbPib1/3TYCtt5xL3V2BCYg10XK9ijVVL5JPAA1AC0BDA9AC0NAAtAA0NAAtAA0NQAtAo34qHBqeCAUm+Ndg18mNxT3B6Tph0iL5BNAAtAA0NAAtAA0NQAtAQwPQAtDQALQANDQALQANDUALIIQQJL/7wGm+n3FZiAAAAABJRU5ErkJggg==',
+  200: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABk0lEQVR4nO2aO3bCMBBFhxwWkYI+3oEpXKTMLkjJElJSsgRKexcpKVzEO3B6iiyDBoWPER6NRp7k6N0O4xnN0bvo8CMCAAAAQK7MplpoU+y+RHX9eqk9yyVPKZv/B5IZIE18tK+yETBAu2Gq5AfrKJkAA7QaTZX8YN1IE2BAbAOr5G+RmgADpIVjyb99vJb3rn9u9x2nv7Q+1ITsDZhrN3TJlasX3y0lkT/J2PpQsjcg+AzwvfYZyV3RNd9EdE4ytn4wJ/MsyN4AbID1ANZgA6wHsEbtfcDFafzwNPed3rH1UmCAdsPbJB88n6Q+FBiQqnFsUtpJ+4ABCj36exfbvl0p9P6lKqpm5JZC0hcGhBa4T1mbYldz7l88L64eH34OousM+tN879wCIhggMICZvBVuPq4J2RvA/kboryfvY8yE7A3ABlgPYA02wHoAa7AB1gNYgw2wHsAayW+DdYI51MFnASYx/xCpFedQA98HBKLxL7FaYY5oQpN3wICpFpKaIk2WCwyYekGuCamTd2RvAAAgb45K2JG4XUa/HQAAAABJRU5ErkJggg==',
+  203: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABZElEQVR4nO2ZMU7DMBiFXxAS7Q2QWNjaQ2ToyOijlK1HYKNHycjIkEO0m5dKvUFhKpOHWDbBtZMn5PdtSSz/T+9/ie0WEEIIIUStNKUntObzGrr/3G2SapWaZ4y7kpP9R2QAWwCb+7kKfR22wXc6xnk3lZIh1SdABrAFsCm2po694w+r9+D97+PrTeMW630D5O8Xqk/A5KuA39Gn5RIAcLpcgs/HxvlJyEUJmKuQ66h/7Tr813HnnQEAWGOS9hUxlIC5CrkOxjqfOi5G6mlRCZi6gPtqu6+439HYPiA+zhTVpwTMVcjvdN/3wXEtyq7zYygBuROknvNzeXzrBtfuTHArSgCrcNu2rNIDqk+ADGALYCMD2ALYyAC2ADYygC2AjQxgC2AjA9gC2MgAtgA2MoAtgE32L0LW2l+fr1+6BgAOH2X+yytN9QmQAWwBbGQAWwAbGcAWwEYGsAWwkQFsAUIIweQHcGxc6yJyI54AAAAASUVORK5CYII=',
+  205: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABL0lEQVR4nO2asQ2DMBBFnSgjUFIwAqMwAEMwCkMwAKMwAgUlOyQVUkBKgvGZR+T/ajg/fZ2FfcI5IYQQQgiRJjfrgmVZPq1rvjMMg6nz3bLYP6IAaAEaBUAL0DxiFZ6mybRenuem9RbUAWctVNe11/Nd10UyWaMO+PVA0zRfT3Zt25qfJn0I9VMHnLXQWXvaF3VAaIFPt79Y323r22byHaAAaAGa3d/wvXuvKArnnHPjOB4Ssqq7d3KUfAcoAFqARgHQAjQKgBagUQC0AI0CoAVoFAAtQBNtJrjc3q5O8h1gNtOvqirqnyFb+r43cU++AxQALUCD/SW2ndkdfS+U5DtAAdACNAqAFqBRALQAjQKgBWgUAC1AE3yuzrLs0BxgnufV2lZ1fEm+AxQALUDzAlTHNjIre/bKAAAAAElFTkSuQmCC',
+  207: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB90lEQVR4nO2asU7DMBCGL6gDfQY6ZMzoAakMHYrEgAR7eABGBgYeg4GBkQcoGwNsSGXoUCQGj4xZeIYyIIWFG2K1jZ34fEV335bE8V3u/pxjxwCKbDKqjq219brzxpitNrve15U9ik7/E4PUBm+vBjUAwM39T7bufGrEK4CsBri4GZ5MJo3ri8WicewqhArxCtjZACxn03o5m5LXhZ0NQCrIA1D/EXrfuJzDuJx3vt8X8Qog+w5oy9q4nAMAwPvj8drrB8MhAAB8rVaN/rIsizo6iFcA2ViLGcNMumBmUQGoiLb2qoDIkM8FMHPuOx2rfV/EK4D8e3vTaLCp+mMtcIn97iOqgLYG1trnGIa+P6/PQtrvF3cvMewaY863XRevgGQrQlVVNY7zPN/ariho/UFUAVyGXUVwIV4BGgBuB7jRAHA7wI0GgNsBbjQA3A5wE/wl+PpwGDSrQ0ajURI7J5cfQbNI8QpIFoA8zzfOADkRr4DgGhD6jiG4IuSrguL0KcqKUBviFeC90hq6h8fdAdIXdwdJG747TMQrQAPA7QA3vf+2pNjH48PRxVunZxGvgM6rwjgqtFXnvqNBaPUPRbwCNADcDnAT/Z97qlGha9V3UQVQdUylhFiZR1QB1AZiKSF25hFVQGqDvoqgyriLeAUoiqIokvkFINGbpm1sDKsAAAAASUVORK5CYII=',
+  208: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABGElEQVR4nO2aQQ6DMAwEnaoX3tCv8DfCvzjylb6hx/SE1EYgtU2sLfLMLWDCar0CC2EGAAAAUUleG+eci5nZNE275+d53j1+VJ9SctF68dj0TLgloJRSXte3YTAzs/vj8Va3JaHu/FF97ySET8DV+wZbJ+t13dlf61shAd432Dr3aSe/rW8lfAKYAzw2PRPdXd0670XOmTmgJ+5vgXEcm65f17WTkn3CJwAD1ALUND8DvJ/63oRPAAaoBajBALUANRigFqCmxxyQqvWp5oLwCcAAtQA1GKAWoAYD1ALUdP8mWM8Fy7L89VwQPgEYoBagBgPUAtRggFqAGgxQC1CDAWoBajBALUCN+x8irfT+J6gmfAIAAAAgLk+5UEEfaGNKIAAAAABJRU5ErkJggg==',
+  210: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABRklEQVR4nO2YMRKDIBREv5k0niFFPIiFN4lH4SjmJhYeBIucwTKpKGRERJCdDPs6leHv7F8UFCGEEEJIqVSpJ1RKfR33g2qlmsfHLeVk/wgNQAtAc89VSA96c027GPRwkZI1xSeABqAFoEn2TfWt8efruXl/fs+nxjV9U4nE7xeKT8DlXwG7o4+6FhGRz7JsPveNs5MQCxOQq5DpqH1tOnx0nNkfuNZ+KExArkKmg67Oh45zEXpaZAKuLmDe2uYtbnfUtQ/wjUsFE5CrkN3BaZpyld6FCYidIPScH0vf9KtrcyY4CxOAKty2Lar0iuITQAPQAtDQALQANDQALQANDUALQEMD0ALQ0AC0ADQ0AC0ADQ1AC0AT/09Q693nneoqEZFRjVn/HR6l+ATQALQANDQALQANDUALQEMD0ALQ0AC0AEIIQfIDr0JdPhFlEK4AAAAASUVORK5CYII=',
+  211: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABwklEQVR4nO3aPUrEQBQH8KdYuJ2lYJMDWAq7gWnsLC09hkGsZU+gx7ARLD1AwAQtPUCaBUu72K3VE/KY2cxHnhHm/+t2M5MMeX8ykw8iAAAAAADI0Z7WjlfXzZaIqOu6oH6fz1dqY7LZ/8uD/UeTnW2uuBSagKIoBr+bh5VqIpCA1B24Ks9SE8C0koAExHYcqzybKgHSVIlAAkI7yMq/3i+t7cqqJSK9BDBOwvHlo1ci5Toj+wQc+DZ0Vf5ksbC23/Q9ERGVVfTYgsYVmjSGBIR2GKs84+2chPP12tru++si6PixlXZBAsYa+M73Lq7Ks8OjFyIKT0Io111m9gnACZh7AHMLPgFl1VJZtbTp+98rvM3YdsmYJRljX1Vqyj4Bo/cCPAs0db2z3fbtZvD79mm4/f3DPhucnd7t3C5nh9h1AGYBh+CVoIusuMSVllyVZ9rrBCTAt+HKGOv/c1y5p5R9AnAC5h7A3LyfCbruCqe6BmivAxieCQrJCWBTJaGu26h+vslAAoTk9wJSbBJiK4/3AonU3g36JiG18qmQgNQdpD419oXvA5SofyOUCt8IKVP/TjCUdsWl7BMAAAAAALn6ARmrqogKDWzmAAAAAElFTkSuQmCC',
+  212: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB6UlEQVR4nO2asVLDMAyGFY6h3bIzYO54gLL3DWDoXoY+Ao+gR+kAOwPsDOz0AXpHGNjZOpqBuHfxNY3tWFY56duS2JYi/bESxwCKbCqqgRHR9pw/ajO1XypnFIP+J85LG3wEsAAA95763PltYX/EK4BsDvBxGXbMZ6Zz/X3TdI59hVAhXgEnG4BmZmwzMwcrQk5ONgClIK8C1loLAPBUxT3Slx+ff/3buaOqIgcIRBVANbDLfB8uw183VwevX0ynAADwvdt1xsutBFUAtQGXSZhMOueXXrtlK5h9e6+/U0JuVAHUBlzmQjMZ234s4hVA/r7dVw36Zn9XHXz0PYCIwagi4ksOQ6vn9W1M+/Vi9ZrDLiLeHbsuXgHFVoSa5qdzbEwd1I4aVQCX4dKZ7kO8AjQA3A5wowHgdoAbDQC3A9xoALgd4Cb6TfAaMeqrbk9dF7GzRYz6ihSvgGIBMKbu/QLkRLwCoueA2GfMMW9XhEJV8LZ4yLIiNIR4BQSvtPo7PIbwd4CMxd9BMkToDhPxCtAAcDvAzei/LSX28YRgNk3SvagCUjuGVoWx1SB09k/dVyheARoAbge4yf7PvVRVSJ31fVQBVANTKSFX5h2qAGoDuZSQO/MOVUBpg6GKoMq4j3gFKIqiKJL5BQiBgQN9JCRwAAAAAElFTkSuQmCC',
+  213: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB/0lEQVR4nO2aoW7DMBCGL1NB+wSttIGASR0MGAwYb0HBHmEP0LE9wlgHB/YIBQUZHwgcCOykgZBJ2ROUVMpIXSlWUseJz9fp7mNJHN/l7s85dgwg8CbA6jhbRGXd+WiTnbTZ9b6uXGB0+p8Y+Da4frstAQDuHz6DuvOQ7L36w14BaDVA55jhA3EcV66naVo51hWCBXsFnG0Aiu2yLLbL2hHBJWcbAF+gB6A8YHvfeLqC8XTV+f62sFcA2neAKWvj6QoAAH6/HmuvX45GAADws9tV+guCwOnowF4BaGOtypjKpI7KrFKAUoSpvSjAMehzAZU5/Z121b4v7BWA/r3dNBo0VX9VC3Rcv/sKUYCpQbaIEheGJs93M5v2xdPHuwu70Sabn7rOXgHeVoTyPK8ch2F4st0Q150jogAqw7oiqGCvAAkAtQPUSACoHaBGAkDtADUSAGoHqLH+EvyeD6xmdYorT3auk73VLJK9ArwFIAzDxhkgJewVYF0DbN+xIzHMAJrXAXSGr7mTFSET7BXQeqVV3+FhQt8B0hd9B4mJtjtM2CtAAkDtADW9/7b42MfThsnNS6dnYa+AzqvCalQwVee+o4Ft9beFvQIkANQOUOP8n7uvUaFr1dcRBWB1jKUEV5lXiAKwDbhSguvMK0QBvg22VQRWxnXYK0AQBEHgzB+oOpwyPlB23wAAAABJRU5ErkJggg==',
+  214: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB9ElEQVR4nO2avW7CMBDHL1UXngDUdvADdGBMJd6g3ejAyJjuPAY7jDxAx1bqAyCREal9gCyV6BMwpgM1UpxAbMfno7r7bYk/7rj740scAwi8SbAm3q5U2XR/OC3O2vQd58sVxqT/ievoFu9fDxn+ek4a78MsqjvsFYC2BtQ4ZvhAOhpVmvP1utrfVAgS7BVwsQFIs12ZZrvGihCSiw1ALNADUP7hOm6z6MNm0fcebwt7BaA9B7RlbbPoAwDAw8tPY/ttrwcAAN/7fWW+JEmCVgdRALYBncmbWsu4clV+jiv9zfFaCaERBWAb0JmzzaRr/66wVwD68/apanBq9dfVwST06q8RBbR12K7UWwhDWZ4/uvRfpul7CLvDafF0rp29AqLtCBVFUblWSp3vl6K6c0QUQGXYVAQV7BUgAaB2gBoJALUD1EgAqB2gRgJA7QA1zk+Cw/nc6a1OM7iLY2c7mzm9RbJXQLQAKKVOvgFSwl4BzmuA639Mo3eEbFXwMZkE2RFqg70C7HdajRMebZgnQLpSO0HShuUJE/YKkABQO0BN568tMc7x2JAvB16/RRTgPdKyKnStBtarv+e5QvYKkABQO0BN8G/usaqC76pvIgrAmhhLCaEyrxEFYBsIpYTQmdeIAmIbtFUEVsZN2CtAEARB4Mwv4duQY3eJ5TkAAAAASUVORK5CYII=',
+  215: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABcUlEQVR4nO2Ysa3CMBRFH4iGDZBoMkgK2ICSDT5/g4zABsAGlLRUUGSQNEgwQcpPg5FiJcQYP1++fE/n8Bxf7ruJFYsQQghJl0HsBWer7Z9L3Xm7iqJtGGORbyZaAuzO7xdZa93yUDXG2klIPgEj7QVcn/m++VpJYAK0bmw6d9r8tP5+Ox5br3fVz0VUkpB8AoI/V12dn47HIiJyqevG9fnvTnzqQyUh+QSo7wKmk/bY7qxv/acwAdoLmM65dvLd+k9JPgFqu4Chc19/vM1tXOu5CwRCPQFaMAGBUN8FQsNvgcB4u5ktipfPejbJGuOyLJ3um+d56/XqWr2cVx3WXv8l+QSovwNMR30T4DrPFyYg1kJFUcRa6i2STwANQAtAQwPQAtDQALQANDQALQANDUALQPPvzgR5IhSY4F+DfSc3zzrrBKfvhEmL5BNAA9AC0NAAtAA0NAAtAA0NQAtAQwPQAtDQALQANDQALYAQQpDcARo+apuWCV1gAAAAAElFTkSuQmCC',
+  217: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABVklEQVR4nO2avRGCQBSEF8fEzNxEM4uwCDrQUDNKsAQzDbUDirAIM0mcMSQj1OgCb+5E4LzVYb8MeHNvZ9/jfhgAIYQQQvSVJPSA5SV7uO6P57tGuUKNU8cg5GD/iAxgC2AzjJXouJ4632k2ve8AGcAWwCbYmlr3ji/3V+f902bWKm51KBKg+36h9x3w9VXAruhkNAIA3KrK+bwuzu6ErqgDYiUyFbWvTYU/jUuzFABQZgiyr1AHxEpkKuirfNM4H01Pi+qAbycws7aZxe2K+vYBvjgzB4RCHRArkV3p87lwBwZe5+tQB3QdIPY5P9/lL9fmTNAWdQAr8WIxZaV+ofcdIAPYAtjIALYANjKALYCNDGALYCMD2ALYyAC2ADYygC2AjQxgC2DT+YtQcS/fPt/mZQIA23Ssf4R+ERnAFsBGBrAFsJEBbAFsZABbABsZwBYghBBMnupRWsBN11CUAAAAAElFTkSuQmCC',
+  219: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABsElEQVR4nO2aMVLDMBBFFYYmXXoKxC1SpOAIlHALH8W3gDJHoEiRW0QU9OlSQqVJslhoV1lJntn/SluWNPrPm9iWcwAAyyx6DTyO48/U8WEYms7pruVgc6S5AankKa1MgAGtBuImT6ltgnkDsAC9J9Cb+1odh1d/dc9vlfrxH0G1Jpg3QL3C0sQo2/XA6udlP/57XssEGHBrB7nEU6RMyCWfotQI8wZU+xXIUZq0NuYNKK4Bpfd+baS1AAZIL5Am//h+mDz+9fak0j4F1wQYwG1YmvzDcjl5/vt0cs6dk5W255IzwbwB6v8DcklG4vmYrLS91IQU5g3AAvSeQG+wAL0n0Bv1X4FYnXPVnVZzaXstYEDphSEcJ497v3LO/U2WQpOUts+Nz8W8AeJngdTKU2gSu11gT+qSzcZfz0M4Pp4FMrBrAHflaXvpPak9fg4Y0Gogei/PBfMGYAF6T6A34rfCn+sV692gVvWncKv78/6It8Icir8MpUyolTwlZQI3+QgMuLWDuXwjxP6AQprvEdICe4SUqLYPt5YJ2CeoTLPd4qVGaCdOMW8AAAAAAOzyC8TOoeKbrr1nAAAAAElFTkSuQmCC',
+  221: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABUUlEQVR4nO2aMQ6CMBiFH8bFG5h4EQYGj+LophseQTfcGD2KA0OPwWLiDRh16kADIlD6NLxvA5r+L+9/lNYICCGEEGKuRL4nNOb5arofx+tetXzN08XC52T/iAxgC2CzDFUoO58b32k2s0+ADGALYOPtm9r1jh/StPH+9XIZNO54OkXA+P3C7BMw+VfA7ehmtQIAPKqq8XnXODcJY1ECQhWyHXWvbYe/HRdvdwAAY3Ze9hVKQKhCtoNtne87ro2+p0UlYOoCdtW2q7jb0bZ9QNs4uwb4QgkIVcjtdFEUoUp/RAkYO0Hoc76532rX9kwwFCWAVThJElbpGrNPgAxgC2AjA9gC2MgAtgA2MoAtgI0MYAtgIwPYAtjIALYANjKALYDN6F+EyrL8+DzL8wgAjvu9/iP0i8gAtgA2MoAtgI0MYAtgIwPYAtjIALYAIYRg8gZ9Ilqux9Q75gAAAABJRU5ErkJggg==',
+  224: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABrElEQVR4nO2aMVLDMBBFBUOTzj2NOAGm5xA5AkfIUXIEjpBD0GNOgBp6dymh8gCLhXY3K8kz+18XW5E0+s/r2FEIAADPXPUaeH4+fK4dH56OTed03XKwLdLcgFzylFYmwIBWA3GTp9Q2wb0BWIDeE+jNTa2OpzGqrvlSP+OUTGuCewPMK2wp+XjYs/pJx9O/561MgAGXdqC91nMmlJLPoTXCvQHV7gIltElb494AdQ2wus9bI60FMED6BWny96/vq8ffHu5M2ufgmgADuA21yd/udqvnP87nEMJ3stL2XEomuDfA/HdAKcmF5fySrLS91IQc7g3AAvSeQG+wAL0n0Bvzu8BSnUvVnVZzaXsrYID2iynNq8djHEIIf5Ol0CSl7Uvjc3FvgPhZILfyFJrEy5TYk/rJ4xh/fZaOj2eBAuwawF152l56TVqPXwIGtBqIXstbwb0BWIDeE+iN+K3waRhY7watqj+FW93384y3whzU/wzlTKiVPCVnAjf5BRhwaQdb+Y8Q+wOUNN8jZAX2CBlRbR9uLROwT9CYZrvFtUZYJ05xbwAAAAAA/PIFSZCf3iCiMDAAAAAASUVORK5CYII=',
+  226: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABw0lEQVR4nO2aPU7EMBCFBwTFngEkcpAUuxKHWImGYgtuAA09ewOKLSjpOQBbhHskEpxhCwooohGK5ZF/xkNAfl+zm3jsWHlP9tgxEQAAAAAAAKBGjqwaXj70X0REfd8n1esfl2Z98nH8mw/7ixR726y4S6oDmqaZXO/vGlNHwAHaBiTlGa0DGCsnwAG5FUPKM6Uc4FLKEXBAagVX+dfbC2/cajsQkZ0DGHZCc7OPc6STZ1TvgJPYQEn5s8XCG/9xOBAR0Wqb3bekfqU6jYEDUiuElGe4nJ0wDIM37vo57fm5SkvAAaGA2PleQlKeeVqPv6lOSEVaZVbvALyAuTswN8mzAGd4PLqH8oDQGMC07Ti7dF1cfCnggNjArusm16d8fbkjIqLPl6tJ+f0b/xuV3Zz7ld29T8s362m59ewAB5Rq6EdxP6y0i+QMxjpPgANiA9u2Fe77lf0vVO8AvIC5OzA30XuC0qqw1BggzQbu6K/dD8CeoIM6D+DcXesEzhNCawFp1xh7gpmovwu45DohdxWI7wJKzL4NxjpBq7wWOEDbgHbXOBacDzDC/IyQFpwRMsb8nGAq1oq7VO8AAAAAAABQK99URaA1c+YYcQAAAABJRU5ErkJggg==',
+  227: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABiklEQVR4nO2awXHCMBBFVxkuVBBmcjGn0AXuIJRACZRCCZQAHUAX5BRfMpNU4KM57QFNZFt4Vxtm/7sxs5Y+u1+LLEEEAADAL6H0hOfzsSMiWi12vXGLVVNE20uJSf4zs1ITceVz4+t6o+oE9w5QX2dd1/1Z+d/PZe9zr+9fd59DCCpa3TtArQfElX+bz4mI6LttRz0fx/N40k5w7wC1HsAV40rGcGUvlxMREa3XHzQmHg4QRn0fwJUb2wNy46fi3gFqPYB3cry2Y1L7gPj3n+FeIb0zdO8A9R7AlWOG3gJjZ1x/9sKK7oEDpAfMfet7dHypXuDeAWIdVbvyKaY6AQ4YCjgc9iKVraoqK75pGolpabvd9X5H9w5AAqwFWIMEWAuwBgmwFmANEmAtwBokwFqANUiAtQBrcB4gJeRZEb8XKOUEnAkKoX4zxKROeFInRan4oROeXNw7QO1miNfoUE+QOvt7FPcOUE9AXW+C9n/9pgAHWAuwBgmwFmANEmAtwBr3CQAAAACAX269+nfA4JCiBgAAAABJRU5ErkJggg==',
+  229: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABTElEQVR4nO2YsQ6DIBRFn00H+wcmXTri5uf0E/0cNx27NHF0061dylACVQS5abhnU194N/c9EBAhhBBCSK4UsQfsmtvL9r7pHl65Yo2zxinmYP8IDUALQHNOlUgpZZ3TbpZjhBhk3wE0AC0ATbR/6toc7/ve+r6u611xwzAUIuH7hew74PC/gFnR6+UiIiLPebZ+X4szOyEUdkCqRLqi5rOu8Na4tvzsDxxz3xd2QKpEuoKuyvvGufA9LbIDjk6gV229ipsVde0DXHFtGVcfOyBVIstOblPc0bADQgfwP+eHcV++FwF9JtgLOwCVWCmFSv1F9h1AA9AC0NAAtAA0NAAtAA0NQAtAQwPQAtDQALQANDQALQANDUALQBN8IzRN08/v4zgWIiJVVSW9O9xK9h1AA9AC0NAAtAA0NAAtAA0NQAtAQwPQAgghBMkbDOlauSMK45IAAAAASUVORK5CYII=',
+  230: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABkUlEQVR4nO2aMVICMRSGXxwaOnop9gAWWMkRvIEcAXsOYWFBB0fwBnoEraTwAFvADJ10lFjFmY1ZyW5e5h/m/V+3mST78/KTvE0iQgghhBCruNIvmMzfT5r9bdZTVc1Xmp1dIgO0gM/VXbT89vEjXm91ajjKOZflCPMOgM0B4chfD4ciIrI7Hv/tr61eXyeYdwB8DvAjGj6HI5xaryvmHaA+B4zuX5LW/e/Xh8Yz5wAQMAd4Qid4WvOAAOYBmfyJXtcRzKWqqqR6dV2rvO/wNmv8ZvMOYADQAtAwAGgBaIp9C6TO7qXZL5+CkkljlTPvAAYALQANA4AWgAa+I6RN19WHDkALKM10uY6W+xMmOgAtoCvaGaZ5BzAAaAFoLm4O6IvfU+SeYAADgBaARv1kSPtO0Dly7wyZd4D6KpB6ghNmdH3b5UIHoF4c/ndTzyR5T1AZBgAtAA0DgBaAhgFAC0DDAKAFoNHLqm6eo5ncaDwWEZHDdhtv97VwKu17Yt4Bxb8FfvfgWka4dPtzmHcAsc4PR6xirAWaUwIAAAAASUVORK5CYII=',
+  232: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABT0lEQVR4nO2asRGCQBBFF8fEGmyCAggsQTvQDuxA7MAOtAMtwYACKIHEGgw1usAbEJHjng7/JQywc/vn73LcMZgJIYQQYqwkoQcsy/JRdz1N0065Qo3TxiTkYP+IDKAF0ExjJVqu89pnmmb0HSADaAE0wd6pbc/4+birvb7a7L+Ku5zyxKz/emH0HTD4W8Cv6Hw2MzOz2/1ee78tzu+EvqgDYiVyFfXPXYU/jcu3S3cMsq5QB8RK5CrYVPmucU103S2qA4ZO4GZtN4v7FW1aBzTFuTkgFOqAWIn8ShdF8VHc0KgD+g4Qe5+fHy4v525P8C3qACpxlmVU6hdG3wEygBZAIwNoATQygBZAIwNoATQygBZAIwNoATQygBZAIwNoATS9vwhVVfX2fnk9JWZm6WKtf4R+ERlAC6CRAbQAGhlAC6CRAbQAGhlACxBCCJInfuNbMWWC33AAAAAASUVORK5CYII=',
+  237: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABgUlEQVR4nO2YMU7EMBBFB4SEtktHQWNusHQUkYCOQ1BwAA7AcTgGHSCloGNvsG4o6NKtqKDBRSzvxsnO+IP8XxfvJP775ydOLEIIIaReDkpP+LJ03zl1VytfRNthiUn+MsUSEHf+4skl695u/ODYOgnVJ+DIeoLce37sfKskVJ8As/srdO7yfZ38/evzOjl+fPKcHH89PxMR/SQwAdoX3Nb508VCREQ+NpvBeOjs1HqtJFSfAPNVIHQyPo47O7d+X5gA6wlC53I7ObV+X6pPgNkqENj2HhCe5jG59VwFlDBPgBVMgBLmq4A2/BZQZrabj02z8153rhkcdyufdd126ZLj3vc7z7vr+1n/pfoEmD8D2rYVkQkJ+K0PdF2nLWkAE1Bqoof721JTTaL6BNAAtAA0NAAtAA0NQAtAQwPQAtDQALQANP9uT5A7Qsqofw2O7dwE4h2csR0mK6pPAA1AC0BDA9AC0NAAtAA0NAAtAA0NQAtAQwPQAtDQALQAQghB8gN36GmLKW3WMgAAAABJRU5ErkJggg==',
+  241: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABVUlEQVR4nO2YvQ3CMBSEXxASYQYKKBkiRToYg5KRKBkDuhQZgjIUzJBQQWUJLJvEseMT8n1dkie/071z/kQIIYQQkipZ6AW7c/Uync8PpVOvUOv0MQu52D9CA9AC0MxjNeqai3FPW6mm0aGTfAJoAFoAmmDP1L49vljvjOef9+uounyzz0T83xeST8DkTwF9oqvlUkREHm1rvN5XpyfBFyYgViM1Uf1YTXhwXZWLiH3vu8IExGqkJmibvGudDdevRSZg6gbqrq3u4vpEbe8B9ro8qD4mIFYjfdJ1XRvrihhiPmACfBdw/s73pey+DtU3wViYAFTjooi9280knwAagBaAhgagBaChAWgBaGgAWgAaGoAWgIYGoAWgoQFoAWhoAFoAGu8/Qk3T/Ly+LY+ZiMitOsX9dziQ5BNAA9AC0NAAtAA0NAAtAA0NQAtAQwPQAgghBMkbtUhbUtlb6y4AAAAASUVORK5CYII=',
+  242: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAByElEQVR4nO2aMU7DMBSGHwgp6QlAYskGW7PBiOAAILFwB87DHViQ4ABUjLClG2xekOAETaYyeahlk2f7OY7k/9vqus9Pfp/tNAkRKJu9XAP3Xb+1tddtPWlO+1MONkcmm21XxcdIbUTxBmACcieQm+R7QOjaN0m1FxRvwIFUoM/nd5FK+8Y/vTmPMqN4A6LXFbfyTdMGxVeqY/ULNQEGhP4wdM1zTeBW3sTXhOINwATkTiA3YtcBXKplRUREw3r493tS0+RTvAHBp0Df/WyJiJRSrP4n12dB43y9fLD6NU1DRER1e4RTwAdvA3TlTVwmXN5dWNu/Nxtr+/FiYW1fPb5Z23XlTbgmwADfH7gMqJaHO59dlTTRJvj21wzrX2s/GMCEfR3gqvxc0fmOmVC8AZiA3Ankhn0KcPcA7mngex3A3f1NsAeMkPzfoKvSUv1jgQHSAfXaNPcC6fhSwIBUgU0TXh+eguJc3d/uxJMGBqQeILZyqSqvKd4AsfsBcwP3A5hgAnInkJvo5wJzA88FPIl+Q2QuJvhWXlO8AZiA3AnkRvzty6n2hNA1bwIDUgVOZYJU5TUwYKqBQo2QrrhJ8QYAAAAAoFz+AOaAj/k146z/AAAAAElFTkSuQmCC',
+  243: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACQElEQVR4nO2aPU4DMRCFHYSU5AQg0dDR0m0KOlo6rkFBESkcIZEoUnANOlo6iqSjpdsGCU6QpIImE8iwo/lZey3h+aok67Edz/Ozvbu9IGS6WH9Jy/7mbjToWeK6avfAUvl/wgcgdwdyw84T6xzEaL2gq3aLV4APQO4O5Oawq4bWH+eqOT2vE3UEUbwCxM5sdeXb05ElbMe8XpjifCcoxAcgdwdyYz6pUZ7Qds5zUJ5gPXW6AuADlVFqZLXrOtA/uhCV23y+WKoPg+PXxv5S/88VoF3ftXNcmnEOrSKk+4fiFZDsLBAr87g+qzdQFK8AtQcAlBdApmbL+8brk2osqp+Lp5SgPTsUr4BoHoAzP6n6jeV+rjcrQRvf1hOKV0A0D4C5hzN3MhyGEEJ4X632fp8tN9vy4+335sxz8VQ/pBSvALUH4BHfrff1fjnIHP6OM0khjcf7A+if7wSFJNsJQqa0mY8VL6V4BbD3A7jTH97z8+v4vvv/vW6L5/YDlCe4ArgC+M4PHkkukxgo//z40Hj98vpGFM+1h5VL3SkqXgHJVgHpqS9VvJTiFSD2AG5n1VXGMJRXAOAF7gEErAfAyE0XIco7O2/LJ1G5s+oqRnNk5gFXQKyKuDs9seHmvpTiFaB+oiq9g0Qpoa0HSDPvb4gISaYAIJYnaOe8K0CI+Q0RbofIPTni0D754XZ8FK6AthVY3xSJjTbzgCsgVkW5lGDNPOAKSFVxKkW0zTjGFdBVQ1ZFxM44pngFOI7jOCXzDTmH/Cq1XBVWAAAAAElFTkSuQmCC',
+  244: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACKElEQVR4nO2aX0oDMRDGUxFqbyAotAcptL55B3uQPUIPUu/gmy3sQSooeIO2T/ogU+yww/zZyUbM/J6UzSTbzJdvJ5sdJSHH7fJL2vY3N8vtyBI31LhXls7/EzEBpW+gNOw6sa5BjNYLhhq3egXEBJS+gdJcDzXQ/nHmsqa9qV4BYme2uvLnem8JO3PbzExxUQkKiQkofQOlMe/UKE/ou+Y5KE+w7jpDAfAHlVFqZq3P9el8Lmr31raW7tPsZd95v9TvCwVon+/aNS7NOIdWEdL6oXoFZNsLeGUe92f1BorqFaD2AIDyAsjUaf7eeX3c3ov65+IpJWj3DtUrwM0DcObHi9fOdqf08HOdUII0fpp8PCEU4NURlbm7ySSllNLH4XBxHSvBGp96PhRCAdoA7P7ntZ8uXRsyh/+HTHJI43F9APcXlaCQbJUgZEqbea94KdUrgH0fwO3+cM3PPsd3PesAIp6rByhPCAVwDfCbHzyTXCYx0P55vem8/tSsRPHceFi51Jui6hWQ7Skg3fXlipdSvQLEHsBVVkNlDEN5BQBeEB5AwHoAzNyx8Tnf32263R+zWK08hiMzD4QCvDo6V3ADeQG39qWEAqQN4YyQe4ucWwnSzMcXIkLUZ+racwQvJWjXfChAiPkLEa5C5E6OOLQnP1zFRxEK6NvBX/kCVJt5IBTg1VEpJVgzD4QCcnWcSxF9M44JBQw1kFUR3hnHVK+AIAiCoGa+ATdk9ljKqp6OAAAAAElFTkSuQmCC',
+  245: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACNUlEQVR4nO2aO04DMRCGHYQEqUiBBBIF3IImh4hEyhQcgZIjpOQIFCmDlEOk4RZQIIGUIlSBCgo0gR3taB7rR4TnqxKtZ9br+T0ee7cXhDytP76kbf9yMTjsWexy3XfP4vw/4QNQugOlYeeJdQ5itLkg132rV4APQOkOlGY/141G969R5nRsqleAODNbs/LNYm0x23I3GpjsvBIU4gNQugOlMe/UqJzQdc5zUDnBuut0BcAPKqLUyFrX9eHwRNRuuXyzuA+L69PW/lLP5wrQru/aOS6NOIdWEdL6oXoFJNsLxIo89mfNDRTVK0CdAwAqF0CkxsefrdfnqwORf86eUoJ271C9AqLlABz586P2SI/Dz3VKCVL7ECknuAJiOaIid9bvhxBCeNlsGtexEqz2y479dgVoDXD2/13vm1kbIof/QyQ5pPa4PoD+eSUoJFklCJHSRj6WvZTqFcCeB3C7P1zzc+v483u3OoCy5+oBKidUr4BtDpCe/OCRnK8C+t9cpzFwfTp9aO/R7ZXIHoP7hZVLPZ8rIJVj6a4vlb2U6hXAnqVDDuAqq1wRw1DnBgDkAuq02BUgbcidHEkVMJs9itpNJpeidpwC/BshhujnAblyARd5Ka4AaUOYS1wuSK0EaeT9CxEh6nfq2vcIsZSgnfOuACHmL0S4CpF7c8ShffPDVXwUroCuDnblC1Bt5AFXQCxHpZRgjTzgCkjlOJUiukYc4wrIdSOrImJHHFO9AhzHcZya+QbiZ/LnMCZmcAAAAABJRU5ErkJggg==',
+  248: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABnklEQVR4nO2aIVIDMRSGX5iaOgSOij1ARY8ADgmuR4Db1JVbgAMHEteKHqCiOMS6GmZARSTN7mZ3X+afzvs/10yS/fvev0k2iQghhBBCrOJKP+D+8eZPs7/X509VzReanZ0jE7SAl/VHsvzh6TZdby2Bo5xzoxxh3gGwMSDO/PV0KiIi38dja39N9YY6wbwD4GOAz2j8O85wbr2+0AHaHS7uFsE7v9/XrfV9BrsymluvL+YdoD4LxA7oYvO2SZY3rgMiuA4YyUn0+mZwLFV1mVWvayzJZfu+Df6zeQcwAGgBaBgAtAA0xb4Fckf30qyWdViwrIJZzrwDGAC0ADQMAFoAGviOkDans0/dWp8OQAsozeqrSpb7EyY6AC2gL9orTPMOYADQAtCc3RgwFL+nyD3BCAYALQCN+smQ9p2gLsbeGTLvAPVZIPcEJ17RDW03FjoA9eD43c09k+Q9QWUYALQANAwAWgAaBgAtAA0DgBaARm1VdTWfJFdys9lcREQOh12y3c/u12m0H4p5BxT/FvB7cE0ZLt2+C/MOINb5B/EpbB1dziYeAAAAAElFTkSuQmCC',
+  1: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAByElEQVR4nO2aoU4DQRCGpwRT1wSJ4CQS3qACWcEbcAkGiTxDQoI5icSQlDdAVCKqsPAIh0CS1FWCWkgn3Zvdvd0dmv0/d93t7GTmn5m9piNKTDc/+Y5hp6rfRzHscPZSGN0lEABtB7QJritbbZtajVX7vvZ9ewUU4LoxVUZTIymieAUgANoOaCP2gFi1f3TxtvH88XQ6aJ8vtl5QvAL2cx10OB4TEdHnek1Ef5l+/LohIqLLg7ut+18fjpP6BQXkPpArwbaeCyhA2jD0bv/b1a/6M28w60YJ5vuh0wA3QYFsPYBn3nR//mymgaSUWBSvgOi/BxheZrOtn7dt22u3aZre9bPFone9Xq02npfXHXpAH8E9gHdXrgiTKZsSfLFlnmfcl+IVIPaA6X3lNP/nk0nveqgSfGuegx4gEO0eYDJhU4JvTxiaeVeggNgGXZUw1H4soIBUhiUlhNqLDRSQ+gCeOVdFhGZcmvscKCD3gbeCArquy+KHAQqQNvCacn032BWKVwACoO2ANtmngERVVUREND9fJvlfIKd4BSAA2g5ogwBoO6CN9xTwfdsy1M/Tf3mDLF4BCIC2A9ogANoOAAAAAAAAAIAGP4Zokj/2Bs4QAAAAAElFTkSuQmCC',
+  2: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABzUlEQVR4nO2ar04DQRDGpwRBHbJJzcmiQCIQPAAS0TegCQZZQ9IEcxJD0r5BBZKgEQgkKCrPNOENigPDQjrp/r3dHZr9fu4629nJzDeze007lJjX6eArhp+j0aITww9nJ4XTbQIJkA5AmuC+0vW26tVYve/r33dWQAGuC1NVNDU2RRSvACRAOgBprDMgVu8fXryvPb/NDlqt80U3C4pXwG6ujfrdLhERLVcrIvqr9N3ymoiILvs3G9c/3lZJ44ICcm/IlaCz5wIKsC1oe7f/nepX5sorlF0pQX0/9DTATdBCthnAK6+mP39Wp4FNKbEoXgHRfw9QPJ+db/y8rmuj3/F4bLSfPNwb7aOPz7Xnl0mDGWAieAbw6coVoSqlU4IvusrzivtSvAKsM+B4Ujmd/9PentEeqgTfnudgBliIdg9QldApwXcmtK28K1BAbIeuSmjrPxZQQCrHNiWE+osNFJB6A145V0WEVtx27nOggNwb1vs9o71ZNHkC+QEKsC3gPeX6brAtFK8AJEA6AGmynwI2qkFFRETz4VOS/wVyilcAEiAdgDRIgHQA0nifAr5vW4rh/PRf3iCLVwASIB2ANEiAdAAAAAAAAAAAIME3wtGSr7etF+UAAAAASUVORK5CYII=',
+  3: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB0UlEQVR4nO2aIU9DMRDHb4SEzSFJQCzBIIebY4IPgERO4DAYEj7CEhAYHAKJRCIQw82xLwCZgASJGygQoyxcaK99r+2x9P9Te2vf9XL3v2ubvAYl5n3Y+Yxhp9kbN2LY4SylMLpIIADaDmhTua5stW1qNVbth9oP7RVQgO/EVBlNjaSI4hWAAGg7oI3YA2LV/srOw6/nj/vtWvNCsfWC4hWwnGuh9VaLiIheplMimmf64vGYiIgON0//nP90u5XULygg94JcCbbxXEAB0oS6Z/t5V3dn3mDGjRLM+1V3A5wEBbL1AJ550/35s9kNJKXEAgrwnchrSeoJlxu7sx8s04PBmXuhE8v/3/YOnu+cr/du3tz2GVBA1RclRZhM/SihJrbMh2acU7wCxNtg96jttf8P91ad41WVULfmR+cTnANcRDsHmEzYlBDaE2J3extQQGyDvkqoaz8WUEAqw5ISqtqLDRSQegGeOV9FVM24tO9zoIDcC/YnTef4ZPyayZMZUIA0gdeU791gUSheAQiAtgPaZN8FJNqdNSIiuu6PknwXyCleAQiAtgPaIADaDmgTvAuE3rYM+1fdf3mCLF4BCIC2A9ogANoOAAAAAAAAAIAGX2eOkRBeBIYxAAAAAElFTkSuQmCC',
+  4: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABe0lEQVR4nO2YMU7DQBBFB0STzl2QaDa3SOGGM9CAxCEocwxuAQdxEU6RbZCSzl1EBQVsJK/seOPM7Cfa/6p4M/Z+//n2yitCCCGkXK5yT7h9dN8pdbfvPou26xyT/GeyJSDufPXieuvaV985tk5C8Qm4sZ4g9ZkfO98qCUyA1YVD5+Zvm97/vz7ue8eH6reyMElC8QlQf66GOn83m4mIyOd+3xnfPS1kSr1WEopPgPkqEDoZH8ednVp/LkyA9QShc6mdPLX+XIpPgNkqEBha18PbPCa1nquAEuYJsIIJUMJ8FdCG3wLKTHZzvayOPuvOVZ3jpvFJ161r1zvufXv0vOW6nXQvxSfA/B0wr+vfH4kJONT/sWsaZUVdmIBcEz2snnNNdRLFJ4AGoAWgoQFoAWhoAFoAGhqAFoCGBqAFoLm4PUHuCCmj/jU4tnMTiHdwxnaYrCg+ATQALQANDUALQEMD0ALQ0AC0ADQ0AC0ADQ1AC0BDA9ACCCEEyQ8kJWnF0MxfCwAAAABJRU5ErkJggg==',
+  5: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABgUlEQVR4nO2YMW7CQBBFhygNHR1IaVzCDVK4SJs6F0gkDpAyx8gN4CgULtKmgtINkunoUKqkCBvJKxsvZmZ/0P5X4WXs/f7z7ZVXhBBCSLoMYk9YPU+/Q+omy00UbTcxJvnPREuA3/nRa9ZYt38va8fWSUg+AbfWE4Q+813nWyWBCbC6sOvceLFu/P/r87FxvK2+kplJEpJPgPpz1db5u+FQRES2h0NtfPcykz71WklIPgHmq4DrpH/sd7Zv/aUwAdYTuM6FdvLc+ktJPgFmq4CjbV13b3Of0HquAkqYJ8AKJkAJ81VAG34LKNPbzY+HyclnPctGteOi2ARdN8+njeNluT953v2q6nUvySfA/B0wzvPfH4EJ+Ks/sisKbUk1mIBYEz29zWNNdRbJJ4AGoAWgoQFoAWhoAFoAGhqAFoCGBqAFoLm6PUHuCCmj/jXYtXPj8HdwunaYrEg+ATQALQANDUALQEMD0ALQ0AC0ADQ0AC0ADQ1AC0BDA9ACCCEEyQ9+1mm93blpUwAAAABJRU5ErkJggg==',
+  6: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABkElEQVR4nO2aPW4CMRCFZ1EaTpCVQkGRA5AKyhwiB0huwI3IAVJwA1KmgwNQUICy6dKRjhTIhR1v8K7HekLzvm5X/nmMH/asbRFCCCGEWKUq3UHzPDlptle/blQ1DzQbu0Zu0AJuF+vo+6+Xh2i500I8R1VVleUI8w6AzQHhyN8NhyIicjge/22vrVxfJ5h3AHwOcCMaPocjnFquK+YdoD4HfDzWSev+dPXpPXMOAAFzgCN0gqMtDwhhHpDJn+h1HcFcxuM6qdxu16j0N3tvvN9s3gEMAFoAGgYALQBNsW+B1Nm9NJO5r+Nn7q9y5h3AAKAFoGEA0ALQwHeEtOm6+tABaAGl+V7G37sTJjoALaAr2hmmeQcwAGgBaK5uDuiL21PknmAAA4AWgEb9ZEj7TtAlcu8MmXeA+iqQeoITZnR96+VCB6A6Dv+7qWeSvCeoDAOAFoCGAUALQMMAoAWgYQDQAtCoZVVv9xLN5Eajc+6+38dz/aftWUNu/b6Yd0DxbwG3B9c2wqXrX8K8A4h1fgGBhmJ8DxzyVgAAAABJRU5ErkJggg==',
+  7: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABgElEQVR4nO2YMW7CMBiF/1YsnIBKXTIyMnbwAcrcC3QrR8gROAJsvUU5gId2Y2TMglROwNgOxUixEuIk/v0q+X1bwu/48f4XW7EIIYSQfLlLPeHz5vsnpG63ekii7T7FJP+ZZAnwO/++KBvrXvfr2rV2ErJPwER7gtB3vmu8VhKYAK0Hu859vM0afz99NY9rq1+KThKyT0D096qt84/TqYiIHM/n2v3l9iRD6mMlIfsEqO8CrpP+td/ZofVjYQK0J3CdC+1k3/qxZJ8AtV3A0bqvX1Zzn9B67gKRUF8D2jodq34sTABaQF/4LRCZwW7Oy8+b3/lFUdSurbVBzzXGNN6vqurmuMP6adB/yT4B6muAMX/7emAArvUOa3V3BSYg1URl+ZJqql5knwAagBaAhgagBaChAWgBaGgAWgAaGoAWgEb9VDg2PBGKTPSvwa6TG4d/gtN1wqRF9gmgAWgBaGgAWgAaGoAWgIYGoAWgoQFoAWhoAFoAGhqAFkAIIUh+AUZeaFWLOoDLAAAAAElFTkSuQmCC',
+  8: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABgElEQVR4nO2YPW7CQBSEH1Ea3wApjbukpATJB8gxIqXhAJHiI8ANKDkG9JagTIk7N5FyA0pSJFt45Z+1vW8HaefrbN56h3njXXlFCCGExMss9ITLzeXmUnfOX4JoewgxyT0TLAF25/eLvLHu7WtTu9ZOQvQJeNSewPWd7xuvlQQmQOvBpnOnz+fG38tj87i2+pXoJCH6BHh/r9o6/5QkIiLyfb3W7q+2pYyp95WE6BOgvguYTtrXdmfH1k+FCdCewHTOtZND66cSfQLUdgFD677+v5rbuNZzF/CE+hrQ1mlf9VNhAtAChsJvAc+MdnO+PnR+56dpWrs+F4XTc5dZ1ni/qqrOcT+711H/JfoEqK8BWfa3r7smwNQbikJ3V2ACQk30kb+HmmoQ0SeABqAFoKEBaAFoaABaABoagBaAhgagBaBRPxX2DU+EPOP9a7Dv5MZgn+D0nTBpEX0CaABaABoagBaAhgagBaChAWgBaGgAWgAaGoAWgIYGoAUQQgiSX87XaPkC6Dl4AAAAAElFTkSuQmCC',
+  9: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABeElEQVR4nO2YMXbCMBBEN3kpwhnSuIQuHRQ+CGWK3IDGnACOkRLu4SJ06ULpJmcgHRREhfVkLMyuJjzN72TW1jA7tmyJEEIIyZeH1BOOq89jTN1+PUui7THFJP+ZZAnwO//xWgXr3r7WrbF1ErJPwJP1BLH3fN/5VklgAqwu7Dr3vZoGf99tw+d11U/EJgnZJ0D9vurq/MtoJCIiP4dD6/hkuZMh9VpJyD4B5quA66Q/9js7tP5WmADrCVznYjt5bf2tZJ8As1XA0bmu/z3NfWLruQooYZ4AK5gAJcxXAW34LaDMYDef55uL93pRFK3xvq6jrjsuy+Dxpmkunve7mQ/6L9knwPwZUJbndT02Aa7eUdfh9wUtmIBUE71Xi1RTXUX2CaABaAFoaABaABoagBaAhgagBaChAWgBaO5uT5A7Qsqofw327dw4/B2cvh0mK7JPAA1AC0BDA9AC0NAAtAA0NAAtAA0NQAtAQwPQAtDQALQAQghBcgIaaGoA7+FkWwAAAABJRU5ErkJggg==',
+  25: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB40lEQVR4nO2avU7DMBRGLwip7RamVGLJBmM3GBgQrN14iQ7wNDDwEjwCiIEBpnaELQtSmcjWMpUhtapYNrEd/0S635lSx7Ut3+MbywkR4M1eqo6Xk2KjKh8vyqhj2o/ZWR+JNtu6iLcR2gj2BmACUg8gNcFzgOvalwmVC9gbcOCroY+3TB3pWdj2T86qTmawN6DzutJGXiKbZU7tVw+VUT1XE2CA6x9NIy9jaoJp5GVsTWBvACYg9QBSE30C8vmU8vnU+b5v2Bvg/BRYLycbIqKyLI3qH5/+SCW3mpp3jV+f74dG7RdFQUREw/ECTwEbrA0QkZfRmXB5sVaWf61W2ythQh35o9FIWf/5ZagsF5GXMTUBBtj+QWfAID/fXv0fSRlhgm19Yc7v96uyHgwwxPg8QBf5viLG22YCewMwAakHkBpvZ4IiGw/yOju3ZXc5m9vW12V/W2BAuKabkdXdd6/vB/YGGO8EbfcBu52hX2zXPvYBLQTLAbunQm3C0+O9UztX1zeN9nwDA0J30DVyoSIvYG+At/OAvoHzAEMwAakHkJrO7wX6Bt4LWNL5C5G+mGAbeQF7AzABqQeQGu9fX8bKCa5rXgYGhGo4lAm+Ii+AAbE6cjXCd8Rl2BsAAAAAAL78ASczmvvhB1vsAAAAAElFTkSuQmCC',
+  26: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABVklEQVR4nO2asQ6CMBRFH8ZE3RhNXHBz0w/gI/hUP8IP0M3NLiaObOikg+lA04q1pTem92zAS9/Nfa/QNogQQgghJFeK2APeqvJpu79UrVeuWOMMMYk52D9CA9AC0ExTJbofK+ucdtE27UhK+mTfATQALQBNtG/q0ByfbS/W+4/T+qe4+U4VIuHrhew7YPSvgFnR1WIhIiLXrrM+H4ozOyEUdkCqRLqi5rWu8Ldxen3gmvu+sANSJdIVdFXeN86F726RHTB2Av3W1m9xs6KudcBQXCzYAakSmRU8HJQ1rpZxKu2CHRA6gO8+P5RyX/au9Z7gV9gBqMR1XaFS98i+A2gAWgAaGoAWgIYGoAWgoQFoAWhoAFoAGhqAFoCGBqAFoKEBaAFogk+ElFIfn2+a9z8I570kPTv8luw7gAagBaChAWgBaGgAWgAaGoAWgIYGoAUQQgiSF+RaXDN5jXj0AAAAAElFTkSuQmCC',
+  35: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABz0lEQVR4nO2av07DMBCHD4REO8FGJZZssNENNip4AJBYeAcegvIQfQcWJHgAUNlgKxtsWZDCBlPLVCYPPdnk/D+Sf99W1zlffV/sNAkRKJu1XAN/j6dLXfv2eJQ0p/WUg3WRZLNtqngbsY0o3gBMQO4EchN9DXA99zmx1gIYECrQ+/2LttKD2SJI/GbY07bvnx95/QYY4BvAVHmOqwmmynNcTYABrgdKK8+RmiCtPMfWhOINwATkTiA3G6kH3Lo+JiKin5vnf79vHl6T5FO8Ac67wGLWLImI6roW9d87O3Qa50NoQlVVRETUGw6wC9hgbYCqPMdkwsnlSNv+OZ9r23f7fW370+1U264qz5GaAANsDzAZsHmws/LZVEmOMsG2v+L37UvbDwYIEV8HmCrfVVS+bSYUbwAmIHcCuRHvAtI1QLob2F4HSFd/DtaAFqL/GzRVOlR/X2BA6IDq3ORrQej4oYABsQJzEx4nd05xTq8uVuKFBgbEHsC3crEqryjegGD3A7oG7gcIwQTkTiA33s8FugaeC1ji/YZIV0ywrbyieAMwAbkTyE3wty9TrQmu5zwHBsQKHMuEUJVXwIBUA7kaEbrinOINAAAAAEC5/AHlAZG5ybN8swAAAABJRU5ErkJggg==',
+  36: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABzUlEQVR4nO2ar04DQRCHB0JC6/CInoM3oA4CBgcOEgyPAOE5CH0EDAk4cBgIuPIG4K4Cj2tRRa3oZJfun9mdS/b3uW73Zqc73821vSMCdbOitXB78Ti3jTej46I5rZZcrIsU221XxZeR24jqDcAGaCegTfYeEHvuc3L1AhggFejz/s1a6d74RyT+bLhhHd8+3Uv6DDAgNYCr8pxYE1yV58SaAANiD/StPMfXBN/Kc0JNqN4AbIB2AtqslV5wcHNERESTy6d/3/96eC+ST/UGRF8FZuN2TkTUtq3X/K2T3ah1fE1omoaIiHrDBleBEIINMJXnuEzYPz+0jn9Pp9bxzX7fOv56+2wdN5Xn+JoAA0IPcBmwvjNYeO2qJMeYEDrf8Psxsc6DAZ54fw9wVb6rmHyXmVC9AdgA7QS0EfstYLqxuRos6+68m4fOd3X/UGBA7gVc3/ik5qcCA6QD8l6QK74UMCBXYG7Cy/VdVJyDq7OFeNLAgNwLpFYuV+UN1Rsg9n9A18D/AZ5gA7QT0Cb5vkDXwH2BQJKfEOmKCaGVN1RvADZAOwFtxJ++LNUTYs95DgzIFTiXCVKVN8CAUgvFGiFdcU71BgAAAACgXv4AmSaVxmlSm3sAAAAASUVORK5CYII=',
+  39: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB2ElEQVR4nO2aO07DQBCGh4fk5Aw07pJDICWCAkoOEIlINByBI3AEGqRwA0ooQCk4RNK54QwxBQpFmMKjXe3D+7C0/1cl6814s//nsZSYCJTNUa4Tt6v1XjU+Ws6Truk45cmGSLLd1iVuIrYRxRuADci9gNxE7wG+174kVi+AAaEKbVZvyqRrGgWp31CrHJ8ur3t9BxjQt4AueYmvCbrkJb4mwADfD9omL7E1wTZ5iasJxRuADci9gNwk34BqMaNqMfM+HpriDfC+C7TrzZ6IqGkaq/mT26vuwK9m4kn37fbl3ap+XddERDSaT3EXcMHZAE5eojPh4v5GOf692x1esAn/yZ+Nx8r5n0+vynFOXmJrAgxw/YDOgOp8cnhhSFLCJrjOZ3N+vrbKeTDAklPbibrkhwqv12RC8QZgA3IvIDfWPcAEd2O+G5i6u+zmrvN13d8VGBCtskhWd9x7fiBgQOiCshc4J2eYH+raZ2BArMLShI/HZ686lw93nXqhgQGxT9A3uVjJM8UbEOz3gKGB3wMswQbkXkBuev8vMDTwv4AjvZ8QGYoJrskzxRuADci9gNwEf/oyVU/wveYlMCBW4VgmhEqegQGpTuRrROjEJcUbAAAAAIBy+QOzrZmj3gT0qQAAAABJRU5ErkJggg==',
+  40: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB4UlEQVR4nO2arU4DQRRGL4SEbRBFkmDWgYMHQIFoHUgeoAkkmEoeobKGBN4ACa4GFA8ADtwaEiSGtKgiyhV7M5P52ZmdTeY7qp2d3p3Od/Zu0i4RyJu1VCf+ns6WqvHt8bDVNa23ebIu0tpu6xI3EduI7A3ABqReQGqi9wDfa18SqxfAgFCF3m8flEnvLIog9b+KhXJ8//Ks0XeAAU0L6JKX+JqgS17iawIM8P2gbfISWxNsk5e4mpC9AdiA1AtITesb0B8NqD8aeB8PTfYGeN8FFrPXJRFRVVVW8/cuTusDP5qJW/W3H3ePVvXLsiQiomJ4iLuAC84GcPISnQnH43Pl+Od8vnrBJvwnv9vrKec/T++V45y8xNYEGOD6AZ0Bm0cHqxeGJCVsgut8Nuf35U05DwZYsmE7UZd8V+H1mkzI3gBsQOoFpMa6B5jgbsx3A1N3l93cdb6u+7sCA6JVFsnqjnvPDwQMCF1Q9gLn5AzzQ137DAyIVVia8DS58apzcn1VqxcaGBD7BE2Ti5U8k70BwX4P6Br4PcASbEDqBaSm8f8CXQP/CzjS+AmRrpjgmjyTvQHYgNQLSE3wpy/b6gm+17wEBsQqHMuEUMkzMKCtE/kaETpxSfYGAAAAACBf/gASb5yL7ez/iQAAAABJRU5ErkJggg==',
+  52: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABoUlEQVR4nO2aPU7DQBCFF4SEcoIUND5COucWUKbgCBRIgT49icQxUkLPAZIqHGGbSLlB6KAIA4rleG3vZF/ieV8T+WdmR7PP+zNZ5wghlrlI3eBi8fZd573h8C5JbJcpGjll1LJct2e10FKIeQVcaTscZJPS+5++/P6x/YQwrwAmAB0AGvUxQLjur/au8/7ud7l8b2X/h9/Zy6wTOxtQAdoOpeduer3S5+vt1jl3WAl5fhtl3xTzCoheTcm3GOq5IsWejLVvOxaYV8DRZoFT4WszqNyjmFcAE4AOAI3aGCCjsYzOTefxWPsi//WJSeV75hUQnDun06eoSs94/LJ3LT0X2u/LumA2e45p3j3cf1Q+pwK0HDWtCWpVfA6tAEPxiB0VEOsgdTVYCyrgl87vBUK7RCqgreG5fvtFzCuACUAHgKZzs0DT2qB5BTAB6ADQMAHoANB0ZjfIf4ZawgSgA0BztucEBZ4QiYQJQAeARm036L2v9V6WZSp+RqNHnhXWgAlAB4CGCUAHgCZ5TTC0cpvPX5OuKM0rgAlAB0AIIUh+AJpvg1p5YfFoAAAAAElFTkSuQmCC',
+  53: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABoklEQVR4nO2aPU7DQBCFF4SEcgMkGne5Ap1zCCQocwDoKCKlTaT0XCAl9Bwg6TgCHW6QcoPQQREGFMvJ2p5hX+J5XxP5Z3ZHs8+7O5MNgRDimZPUHS4WT1913hsMbpP4dpqik0PGLMp1R9YKK4W4V8CZdYNXF6PK+6+rGaSdGO4VwACgHUBjPgcI5/33reu8v/ldLp9b2f+y2tjLqqNdDagA6wZl5C57vcrnH+t1CGG3EvL8RmXfFPcKUO+m5FuMjVyZ8khq7dvOBe4V8G+rwKHw+ZbtzVHcK4ABQDuAxmwOkNlYZuem67jWvsxffaI6qxTcKyC6dk4md6pKz3j8uHUtIxfL92VfMJ3ea7oPD9cve59TAVYNNa0JWlV8du0AY/6IHRWgbSB1NdgKKuCHzucCsSyRCmhreKzffhn3CmAA0A6g6dwq0LQ26F4BDADaATQMANoBNJ3JBvnPUEsYALQDaI72nKDAEyJKGAC0A2jMssGiKGq9l2WZSTvD4YhnhS1gANAOoGEA0A6gSV4TjO3c5vNZ0h2lewUwAGgHCCEEyTdbNIMS7efHegAAAABJRU5ErkJggg==',
+  58: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABWklEQVR4nO2aMQ6CQBREB2OhHZ0mXkI7CwpKj+BR9AR6FI9gaWFhp0egMdGODjuttnCziMi6o2FeB/zsn8z/u8sSACGEEEK0lcj3gPk2vbvux7NdrVy+xqmi43Owf0QGsAWw6YZKdFmMnXOaTes7QAawBbDxtqdWzfHB6ui8f11OPoobrk8R0Px9ofUd8PVdwK7oqN8HAJyLwvm8Ks7uhKaoA0IlMhW1r02F343rpTEAIE/dc78u6oBQiUwFyypfN66MuqdFdcC3E5hV26zidkXL3gPK4swa4At1QKhEdqX3+5MzLvG8z1ehDmg6QOhz/m2XP12bM8GnqANYiZNkzEr9ROs7QAawBbCRAWwBbGQAWwAbGcAWwEYGsAWwkQFsAWxkAFsAGxnAFsCm8RehLMtePp9u8ggADvNY/wj9IjKALYCNDGALYCMD2ALYyAC2ADYygC1ACCGYPACs5FsUsdk7egAAAABJRU5ErkJggg==',
+  59: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABW0lEQVR4nO2aMXLCMBBF1wyF6ejCTC4AXUoKHyJljhFOQo6RMoegoEwXSjfMQEeHu6RSgUaKYyz0yfi9zvaO9s/flWR5bAYAAABDpUg94On96Tt0f/ry2SlXqnHaGKUc7D+CAWoBasa5Eh1e58E5rWbwHYABagFqku2pbXP8Yf0VvH9cLa6Km73tCrP+7wuD74Cb7wJ+RR8nEzMz25/PwedtcX4n9IUOyJXIVdS/dhX+a1y5LM0sPve7QgfkSuQqGKt817gYXU+LdMCtE7hV263ifkVj7wGxOLcGpIIOyJXIr/RmswvGVYn3+TbogL4D5D7nN9vm4tqdCa6FDlAlrqq5KvUFg+8ADFALUIMBagFqMEAtQA0GqAWowQC1ADUYoBagBgPUAtRggFqAmt5fhOq6/vX58qMpzMy2zyX/CN0jGKAWoAYD1ALUYIBagBoMUAtQgwFqAQAASn4AKK9bXH9n3Q8AAAAASUVORK5CYII=',
+  62: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABf0lEQVR4nO2YoVbDQBBFh56aOnxNXJGtQ0RU8hntwSD4gH4Cn4CDz0AiInCtLC6mog7XgwIBK7Jn02zTmX1w9l236ST7+uYlm6wIIYSQfLlIPeF0sf2Kqds8XyXRNkgxyV8mWQL8zr893AXrrlePjbF1ErJPwNB6gth7vut8qyQwAVYXdp1bP02Cv3/uw+e11c/EJgnZJ0D9vmrr/Hg0EhGR3eHQOD5bvkufeq0kZJ8A81XAddIf+53tW38uTID1BK5zsZ08tf5csk+A2SrgaF3Xf5/mPrH1XAWUME+AFUyAEuargDb8FlCmt5uX85ej93pRFI3xpqqirjsty+Dxuq6PnvfxetPrv2SfAPNnQFn+rOuxCXD1jqoKvy9owQSkmuh+dZtqqpPIPgE0AC0ADQ1AC0BDA9AC0NAAtAA0NAAtAM2/2xPkjpAy6l+DXTs3Dn8Hp2uHyYrsE0AD0ALQ0AC0ADQ0AC0ADQ1AC0BDA9AC0NAAtAA0NAAtgBBCkHwDMvlqaBnF//gAAAAASUVORK5CYII=',
+  65: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABgElEQVR4nO2YMW6DMBiF/1ZdsnVLpCzcIBk7cIhKPUCz5wIZc5T0Bj0EQ0e4AUsl2LJFnZolroQFwRj/fpX8vg3nN355/wMLixBCCEmXh9gLNuXp16Vutd1F0fYYY5H/TLQE2J1/Xm17685N2bnWTkLyCXjSXsD1mR+br5UEJkDrxqZzy8177+8/bdU7PlTflKKShOQTEPy5Gur8erEQEZHvy6Uz3lYf4lMfKgnJJ0B9FzCdtK/tzvrWz4UJ0F7AdM61k1Pr55J8AtR2AcPQvm7e5jau9dwFAqH+DhjqdKj6uTABaAFT4bdAYLzd/Po83v3Oz7Ksc10UhdN98zzvHa/r+u68l9ej139JPgHq74Dl5tZRxwT81d9oK7d5vjABsRZ62x9iLTWJ5BNAA9AC0NAAtAA0NAAtAA0NQAtAQwPQAtConwqHhidCgQn+NTh2cmOwT3DGTpi0SD4BNAAtAA0NQAtAQwPQAtDQALQANDQALQANDUALQEMD0AIIIQTJFabtacNrKlV3AAAAAElFTkSuQmCC',
+  68: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABbElEQVR4nO2YMRKCMBREv46NZ7DhIBzCktIjaEcnnECPYGnJFZzhEnY0nsFSqxRkQELIzzqTfR34Q9b9C5lEhBBCSLqsYk9YVcePW901irZ1jEn+mWgJsDtfFPvBuvu9scbpJiH5BGy0J3B956fGayWBCdB6sOnc+XwZ/P35fAzeH6sXEZUkJJ+A4O/VWOd3262IiLze7979uj6JT32oJCSfAPVVwHTSvrY761u/FCZAewLTOddOzq1fSvIJUFsFDGPruvma27jWcxUIhPo3YKzToeqXwgSgBcyFe4HAeLt5OOx/7vOzLOtdt23r9Nw8zwfvd133c9zt1nj9l+QToP4NMB31TYDrOF+YgFgTlWUZa6pZJJ8AGoAWgIYGoAWgoQFoAWhoAFoAGhqAFoBG/VQ4/PN5IhSU4LvBqZMbg32CM3XCpEXyCaABaAFoaABaABoagBaAhgagBaChAWgBaGgAWgAaGoAWQAghSL6KiGjzAwXs+gAAAABJRU5ErkJggg==',
+  76: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB3ElEQVR4nO2avWrDQAyA1ZIlz9DFjxDI6qHQdygdMrhbR2fzmNFbPHarx9J3KGTwGsgjeOkzZDG0QxDFx5n7se7OIH1Lqa3o1NN3ckgKIPDmLtXCl8vpV3d9s3mMWtN9zMWWSLTdnuq4idBGsDdANiB1AakJPgN8z75KqFnA3oAVVaKyLEg67Zq/adpZZrA3YPa5su18URRe+du2tYrzNUEM8H2h75m3NcG28yquJrA3QDYgdQGpIXsfYMswDLeFV/ql8X4sxADfF2ZZBgAAfd9bxR+PH6Pfz+dvbdx2+zT6ud+/OtXjCnsDnN8HNM1B+/yfMuHr/VN7/ed6BYB/E7DjD+u1Nv757UV7farzZXmw+tvYG0D2FNjtdgBg7iSC99EEUzyapJrTdZ1nxTfEANvAqbO/VLBe0yxgb4BsQOoCUkP2FFCnsWm6q9PcNX7u9EfEgFCJ1c5O3feNp0IMoE6IZzPPcwBw75wpnursI2JAqMSqCXVde+WpqmqUjxoxIPQCczsXqvMIewPIPhFaGvKJkCWyAakLSI33t8NLnQW2Zx8RA+YmWIoJrp1H2BsgG5C6gNSQ//dlrJnge+ZVxIBQiUOZQNV5RAyItZCvEdQdV2FvgCAIgiAIfPkDdFGok2vcxYoAAAAASUVORK5CYII=',
+  80: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABsklEQVR4nO2aoVLEMBCGA4PgHJIZBJE4eIAKJJI34R7leBMkEtEHAIcsghkk7nCgMsDSkN29TdKZ/T/Z5pJM/q/ba5sQAACe2es18Mfz++fc8cOzo6Zz2m852BJpbkAueUorE2BAq4G4yVNqm+DeACxA7wn05qBWx9PmUXXNl/qJ6wvTmuDeAPMKW0r++Cqy+nm7n/49b2UCDNi1A+21njOhlHwOrRHuDah2FyihTdoa9waoa4DVfd4aaS2AAdIfSJM/vTmfPf5y+2TSPgfXBBjAbahN/mS1mj3/ut2GEL6TlbbnUjLBvQHm/wNKSSbS+ZSstL3UhBzuDcAC9J5Ab7AAvSfQG/O7QKrOpepOq7m0vRUwQPvDaZpmj8cYQwh/k6XQJKXtS+NzcW+A+Fkgt/IUmsQ4jvxZ/WAYht/zEI6PZ4EC7BrAXXnaXnpNWo9fAga0Gohey0vBvQFYgN4T6I34rfDD+o71btCq+lO41f1yc423whzUX4ZyJtRKnpIzgZt8Agbs2sFSvhFif4CS5nuErMAeISOq7cOtZQL2CRrTbLe41gjrxCnuDQAAAACAX74ADjupNjZyJZkAAAAASUVORK5CYII=',
+  82: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB9ElEQVR4nO2arU4DQRCAB0JS6nAlwdwbgAOBQFaQtARRBKIaDEkNj4AhwYCuQIAglARRiUCAgzc4QwIOV1Ag7ibNbe5nd25295Kdz7S9m84NO9/ONS0AQtgs+Lrwz+fwL+/48urYaU2LLi/WRJytdlHHq7BtRPAGyAL4LsA31mcAde+r2JoFwRuwxJVoctNn6bRp/v7BpJYZwRtQe1/pdr67s0LKP3361oqjmiAGUN9I3fO6Juh2XsXUhOANkAXwXYBv2D4H6NLq7AIAwO/XY+l5gGsn9YgB1DdGUQQAAHEca8X3BveZ161OUeR+Gp88PtzuGdVjSvAGGH8OeHs5yb3/F5lwNJzmHv+YzdJnd+lj0vG1djs3/mrczT1e1PmNrQutvy14A9juAr3BYfqsvJMInkcTquLRJNWc99dnQrVzxADdwKK931Sw3qpZELwBsgC+C/AN210Ap/H6ZvK6arqr09w0vu70R8QAe6mznS06T4/nQQzgTjifBdvpEdPOlcdz7X1EDLCVWDXh8vyMlOd4dJrJx40YYPsCdTtnq/NI8AawfSPUNOQbIU1kAXwX4Bvyr8NNnQW6ex8RA+omaIoJpp1HgjdAFsB3Ab5h/+9LVzOBuudVxABbiW2ZwNV5RAxwdSGqEdwdVwneAEEQBEEQwuUf63OUWNH/MzMAAAAASUVORK5CYII=',
+  89: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABp0lEQVR4nO2awXHDIBBFSSYX15CLSqAAFeFUYJdCKXYFSREqgBJ0cQ0+JicmyUaEXbyAZva/myUMDP9pZck4BwCwzNOogWOIn1vHffBd5/Tcc7A90t2AXPKUXibAgF4DcZOntDbBvAFYgNETGM1Lq44vx0vVNV/q5/xxVq0J5g1Qr7Cl5L33rH5ijP+e1zIBBjzaQe21njOhlHyOWiPMG9DsLlCiNmltzBtQXQO07vPaSGsBDJB+QZr86f20efz6dlVpn4NrAgzgNqxN/vVw2Dx/u9+dc9/JSttzKZlg3gD13wGlJBPpfEpW2l5qQg7zBmABRk9gNFiA0RMYjfpdIFXnUnWn1VzaXgsYUPvFdV03j0/T5Jz7myyFJiltXxqfi3kDxM8CuZWn0CSWZeHP6gfzPP/6LB0fzwIF2DWAu/K0vfSa1B6/BAzoNRC9lveCeQOwAKMnMBrxW+HgA+vdoFb1p3Cre4gBb4U5VP8zlDOhVfKUnAnc5BMw4NEO9vIfIfYHVNJ9j5AW2COkRLN9uK1MwD5BZbrtFq81QjtxinkDAAAAAGCXL8oRo6ZFzi3TAAAAAElFTkSuQmCC',
+  91: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB3UlEQVR4nO2asU7DMBCGD4oElTp0Z8kGD9EhG4x5g1Zi4REqHgD1EViQ2jfICFuGPgRsWdg7VCoMVZlOKJZNbOccR/L/bUmuF8v3+ZImIQJpcxbrxLvd90m3fzq96nVM532ebIj0NtumircR2ojkDcAExB5AbIL3AN+1rxKqFyRvwIVUovX6TaTSrvkXi/tOZiRvQOd1ZVv5osi98pdlZRXnawIM8P2h75q3NcG28iquJiRvACYg9gBiI3YfYMtkcklERPv9z7/H+yJ5A7yvAlX1cSIiquvaKn4+v2tsH4/6uNGoub3ZvFvlz7KMiIjy/BZXARecDeDKq5hMeHostPu/Dgci+jOBK389Hmvjn19K7X6uvIqtCTDA9QcmA2azGyJqr6QKm+Aaz+Zst5/aOBhgifV9gKnyQ4XH22ZC8gZgAmIPIDZi/wW4G/PVoK27q93cNd7U/V2BAaESq5U1HfeNlwIGSCdUe4Fr5dripdY+AwNCJVZNWK1evfIslw+NfNLAgNAn6Fq5UJVnkjdA7HnA0MDzAEswAbEHEJvO7wWGBt4LONL5C5GhmOBaeSZ5AzABsQcQG/GvL/vqCb5rXgUGhEocygSpyjMwoK8T+RohXXGV5A0AAAAAQLr8Ag49pt2aEMddAAAAAElFTkSuQmCC',
+  94: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABkElEQVR4nO2awXHCMBBFFSb3UAAz8ZEOkgOHlOAOgA5SCh2gdEAJOXBIOuAIMxQAHXBINgkae7Rarbxh9N8N27va0T7LyGPnAAAAAFArd0MN1Db+QxK32S+etWv5y6hk8lugmAHSjsfQNgIGaCcs1fkQLRNggFaioTofkmsCDMhNYNX5EKkJMEAaGOv86qV96jr++r755OSXxqeaUL0B99oJqXOP64fu88uv832dzI1PpXoDkteAvns/1rmQw/LsnPvtZG58CHctqN4ATIB1AdZgAqwLsEbtKUDEVvPY6p0bT+ApwETdAMJqL0DAACbFDLAGBjDR2A3uug5u99u5Qu4fZs3sLXLJVJIXBqQG0L3VNt5zrp+MJ1e/j6ej6DiD3Xd9C26AczAg3QBu562g+rgmVG8A+3/Af+98HzETqjcAE2BdgDWYAOsCrMEEWBdgDSbAugBrJG+EfIE61MFegEnOFyJesQ418D4gEY2vxLxCHdmkdp6AAUMNJDVF2lkuMGDoAbkmlO48Ub0BAIC6uQAGupOb1Dn0fAAAAABJRU5ErkJggg==',
+  99: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABP0lEQVR4nO2aLQ7CQBBGF4JAViAQiB4BySEQCA7AESo4BoIjcAAEgkMge4SKCgSiEgeKBJoA/Zntg+z3dDv78mU23Z3UOSGEEEIIESY964KnaXSzrvnMLC1MnfuWxf4RBUAL0CgAWoBm4Ktwnhem9SaTyLTeA3VAVwvNN0mt54/rrRePMuqAbw9cd8nHk91wtTU/TdahrZ86oKuFutrTdVEHtC3w7vbn67ttfdsMvgMUAC1AU/kbXnXvxXHsnHMuy7JGQlZ1q06Ogu8ABUAL0CgAWoBGAdACNAqAFqBRALQAjQKgBWi8zQQft7dfJ/gOMJvpnxdTr3+GlBkfUhP34DtAAdACNNhfYuWZXdP32hJ8BygAWoBGAdACNAqAFqBRALQAjQKgBWhan6v3I9doDrC8vK5tVacuwXeAAqAFaO622jTinG3bJgAAAABJRU5ErkJggg==',
+  101: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB30lEQVR4nO2aP27CMBSHX6sOsNEpSF1yA7LB0KEHYCqXYGhP0w69BD1Dhw4wkSNkqQRT2WCjQ7BQLLuxHf+J9H7fFBxjW36fXywnRIA3N6k6Lov8rCovyirqmG5jdtZHos22LuJthDaCvQGYgNQDSE3wHOC69mVC5QL2Btz5ami9HqkjvQzb/mx26GQGewM6rytt5CUGy5FT+6ePg1E9VxNggOsfTSMvY2qCaeRlbE1gbwAmIPUAUhN9AibbOU22c+f7vmFvgPNTYLcrzkREVVUZ1Z9Of6WSV03Nt8avzebeqP08z4mIaDwu8RSwwdoAEXkZnQnPTydl+c/xeLkSJtSRfxgOlfU/vwbKchF5GVMTYIDtH3QGZNnj5er/SMoIE2zrC3P2+29lPRhgiPF5gC7yfUWMt80E9gZgAlIPIDXezgRFNs6yOju3ZXc5m9vW12V/W2BAuKabkdXdd6/vB/YGGO8EbfcB152hX2zXPvYBLQTLAdenQm3CavXu1M5i8dJozzcwIHQHXSMXKvIC9gZ4Ow/oGzgPMAQTkHoAqen8XqBv4L2AJZ2/EOmLCbaRF7A3ABOQegCp8f71Zayc4LrmZWBAqIZDmeAr8gIYEKsjVyN8R1yGvQEAAAAA4MsfHU+a+4LzBhsAAAAASUVORK5CYII=',
+  103: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABuUlEQVR4nO2aL0+DMRDGbwTB3OQSxCqR4CaRCBxmkjk8BoOawfAZhpzBIZAoMgcfoRMkk7hJMDRhl/Xv2/ay9PmZ5V0v18vdc9e+y3pUGH19+pPDj3r67OXwwzko4XSfQAKkA5Amua9svW16NVfvx/qPnRVQQKhhqYqWxqeI5hWABEgHII13BuTq/dH8Y+t5NT3rZBeLbRY0r4DDWhsd9/tERPS12RDR/0rf/33Odtq/T06KxgUF1N6QK8G2XovmFVD8Jmh63V559www9qmnAW6CHqrNAHvl+fPMYl+G5hWQ/fcAw2h+ufP758cHp9+r2zvn+mr64lxfX3xvPY8nGjPARfIM4NOVK8JUyqaEWGyV5xWPpXkFeGfAcqGCzv/h68C5nqqE2J7nYAZ4yHYPMJWwKSF2JnStfChQQG6HoUro6j8XUEApxz4lpPrLDRRQegNeuVBFpFbcd+5zoIDaGx7dDJzrWusqcRigAJ8B76nQd4N9oXkFIAHSAUhT/RTwoZQiIqLh+K3I/wI5zSsACZAOQBokQDoAaapMWiKi9fI86gaJU6ASSIB0ANIgAdIBAAAAAAAAAIAEvykjiEuI/Z2ZAAAAAElFTkSuQmCC',
+  107: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABdUlEQVR4nO2YMXbCMBBENzyK0NFTIO7hIiV3gAOQjjLHSJcchTKFL+EqokjvjnRJpcJ6NhZmV5M8ze9k1tYwO7KeJUIIIaRcHnJP6A/uJ6XOvfss2mY5JvnLZEtA3Pnv46m37vF12xlbJ6H4BMytJ0hd82P3WyWBCbB6cOjc+u2z9/emaXqvD9V72ZgkofgEqK+roc6vFgsREfm6XDrXz88bmVKvlYTiE2C+C4ROxuO4s1Pr74UJsJ4gdC61k7fW30vxCTDbBQJD+3p4m8ek1nMXUMI8AVYwAUqY7wLa8FtAmclufmyXV9e6c8vOuK590nOryvVe9769et/TqZ30X4pPgPk7YF1VIpKegFAfONe1tqQOTECuiXYv+1xT3UTxCaABaAFoaABaABoagBaAhgagBaChAWgBaP7dmSBPhJRR/xocO7kJxCc4YydMVhSfABqAFoCGBqAFoKEBaAFoaABaABoagBaAhgagBaChAWgBhBCC5Bf6nWsJ4k+McQAAAABJRU5ErkJggg==',
+  112: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABZElEQVR4nO2YPXLCMBSE10waOnqKcAQfwAUlxyAdJR0cIXQp0yXHSEnhA/gITkHvjpI0qEBjYYRk7WS0X2f7jd7Ovmf9AUIIIYTIlSL2gE3TXPrel2XplSvWOENMYg72H5EBbAFsXlIlat/Xvf+0i24kHTbZd4AMYAtgE21NHfrHX3dfve9/D29PxS323wUQvl/IvgNGXwXsis6nUwDA6Xzu/T4UZ3dCKOqAVIlMRe1nU+FH47rVFgDQrLZe+woX6oBUiUwFXZX3jXPhe1pUB4ydwMzaZha3K+raBzjjrnNALNQBqRLZla7r2hEZd50fQh0QOoDvOT+U2c/HzbM5EzyLOoCVuKoqVuobsu8AGcAWwEYGsAWwkQFsAWxkAFsAGxnAFsBGBrAFsJEBbAFsZABbAJvwO8G2vft9+XksAOC4WSa9O3yU7DtABrAFsJEBbAFsZABbABsZwBbARgawBQghBJM/VWdbpyYCNJkAAAAASUVORK5CYII=',
+  113: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAByUlEQVR4nO2aMU7DMBSGHwip6QlaiSUbbO1GRwQHAImFO3Ae7sCCBAcAMbZbu7VbFqT2BE2nMnmoZZNn+9mO5P/b6rrPT36f7TQJESibs1wDt8vt0dReTcdJczpPOVgfSTbbtop3EduI4g3ABOROIDfR9wDfta8Tay8o3oALqUDr+YdIpV3jX88eg8wo3oDgdcWtfF3NvOI37ZzVz9cEGOD7Q981zzWBW3kdVxOKNwATkDuB3IhdB3AZTEZERHRY7f79nhZp8ineAO9ToN0uj0RETdOw+l/dPHiNs1l8svrVdU1ERNV4ilPABWcDVOV1bCbc3T4b23/3e2P75XBobP/+eTO2q8rrcE2AAa4/sBkwGE1OPtsqqaNMcO2vOOxWxn4wgAn7OsBW+b6i8u0yoXgDMAG5E8gN+xTg7gHc08D1OoC7++tgD+gg+r9BW6Wl+ocCA6QDqrWp7wXS8aWAAbEC6yZ8vb96xbl/ejmJJw0MiD1AaOViVV5RvAFi9wP6Bu4HMMEE5E4gN8HPBfoGngs4EvyGSF9McK28ongDMAG5E8iN+NuXqfYE3zWvAwNiBY5lglTlFTAg1UC+RkhXXKd4AwAAAABQLn+ZZY/yHRc/EgAAAABJRU5ErkJggg==',
+  115: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABhUlEQVR4nO2YMU7DMBSGH4ilG1uRWHIEtnbIIZBYOAaIhVvAFdgYOUSGdOMIWZCaja1iKkuNFCtuHec9/0j+v83pS/z3f39sxSKEEELK5Sz3hNv2YR9Td7V+zaLtPMck/5lsCfA7f1ndjNZ9d5+DsXUSmADrCULvfGwCHFZJKD4BF1YPdp1frl5Gf//p30avh+q3rexF9JNQfALU36tQ568XCxER+drtBtf7zaOk1GslofgEmK0BDtdJf+x3NrV+LkyA9QSuc7GdnFo/l+ITYLYLOEL7ulvNfWLruQsoYb4GhDqtVT8XJgAtYCr8FlAm2c32/fbo2V5VVYNx0zRRz63revR613VH71vffyT9l+ITYL4GLFeHjkYm4K/+QL+Juy8VJiDXRHdPz7mmmkTxCaABaAFoaABaABoagBaAhgagBaChAWgBaMxPhbXhiZAy6l+Dp05uHP4JzqkTJiuKTwANQAtAQwPQAtDQALQANDQALQANDUALQEMD0ALQ0AC0AEIIQfILcmRpecxJ480AAAAASUVORK5CYII=',
+  121: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB7UlEQVR4nO2arVLDQBCAFwaROgSuJhIcEpFB4eABykwFj4CgQwQCgQgDgkfA0RfAoZgIJA5kTR0C1zgQdGF6c+H2LveTmd3PMCTbzXL73SZtARB4s5bqwk3TfOmOZ1kWtab1mBfrI9FWu63jJkIbwd4AWYDUBaQm+Axw3fsqoWYBewM2fCUabVdeOm2bf/pedjKDvQGd9xW18/evp075T3bvSHGuJogBri903fNUE6idV7E1gb0BsgCpC0iNt+cAKk8XHwAAcHC19e/5WIgBri/MN3MAAJh9zkjxD2/nK78/TubauMOb4fLnT/zxzrVVPbawN8D6OaDcm2rv/20mPM8utcfniwUA/JmAnR8OBtr4/Vyfp63z1cuI9LexN8DbXWB8NAYAcycRPI8mmOLRJNWcuq7dCl4iBlAD2/Z+X8F6TbOAvQGyAKkLSI23u8DvNJ4UAGCe7uo0t43vOv0RMSBUYrWzbedd433B3gDyewHb54CiKOyrIWC79+U5wECwGYCdQhOq28opT3lWruTzjRgQ+gJdOxeq8wh7A7x9ItQ35BMhIrIAqQtIjfO3w32dBdS9j4gBXRP0xQTbziPsDZAFSF1Aarz/92WsmeC651XEgFCJQ5ngq/OIGBDrQq5G+O64CnsDBEEQBEHgyzfWXKQDy6aOcAAAAABJRU5ErkJggg==',
+  122: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABgUlEQVR4nO2YMU7DQBBFJwjJSUeXgiIuOQKFJSJxDBqOwXFylERywREoTUGRji5xBU0Wyat1vLZn9iPtf503Y+/Pn2+vvSKEEELyZZF6wvO++YmpW27LJNpuUkzyn0mWAL/z34/LYN3d+7lzbJ2E7BNwaz1B7D0/dL5VErJPgNn95TpXPG2Cvx/bY3B8XayD4+3hU0T0k8AEaF+wr/P3q5WIiHydTp1x19mx9VpJyD4B5quA66R/7Hd2av1cmADrCVznYjs5tn4u2SfAbBVw9L0HuKe5T2w9VwElzJ8BfZ3Wqp8LE4AWMBZ+Cygz2c2P3f7qd35Zlp3juq6jrltVVXC8aZqr5z28bif9l+wTYP4MKKrLuh6ZgL/6C21tuyowAakmen57STXVKLJPAA1AC0BDA9AC0NAAtAA0NAAtAA0NQAtAY74rrA13hJRR/xoc2rlx+Ds4QztMVmSfABqAFoCGBqAFoKEBaAFoaABaABoagBaAhgagBaChAWgBhBCC5BcD1WlM7RpdDQAAAABJRU5ErkJggg==',
+  123: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB9ElEQVR4nO2aMVLDMBBF10yanIEUOgCFu1C4CHVyBA5g6lBwhBT0yQFyhFCHIkXoMgMHUAFnSAEzpomYsbBjSdZqYXZfZ1vSbnZ/tLIsAIE3GdbAOldV03110GdthvYL5QJj0P/EILXBq8dBBQDwdv+VNd2HdVp/2CsAbQ6w+cnwiaIoas93u13t2lYIFuwV8GcDUO4nVbmfNFaEmPzZAKQCPQDVCd9+y/EWluNtcH9X2CsAbR3QlbXleAsAAHcvN43PL4dDAAD4OB5r42VZFrU6iAKwDZhM/jI1r1++zj+t9vX+RgmxEQVgGzCZc82kb/u+sFcA+nq7rRq0zf6mOtjEnv0NooCuBjpXmxiGFis19Wn/UOqnGHbVQc/OPWevgGQ7Qvqga9cqV07tsBEFUBlOnek22CtAAkDtADUSAGoHqJEAUDtAjQSA2gFqvFeCs9t3r7c6wwhGSexs1iOvt0j2CkgWAJWr1jdAStgrwHsO8P2PGRYFTAHa9wFsViVE2RHqgr0CnHda7RMeXdgnQPpinyDpwvWECXsFSACoHaCm99eWFOd4XFhdPwf9FlFAaEfXqtC3GrjO/qHnCtkrQAJA7QA10b+5p6oKobO+jSgAa2AsJcTKvEEUgG0glhJiZ94gCkht0FURWBm3Ya8AQRAEgTPf5YyS3ataAaMAAAAASUVORK5CYII=',
+  124: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABe0lEQVR4nO2YMW6DMBiF/1SVKGfIwlbGHoChUpfcIpFyiY45SnuLjB04QLvRjSVnIEzJElfCgmDAv18lv2/D+sGP9z9sYRFCCCHxsgo94fmjurjUPe3yINoeQkzynwmWALvzXy9Zb93rd9251k5C9Al41J7A9Zsfu18rCUyA1oNN55Ltc3/BT9s7PFR/Fp0kRJ8A79/VUOfXaSoiIqem6Yy3n78yp95XEqJPgPouYDppX9udnVu/FCZAewLTOddOTq1fSvQJUNsFDEP7ulnNbVzruQt4Qn0NGOq0r/qlMAFoAVPhv4BnZrtZHY53//OzLOtcl2Xp9NyiKHrH67q+e19+2Mx6l+gToL4GJMVtX3dMwF/9jbbU3RWYgFATvb3vQ001iegTQAPQAtDQALQANDQALQANDUALQEMD0ALQqJ8K+4YnQp7x/jc4dnJjsE9wxk6YtIg+ATQALQANDUALQEMD0ALQ0AC0ADQ0AC0ADQ1AC0BDA9ACCCEEyRWUlWjCNnSqUAAAAABJRU5ErkJggg==',
+  125: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABb0lEQVR4nO2YMQ6CMBiFqzFBN3eXjh6CRI0X8RgeR08iJhzCsYu7mzrp1IEGpJT+fSZ930bzlz7e/6ChShFCCMmXSeoFX9X241M331ZJtE1TLPLPJEuA2/mHObTWLfWpcS2dhOwTMJNewPed75svlQQmQOrGtnPF5tJeYM6tw131r2onkoTsExD9verq/GqxUEopdX8+G+Pv606F1MdKQvYJEN8FbCfda7ezofVjYQKkF7Cd8+3k0PqxZJ8AsV3A0rWv26+5i289d4FIiH8Dujodq34sTABawFD4LxCZYDdvJ/3zP19r3biu69rrvmVZto4bY37OWx9M0LNknwDxb0BhO+qZgMJJwNtzXihMQKqF9sdjqqUGkX0CaABaABoagBaAhgagBaChAWgBaGgAWgAa8VPh2PBEKDLR/wb7Tm4s7glO3wmTFNkngAagBaChAWgBaGgAWgAaGoAWgIYGoAWgoQFoAWhoAFoAIYQg+QKqm2jMPza3dQAAAABJRU5ErkJggg==',
+  126: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABeElEQVR4nO2YMXLCMBBFFyYNHSUzKfARoHcB56BJ+hyAI+QW4SgU7sMRRMEMdHRMqqRSYY2Nhb2rH0b/dTJr6/P3yxpLhBBCSL6MUk/o3ha/MXXF7pBE2zjFJP+ZZAkIOz/7nDbWnbfX2tg6Cdkn4MV6gtg133W/VRKYAKsH+87Nv74bf/+5rBuvt9U7WZokIfsEqK+rts6/TiYiInK63WrXj+9L6VOvlYTsE2C+C/hOhuOws33rh8IEWE/gOxfbyUfrh5J9Asx2AU/bvu7f5iGx9dwFlDBPgBVMgBLmu4A2/BZQpreb+9X07loviqI2rqpD1HPLctF43Tl3977V/trrv2SfAPN3wLwsRSQ+Ab7ec6wqbUk1mIBUE222H6mmeojsE0AD0ALQ0AC0ADQ0AC0ADQ1AC0BDA9AC0DzdmSBPhJRR/xrsOrnxhCc4XSdMVmSfABqAFoCGBqAFoKEBaAFoaABaABoagBaAhgagBaChAWgBhBCC5A/1C2qRzxDu9QAAAABJRU5ErkJggg==',
+  127: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB2UlEQVR4nO2aK1IEMRCG/6EQbBUCD2IE+OBXggKB4ADLDRB4Fo/gBssBEAhQINcTD2INZ1gZVIpKah6ZTDq9W+nPzSST7ur+J29AKJuKqmGtlWl6r5TutBn7XSw7FI1uE7u5DZ4dwwDA54+rPvs+N8UrgKwP8PEzPJ0qp3y51M6zrxAqilfAxgZgPlNmPmseEVKysQHIBfl/ZowxAHB+4prq6wM+vt3kV1Ul8wAKyOYBNvNt3C++AAAPN6eN5YeTCQDgd7122kutBFEAtQGbSWCvs5795//ru99bJaRGFEBtwGYuNJND64+leAVkmwf4tPX+dnTwkXkAEb1R1Vq9pTD0+oSLIfWvbvGewq5S+rKrvHgFZNsRWumV81yruqdec3lqRAFchn1FcFG8AiQA3A5wIwHgdoAbCQC3A9xIALgd4GbwTPDuWg9a1VmO9g+y2Hl8UYNWkcUrIFsAalW3rgA5KV4BsiOUwsg2E7zTOvQOj3/6Oxb/9LiP0BsmxStAAsDtADejT1ty3OMJYf4cd5NUFBD7YeioMHY0CO39Y+8VFq8ACQC3A9wkP3PPNSrE9vo+ogCqhqmUkCrzFlEAtYFUSkideYsoILfBUEVQZdyneAUIgiAIJfMH53qEyxWaPJIAAAAASUVORK5CYII=',
+  128: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABW0lEQVR4nO2arVLDQBSFTxhMHZ4XiAy+D4GjjwCukkdA4uARiuMh6omMrGEGiasEtaI7G0Ka7R6YfJ9LcmfvmXNv9icTCQAAAOZKlXvAruu+Uvfruh6VK9c4Q5zlHOw/ggFuAW7OSyXa3DbJd9rN7DsAA9wC3GRbU4fe8Zunt+T9l7uro+JWz20lTd8vzL4DTr4KxBW9XCwkSe/7ffL5UFzcCVOhA0olChWNr0OFfxvXrDeSpG6tLPsKOqBUolDBvsqPjetj7GmRDjh1gjBrh1k8rmjfPqAvLswBuaADSiWKK73dtunAzOv8EHTA1AFKn/Pbx9XBdTgTHAsd4Eq8XDau1AfMvgMwwC3ADQa4BbjBALcANxjgFuAGA9wC3GCAW4AbDHALcIMBbgFuJn8R2n3sfnx+//pZSdLD9QX/CP1FMMAtwA0GuAW4wQC3ADcY4BbgBgPcAgAAnHwDGopaqMO1vRYAAAAASUVORK5CYII=',
+  130: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABm0lEQVR4nO2aIVIDMRSGXxhE6xAVZUBUcAgkRwBVjlCBhyNwAA4BikpuAIdAIMpQgajbOlDLzIZsk2xe5p/O+z/XTJL9+96/STaJCCGEEEKs4mo/YHr5+KPZ33p5rar5QLOzfeQQLeDreR4sP7566qk37zjKOVfkCPMOgI0BfuZPxmMREflsmp399dUb6gTzDoCPAW1G/d9+hlPr5UIHaHc4Or/vvPOb9cfO+m0GYxlNrZeLeQeozwK+A2I0r7fB8v51QBeuAwr5F73cDJZyNJ0l1YuNJals3+46/9m8AxgAtAA0DABaAJpq3wKpo3ttNssXr+SiM8uZdwADgBaAhgFAC0AD3xHSJnf2oQPQAmozWyyC5e0JEx2AFpCL9grTvAMYALQANHs3Bgyl3VPknqAHA4AWgEb9ZEj7TlCM0jtD5h2gPguknuD4K7qh7UqhA1AP9t/d1DNJ3hNUhgFAC0DDAKAFoGEA0ALQMABoAWj0VlWTm+BKbnR2KiIi2/dVuN33g1NpPxDzDqj+LfC3B9eT4drtY5h3ALHOLxVpaJ2WZ61LAAAAAElFTkSuQmCC',
+  131: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABUklEQVR4nO2aMW7CQBBFx1EKc4NIuQhIFHTkKJTukiMkHSVHSToKJHIMN0jcwO6giIzAWcdZ2+wD7X+dvaOdrz+z9q5lMyGEEELESjL0hGVZHlz30zT1yjXUPG08DDnZPSIDaAE0j6ESjd8/nWuaJvoOkAG0AJrB3qlta3z7Onfen3x8dYr7fntJzPrvF6LvgKu/BeoVfR6NzMxsVxTO8ba4eif0RR0QKlFV0fp1VeH/xq2z2c9A5l77vqgDQiWqKthUed+4JnxPi9F3wN3tA07PgAbUAZ4Eewb82sltNu64EGLOUAf0nSD0OX+2XF9cV2eCrqgDqMTj6ZRKfUH0HSADaAE0MoAWQCMDaAE0MoAWQCMDaAE0MoAWQCMDaAE0MoAWQNP7i1Ce53+O71eLxMzsabHSP0K3iAygBdDIAFoAjQygBdDIAFoAjQygBQghBMkR6vVVy9pqBywAAAAASUVORK5CYII=',
+  134: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABVUlEQVR4nO2aoXLCQBRFXxgEOCQz/YBWUodAIPsZ1PWTcPQzKisQdSDBxTBTGQcOBJN2CJumS8IemL3HJftm35373ia7mZgJIYQQIlaSpifc7b73rvudTt8rV1PzVNFqcrJ7RAbQAmjaoRINJivnmqaJvgNkAC2AprF3atUaX8wenfefX9cXxS3fnxKz+vuF6Dvg6m+BYkUful0zM9tst87xqrhiJ9RFHRAqUV7R4nVe4f/GfU17x4Gpe+37og4IlSivYFnlfePK8D0tRt8Bd7cP+HkGlKAO8CTYM+BsJzefl8SFUPOLOqDuBKHP+cO37OQ6PxNcijqASjwYjajUJ0TfATKAFkAjA2gBNDKAFkAjA2gBNDKAFkAjA2gBNDKAFkAjA2gBNLW/CKVp+ud49vmSmJn1xh/6R+gWkQG0ABoZQAugkQG0ABoZQAugkQG0ACGEIDkAzv1WTFWlE8EAAAAASUVORK5CYII=',
+  135: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABRElEQVR4nO2aPQ+CMBiED2Mibmya+AccdXPw5zuwyejIYqIbm3XSRQZJEaG1J+k9G9C0l3sP+hEAIYQQQsRK4rtDY8zDdj9N015j+eqni4nPzsaIDGALYDMNNZC5bKzvNJvoEyAD2ALYeJtTu97x2eJovX+/bge1S5dFArivF6JPwM9ngWZFV/M5AOB8u1mfd7VrJsEVJSDUQHVFm9d1hb9ul+UAAGPgZV2hBIQaqK5gW+X7tmuj724x+gSMbx3w+ga0oQT0JNg3oFnpw6Gwttvv/c7zXSgBrh0E3+dXu7fLek8wlOgT4DwLsE96lABHZABbABsZwBbARgawBbCRAWwBbGQAWwAbGcAWwEYGsAWwkQFsAWyczwTLsvz4fL2rEgA45Zn+EfpHZABbABsZwBbARgawBbCRAWwBbGQAW4AQQjB5AkvVWRi57YboAAAAAElFTkSuQmCC',
+  136: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABTklEQVR4nO2ZMW7CMBiFfxAD3ACJgfQWHRhyFLpxpGz0KAwMvUXdAYkbJBsMlQcihzSJ60/I79uSWP6f3v8Sx4mZEEIIIXJlFnvCprneQueXy/WgWrHm6WMec7JXRAbQAmgWqQq5fRG8p2myT4AMoAXQRFtT++7x7fE7eP7n423UuOLTzcymvy9kn4B/XwXaHd2sVmZmdqnr4PW+ce0kTEUJSFXId7R97Dv813Hr6svMzJrKorxXKAGpCvkOdnV+6Lguhu4Ws0/Ay70H+GdAF0rAQJI9A9qdPp9deGDkdb4PJWDqBKn3+dfD+8Ox3xOMRQmgCu92BVX6gewTIANoATQygBZAIwNoATQygBZAIwNoATQygBZAIwNoATQygBZAM/2boHNPr5en338PpzLOv7zYZJ8AGUALoJEBtAAaGUALoJEBtAAaGUALEEIIkjsJaVVMibvlawAAAABJRU5ErkJggg==',
+  139: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABuUlEQVR4nO2aMW7CMBSG3aoLW8dKHZqxIweI1I7cohyBI3AEjtDegrGVcgDGjumA1JGNsUwG8Yjr98yzHen930bi2Jb/Ly8Q7BwAwDI3tQb+7Td/Q8cfmmnROd2WHGyMFDcglDyllAkwoNRA3OQpuU0wbwAWoPYEanOXq+P3z57c8zuVfuavjWpNMG+AeoW9TP6cWbNj9bPu7/89r2UCDLi2g1jiIUImxJIPkWqEeQOyPQVipCatjXkDkmtA6r2fG2ktgAHSC6TJv708DR7/+PpRaR+CawIM4DZMTf5xMhk8v93vnXOnZKXtucRMMG+A+veAWJIef94nK20vNSGEeQOwALUnUBssQO0J1Eb9KeCrc6y602ouba8FDEi9sN98Dx5vps/OuctkKTRJafvY+FzMGyD+LRBaeQpNous6ybyOtG179lk6Pn4LRGDXAO7K0/bSe1J7/BgwoNRA9F4eC+YNwALUnkBtxG+Fl6s1692gVvWncKv7cjHDW2EOyf8MhUzIlTwlZAI3eQ8MuLaDsfxHiP0BiRTfI6QF9ggpkW0fbi4TsE9QmWK7xVON0E6cYt4AAAAAANjlAOShqQb+aHNIAAAAAElFTkSuQmCC',
+  141: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAB5ElEQVR4nO2aO07DQBCGx4gmN7BECheUFD6AC7ogQZmSA5jKHCAdOUConAPQkRKk0FH4AJbgAGmQcoOUpmGRvPJr1zs7iWa+zvZ6Zzzza/bhBRB4E2B1XJZl1XQ/juNOm7bv2XKG0ekpce7b4GJ+VQEALDffQdN937BXAFoN0NEznCRJ7XlRFLVrXSFYsFfA0QZgu0qr7SpFrwtHGwBfoAeg+sP0vVmWwyzLrd8fCnsFoM0D+rI2y3IAAPh4fmh8fjGZAADAz+FQ6y8IAqejgygA24DKpM6Tfv361dheV4JrRAHYBlTmhmbStP1Y2CsAfb7dNhq0VX81Oui4rv4KUUBfg7Is31wY2n+ub03ah9fpuwu7cRzfdT1nrwBvO0K7/a52HYVRZ7sQ151/RAFUhnVFUMFeARIAageokQBQO0CNBIDaAWokANQOUGM8E9ws741WdYrp5dSLnfnixWgVyV4B3gIQhVHrCpAS9gqQHSEXRk6ZwTutpmd49BMgY9FPkPQx9IQJewVIAKgdoGb03xYf53iGcPO4tvoW9gqw3hVWo0JfdR47GphWf1PYK0ACQO0ANc7/ufsaFWyrvo4oAKtjLCW4yrxCFIBtwJUSXGdeIQrwbXCoIrAyrsNeAYIgCAJnfgHs8ZVrV6/vuwAAAABJRU5ErkJggg==',
+  142: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABkElEQVR4nO2aoVbDQBBF33IQrcNj8gfgwDWOOvoJlXwSsr+AA9dKJH8Qg8e1LqgR3UOyCZnJwJl3XXsm2ZeZl+lmUoAQQkhc0twL7vevLQBcLU69cbf3m1m0XcyxyF9mNgdI5YWSA75OCwBAXa9NNdIB1gu0bdv+9P3H+0vvcTd3j2efU0omWsM74NLqxHnlr5dLAMDn8Tjo+DxezqfthPAOMOsBUjGpZI5U9nB4AwCsVg8YEk8HKGPWAwSp3NAeMDZ+KuEdYNYDZOcn93ZO1z4g//0XpFdo7wzDO8C8B0jlhNIzQO4MeSawIrwD1HtA/tSXU3JATpcDtHoBHaB1olLlrZjqBDqgFLDbPatUtqqqUfFN02gsi+32qfcawzuACfAW4A0T4C3AGybAW4A3TIC3AG+YAG8B3jAB3gK84TxAS8h/ZfaZoBacCSph/mZI6JrwdE2KuuJLE56xhHeA2ZshuUdLPUFr9vdbwjvAPAF1vU7W//WbAh3gLcAbJsBbgDdMgLcAb8IngBBCCCFx+Qa1Jne8R+3pCgAAAABJRU5ErkJggg==',
+  143: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABr0lEQVR4nO2asU7DMBCGDWLpBBtILBnZ6JghD8DYkUdk7MgDZMhYNsYsSLCVqSOdrNIjxnfO2RfJ/7c1cWzL/5erktg5AEDNXFgN3LYPP1PHh+G96JwuSw62RIobEEqeUsoEGFBqIG7ylNwmVG8AFsB6AtZc5ep4/7k7u+efNs8q/dzcrVVrQvUGqFdYmhiFa8Lr9uXf81omwIC5HcQSDxEyIZZ8iFQjYMDcDlIN0AYGJJJswFKSp0hNgAHSC6TJX98+Th7//npTaR+CawIM4DZMTf5+tZo8/3E4OOdOyUrbc4mZUL0B6k+DsSQ9/rxPVtpeakKI6g3AAlhPwBosgPUErFH/F/DVOVbdaTWXttcCBqReOI7j5PGmaZxzf5Ol0CSl7WPjc6neAPGzQGjlKTSJvu/5s/pF13Vnv6Xj41kgArsGcFeetpfek9rjx4ABpQai9/JSqN4ALID1BKwRvxXeDVvWu0Gt6k/hVvd1u8FbYQ7JX4ZCJuRKnhIygZu8BwbM7WAp3wjxdTiR4nuEtMAeISWy7cPNZQL2CSpTbLd4qhHaiVOqNwAAAAAA9XIEao+u48KvzVYAAAAASUVORK5CYII=',
+  144: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABg0lEQVR4nO2ZsXHCQBBFvxgnRCZ3opAMMlMC7sAl0IEpAXfgEtwBlGBCMkIlFEBEKEc7g298ks7s3uK5/zJmVndfu1/LaQUQQggplyr3hsvNVwsAm+W0M24+n2TRNsqxyT3zkGsjqXxq/G69MHVC8Q4wf87atv218ofDufO62ezxx++qqky0Fu8Asx4QVv5pPAYAnC6XQdeH8bKethOKd4BZD5CKSSVDpLIv73sAwPbtGUPi6QBlzM8BUrmhPSA1/laKd4BZD5CTnDzbIbFzQPj/L0iv0D4ZFu8A8x4glRP63gJDZ6x3R3VN19AB2gumvvX9dX2tXlC8A9Q6qnXlY9zqBDqgL2C6+lSpbF3XSfFN02hsi+PHa+c9Fu8AJsBbgDdMgLcAb5gAbwHeMAHeArxhArwFeMMEeAvwhvMALSH/FfXvArmcwJmgEuZfhoTYhCc2KYrF9014UqEDrDcQJ+Sa8aVCB+TaSGu6TAcowwR4C/CGCfAW4A0T4C2AEEIIIcSLbzbOeGLxduNAAAAAAElFTkSuQmCC',
+  145: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABjUlEQVR4nO2asU7DMBCG/yAk2o2NSiwZGWHjMXgMHoEtycYj8Bg8BhsdGbMglY2tMJkFC2HVcd3c+UD+v63Vxf5799txLgUIIYTUS1N6wo/NpQOA+4ebybi+74toOyoxyV/muNREvvK58YvVWtUJdID2BM65SOWHyetOzp6/r4cDgKZpVJxAB2gNHFb+fLkEALxut3tdH8b78aSdUL0D1HZYXzFfyRBf2c+3KwA/az4VTwcIo34X8JXbdw/IjZ9L9Q5Q2wP8Sc6v7ZBh2H0O6Lpu5/d+r5A+GdIBWgPHzv6pp8CQu9vHX5/pAGHE7wK5T32Hji/lhOodILaetCsfY64T6IBUwMvTqUhl27bNih/HUWJaXFy/T/7G6h3ABFgLsIYJsBZgDRNgLcAaJsBagDVMgLUAa5gAawHWsB8gJeS/It4VLuUE9gSFKPZeINbhiXWKYvGpDk8u1TtA7e2wX6OpPUGq93co1TtAPQGL1brR/q/fHOgAawHWMAHWAqxhAqwFWFN9AgghhBBSL182xnoVp0pFDwAAAABJRU5ErkJggg==',
+  146: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABfElEQVR4nO2ZMW4CMRBFZ6NICTdAShGno0uOkBJuxBG4UShzhXTpcIpIuQFKtRRokLDwLoYZ/0T+r1tp1v7M/B28syKEEELapau9YZyHXkRkuhqOu3+JVbTd1NjkL3NbayOtfGl8WPs6oXkHuD9nfd+frPzvx9PgfXfPm6PrrutctDbvALcekFb+YTIREZHv7fas+9N4Xc/aCc07wK0HaMW0kila2a/Fvhc8vu2f+bF4OsAY93OAVu7cHlAafy3NO8CtB+hJTp/tlNw5IP3/V7RXWJ8Mm3eAew/Qyiljb4GpM36W1oqOoQOsFyx967t0fate0LwDzDqqd+VzXOsEOmAs4H0mJpUNIRTFxxgttpXXz+Hf2LwDmAC0ADRMAFoAGiYALQANE4AWgIYJQAtAwwSgBaDhPMBKyH/F/LtALSdwJmiE+5ehw3VmwpObFOXixyY8pdAB3huoE2rN+EqhA2ptZDVdpgOMYQLQAtAwAWgBaJgAtABCCCGEEBQ7KpVxyhieY9QAAAAASUVORK5CYII=',
+  147: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABI0lEQVR4nO2awQ2CQBBFB+OFGixAi+Cglal9meiBIrQAa+C4nkh0g4m6O/mSee8GTJafP59lNJgBAABAVBqvhbeHazIzO+/Xk9d3x9vk+Xf1TdO4aF14LDon3BKQUkrPx6u2NTOz+zC81I1JyDv/rr52EsInYOl9g7GT+XHe2V/rSyEB3jcYO/dpJ7+tLyV8ApgDPBadE9VdHTvvxeWwYQ6oiftboOumn+lP6fvpvaIW4ROAAWoBaor3AO9d35vwCcAAtQA1GKAWoAYD1ALUFM8B+a+zuc0F4ROAAWoBajBALUANBqgFqKn+n2A+F3Sn9NdzQfgEYIBagBoMUAtQgwFqAWowQC1ADQaoBajBALUANe5fiJRS+5ugnPAJAAAAgLg8ALy8QMohPUHwAAAAAElFTkSuQmCC',
+  149: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABk0lEQVR4nO2aMU7DMBSGnxES9AxkyAZHYGTgEEHqwNYegRvAEWBHKkdgYOhGj8CYIT1DYSqTBxuHOsmzflXv/7ZYtvP3+a/9YluEEEIIIVZxpV/QPH/vNft7W56raj7R7OwYOUULWC3OkuV3Lz/JeqvFPnCUc26SI8w7ADYHxCN/MZuJiMh2t/u3v756Y51g3gHwOcCPaPwcj3BuvaGYd4D6HHD98JW17n8+XgbPnANAwBzgiZ3g6csDYpgHTORP9IaO4FTqus6q17atyvs2T1fBbzbvAAYALQANA4AWgKbYt0Du7F6adbMMC5qbYJUz7wAGAC0ADQOAFoAGviOkzdDVhw5ACyjN/eY9We5PmOgAtIChaGeY5h3AAKAFoDm6OWAsfk+Re4IRDABaABr1kyHtO0GHmHpnyLwD1FeB3BOcOKMb224qdADqxfF/N/dMkvcElWEA0ALQMABoAWgYALQANAwAWgAatayqmn8kM7mqqkREpOu6ZLvu9dZptB+LeQcU/xbwe3B9I1y6/SHMO4BY5xeN+GNTwdl16wAAAABJRU5ErkJggg==',
+  150: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAACLUlEQVR4nO1aO04DMRB1EFKSE4AEBbeAYu8BxRYp6Wk4Qhp6yhRbwD22gFtQBAlOkKSCagIZ7Wg+6w/C86pE9thev+fnsXcnQYjt9uNLWvc3ZrPTiSUuV79Hlsb/E3wCSg+gNNh1Yl2DGFovyNVv9QrwCSg9gNI4ztXRavESZU3HRvUKEDuz1ZWfbt8sYXvcPF6Y4jwTFMInoPQASsN8UqM8Yeya50B5gvXU6QqAHxSj1Mxa9/WmuRTV6/tXS/NhsboaHC/1fK4A7f6uXeNSxjloFSHNH6pXQLKzQCzmcXtWb6BQvQLUHgCgvACYOm8/B8vX3YmofS6eUoL27FC9AqJ5AGZ+Oh1mGsopJUjjmxDHE1wBsRqimDubz0MIIbxvNgflWAnW+NCPG7crQBuA3f9nvz90bWAO/wcmOUjjcX4A4/NMUIhkmSAwpWU+VrwU1SuAvQ/gTn845+f28d1uXB5AxXP5AOUJ1Stg7wHSmx88k+suoP9onw7D5cvlw2D5fbgTxWPgcWHlUs/nCkjVsPTUlypeiuoVwN6lgwdwmVUuxjAorwCAF1C3xa4AaUXu5kiqgK57FtVr22tRPU4B/o0Qg+j3Abm8gGNeCleAtCKsJc4LUitByrx/ISKE+p269j1CLCVo17wrQAjzFyJchsi9OeKgffPDZXwUXAFjG/grX4BqmQe4AmI1VEoJVuYBroBUDadSxFjGMVwBuTqyKiI24xjVK8DhcDgcNeMbc2LzLxQ1YPQAAAAASUVORK5CYII=',
+};
+
+function getSpriteImg(id, size='48px', extraStyle='') {
+  const src = SPRITE_DATA[id];
+  if (!src) return '';
+  return `<img src="${src}" width="${size}" height="${size}" style="image-rendering:pixelated;display:block;margin:0 auto;${extraStyle}" alt="">`;
+}
+
+// ===== TYPE COLORS =====
+const TC = {
+  fire:'#b52b2b',water:'#1a5fa8',grass:'#1a7a3a',normal:'#6a6a6a',
+  psychic:'#8833aa',ghost:'#3d2080',dragon:'#0d3d70',dark:'#1a1a2e',
+  steel:'#5a6e6e',ice:'#0d8a78',fighting:'#7a2e00',electric:'#a88800',
+  poison:'#5a1a7a',rock:'#6a4000',ground:'#8a6500',flying:'#2a5aaa',
+  bug:'#2a5a32',fairy:'#9a2060'
+};
+const STAT_COL={hp:'#e05070',atk:'#c47090',def:'#a06080',spatk:'#d0a0b8',spdef:'#b08098',spd:'#f5dbdd'};
+const STAT_MAX={hp:255,atk:190,def:230,spatk:194,spdef:230,spd:180};
+
+// ===== JOHTO DATA =====
+const JOHTO_MONS = [
+  {id:152,name:'Chikorita',s:'🌿',t:['grass'],bst:318,st:{hp:45,atk:49,def:65,spatk:49,spdef:65,spd:45},ab:['Overgrow'],ha:'Leaf Guard',desc:'A sweet aroma from its head leaf soothes foes and allies alike.',region:'johto'},
+  {id:153,name:'Bayleef',s:'🍃',t:['grass'],bst:405,st:{hp:60,atk:62,def:80,spatk:63,spdef:80,spd:60},ab:['Overgrow'],ha:'Leaf Guard',desc:'Buds around its neck emit a spicy fragrance that invigorates anyone nearby.',region:'johto'},
+  {id:154,name:'Meganium',s:'🌺',t:['grass'],bst:525,st:{hp:80,atk:82,def:100,spatk:83,spdef:100,spd:80},ab:['Overgrow'],ha:'Leaf Guard',desc:'Its soothing aura can calm any wild Pokémon. A natural healer.',region:'johto'},
+  {id:155,name:'Cyndaquil',s:'🔥',t:['fire'],bst:309,st:{hp:39,atk:52,def:43,spatk:60,spdef:50,spd:65},ab:['Blaze'],ha:'Flash Fire',desc:'Timid but fierce when threatened. The flames on its back ignite with its courage.',region:'johto'},
+  {id:156,name:'Quilava',s:'🌋',t:['fire'],bst:405,st:{hp:58,atk:64,def:58,spatk:80,spdef:65,spd:80},ab:['Blaze'],ha:'Flash Fire',desc:'Its flames burn fiercer the more focused it becomes.',region:'johto'},
+  {id:157,name:'Typhlosion',s:'🌩️',t:['fire'],bst:534,st:{hp:78,atk:84,def:78,spatk:109,spdef:85,spd:100},ab:['Blaze'],ha:'Flash Fire',desc:'109 SpAtk makes it one of the best Fire-type wallbreakers in Johto.',region:'johto'},
+  {id:158,name:'Totodile',s:'🐊',t:['water'],bst:314,st:{hp:50,atk:65,def:64,spatk:44,spdef:48,spd:43},ab:['Torrent'],ha:'Sheer Force',desc:'A small but ferocious crocodile that loves to gnaw on everything.',region:'johto'},
+  {id:159,name:'Croconaw',s:'🦷',t:['water'],bst:405,st:{hp:65,atk:80,def:80,spatk:59,spdef:63,spd:58},ab:['Torrent'],ha:'Sheer Force',desc:'Once it bites down, it will never let go.',region:'johto'},
+  {id:160,name:'Feraligatr',s:'🦖',t:['water'],bst:530,st:{hp:85,atk:105,def:100,spatk:79,spdef:83,spd:78},ab:['Torrent'],ha:'Sheer Force',desc:'Sheer Force + Waterfall is a classic combination. Powerful physical sweeper.',region:'johto'},
+  {id:161,name:'Sentret',s:'🦫',t:['normal'],bst:215,st:{hp:35,atk:46,def:34,spatk:35,spdef:45,spd:20},ab:['Run Away','Keen Eye'],ha:'Frisk',desc:'Uses its tail to sense danger. Extremely cautious.',region:'johto'},
+  {id:162,name:'Furret',s:'🐿️',t:['normal'],bst:415,st:{hp:85,atk:76,def:64,spatk:45,spdef:55,spd:90},ab:['Run Away','Keen Eye'],ha:'Frisk',desc:'Long and slender with surprising speed.',region:'johto'},
+  {id:163,name:'Hoothoot',s:'🦉',t:['normal','flying'],bst:262,st:{hp:60,atk:30,def:30,spatk:36,spdef:56,spd:50},ab:['Insomnia','Keen Eye'],ha:'Tinted Lens',desc:'Always balances on one leg. Excellent vision in darkness.',region:'johto'},
+  {id:164,name:'Noctowl',s:'🌙',t:['normal','flying'],bst:452,st:{hp:100,atk:50,def:50,spatk:76,spdef:96,spd:70},ab:['Insomnia','Keen Eye'],ha:'Tinted Lens',desc:'Insomnia makes it immune to sleep strategies.',region:'johto'},
+  {id:169,name:'Crobat',s:'🦇',t:['poison','flying'],bst:535,st:{hp:85,atk:90,def:80,spatk:70,spdef:80,spd:130},ab:['Inner Focus'],ha:'Infiltrator',desc:'130 Speed — one of Johto\'s top threats. Evolves via happiness.',region:'johto'},
+  {id:170,name:'Chinchou',s:'💡',t:['water','electric'],bst:330,st:{hp:75,atk:38,def:38,spatk:56,spdef:56,spd:67},ab:['Volt Absorb','Illuminate'],ha:'Water Absorb',desc:'Unique dual Water/Electric type. Volt Absorb gives useful immunities.',region:'johto'},
+  {id:171,name:'Lanturn',s:'🔦',t:['water','electric'],bst:460,st:{hp:125,atk:58,def:58,spatk:76,spdef:76,spd:67},ab:['Volt Absorb','Illuminate'],ha:'Water Absorb',desc:'Massive HP pool. Reliable pivot in competitive play.',region:'johto'},
+  {id:172,name:'Pichu',s:'⚡',t:['electric'],bst:205,st:{hp:20,atk:40,def:15,spatk:35,spdef:35,spd:60},ab:['Static'],ha:'Lightning Rod',desc:'Baby form — evolve it before using.',region:'johto'},
+  {id:175,name:'Togepi',s:'🥚',t:['fairy'],bst:245,st:{hp:35,atk:20,def:65,spatk:40,spdef:65,spd:20},ab:['Hustle','Serene Grace'],ha:'Super Luck',desc:'Baby form. Evolve into Togetic.',region:'johto'},
+  {id:176,name:'Togetic',s:'✨',t:['fairy','flying'],bst:405,st:{hp:55,atk:40,def:85,spatk:80,spdef:105,spd:40},ab:['Hustle','Serene Grace'],ha:'Super Luck',desc:'Serene Grace doubles flinch/para rates. Solid support.',region:'johto'},
+  {id:177,name:'Natu',s:'🦜',t:['psychic','flying'],bst:320,st:{hp:40,atk:50,def:45,spatk:70,spdef:45,spd:70},ab:['Synchronize','Early Bird'],ha:'Magic Bounce',desc:'Magic Bounce is exceptional for competitive use.',region:'johto'},
+  {id:178,name:'Xatu',s:'🌀',t:['psychic','flying'],bst:470,st:{hp:65,atk:75,def:70,spatk:95,spdef:70,spd:95},ab:['Synchronize','Early Bird'],ha:'Magic Bounce',desc:'Magic Bounce Xatu is a strong hazard reflector.',region:'johto'},
+  {id:179,name:'Mareep',s:'🐑',t:['electric'],bst:280,st:{hp:55,atk:40,def:40,spatk:65,spdef:45,spd:35},ab:['Static'],ha:'Plus',desc:'Slow but evolves into a powerhouse.',region:'johto'},
+  {id:181,name:'Ampharos',s:'⚡',t:['electric'],bst:510,st:{hp:90,atk:75,def:85,spatk:115,spdef:90,spd:55},ab:['Static'],ha:'Plus',desc:'115 SpAtk is outstanding. A cornerstone Johto team member.',region:'johto'},
+  {id:182,name:'Bellossom',s:'🌸',t:['grass'],bst:490,st:{hp:75,atk:80,def:95,spatk:90,spdef:100,spd:50},ab:['Chlorophyll'],ha:'Healer',desc:'Chlorophyll doubles speed in sun — viable sweeper.',region:'johto'},
+  {id:183,name:'Marill',s:'💧',t:['water','fairy'],bst:250,st:{hp:70,atk:20,def:50,spatk:20,spdef:50,spd:40},ab:['Thick Fat','Huge Power'],ha:'Sap Sipper',desc:'Huge Power doubles Attack — Azumarill is competitively terrifying.',region:'johto'},
+  {id:184,name:'Azumarill',s:'🫧',t:['water','fairy'],bst:420,st:{hp:100,atk:50,def:80,spatk:60,spdef:80,spd:50},ab:['Thick Fat','Huge Power'],ha:'Sap Sipper',desc:'Huge Power Azumarill hits like a truck. A sleeper pick.',region:'johto'},
+  {id:185,name:'Sudowoodo',s:'🌳',t:['rock'],bst:410,st:{hp:70,atk:100,def:115,spatk:30,spdef:65,spd:30},ab:['Sturdy','Rock Head'],ha:'Rattled',desc:'Strong Attack and Defense, terrible Special stats and Speed.',region:'johto'},
+  {id:186,name:'Politoed',s:'🐸',t:['water'],bst:500,st:{hp:90,atk:75,def:75,spatk:90,spdef:100,spd:70},ab:['Water Absorb','Damp'],ha:'Drizzle',desc:'Drizzle auto-sets rain. Cornerstone of rain teams.',region:'johto'},
+  {id:189,name:'Jumpluff',s:'🌬️',t:['grass','flying'],bst:460,st:{hp:75,atk:55,def:70,spatk:55,spdef:95,spd:110},ab:['Chlorophyll','Leaf Guard'],ha:'Infiltrator',desc:'110 Speed. Great Spore/Sleep Powder user and support specialist.',region:'johto'},
+  {id:192,name:'Sunflora',s:'☀️',t:['grass'],bst:425,st:{hp:75,atk:75,def:55,spatk:105,spdef:85,spd:30},ab:['Chlorophyll','Solar Power'],ha:'Early Bird',desc:'High SpAtk but agonizingly slow. Solar Power in sun is powerful.',region:'johto'},
+  {id:193,name:'Yanma',s:'🪲',t:['bug','flying'],bst:390,st:{hp:65,atk:65,def:45,spatk:75,spdef:45,spd:95},ab:['Speed Boost','Compound Eyes'],ha:'Frisk',desc:'Speed Boost is an excellent ability. Snowballs quickly.',region:'johto'},
+  {id:195,name:'Quagsire',s:'🐟',t:['water','ground'],bst:430,st:{hp:95,atk:85,def:85,spatk:65,spdef:65,spd:35},ab:['Damp','Water Absorb'],ha:'Unaware',desc:'Unaware ignores all stat boosts. Nightmare for setup sweepers.',region:'johto'},
+  {id:196,name:'Espeon',s:'🔮',t:['psychic'],bst:525,st:{hp:65,atk:65,def:60,spatk:130,spdef:95,spd:110},ab:['Synchronize'],ha:'Magic Bounce',desc:'130 SpAtk and 110 Speed. Best Johto Eeveelution for offense.',region:'johto'},
+  {id:197,name:'Umbreon',s:'🌑',t:['dark'],bst:525,st:{hp:95,atk:65,def:110,spatk:60,spdef:130,spd:65},ab:['Synchronize'],ha:'Inner Focus',desc:'Exceptional bulk. The definitive Johto stall wall.',region:'johto'},
+  {id:198,name:'Murkrow',s:'🪶',t:['dark','flying'],bst:405,st:{hp:60,atk:85,def:42,spatk:85,spdef:42,spd:91},ab:['Insomnia','Super Luck'],ha:'Prankster',desc:'Prankster is devastating competitively. Fast with dual offenses.',region:'johto'},
+  {id:199,name:'Slowking',s:'👑',t:['water','psychic'],bst:490,st:{hp:95,atk:75,def:80,spatk:100,spdef:110,spd:30},ab:['Oblivious','Own Tempo'],ha:'Regenerator',desc:'Regenerator Slowking is one of the best pivots in competitive play.',region:'johto'},
+  {id:200,name:'Misdreavus',s:'👻',t:['ghost'],bst:435,st:{hp:60,atk:60,def:60,spatk:85,spdef:85,spd:85},ab:['Levitate'],ha:'Levitate',desc:'Balanced stats. Gets Will-O-Wisp and Hex for competitive use.',region:'johto'},
+  {id:203,name:'Girafarig',s:'🦒',t:['normal','psychic'],bst:455,st:{hp:70,atk:80,def:65,spatk:90,spdef:65,spd:85},ab:['Inner Focus','Early Bird'],ha:'Sap Sipper',desc:'Overlooked mixed attacker. Sap Sipper gives Grass immunity.',region:'johto'},
+  {id:205,name:'Forretress',s:'🔩',t:['bug','steel'],bst:465,st:{hp:75,atk:90,def:140,spatk:60,spdef:60,spd:40},ab:['Sturdy'],ha:'Overcoat',desc:'140 Defense. Premier hazard setter. Spikes/Stealth Rock king.',region:'johto'},
+  {id:207,name:'Gligar',s:'🦂',t:['ground','flying'],bst:430,st:{hp:65,atk:75,def:105,spatk:35,spdef:65,spd:85},ab:['Hyper Cutter','Sand Veil'],ha:'Immunity',desc:'Great physical bulk and speed. Immunity blocks Toxic.',region:'johto'},
+  {id:208,name:'Steelix',s:'⛓️',t:['steel','ground'],bst:510,st:{hp:75,atk:85,def:200,spatk:55,spdef:65,spd:30},ab:['Rock Head','Sturdy'],ha:'Sheer Force',desc:'200 Defense is insane. Sheer Force Earthquake is devastating.',region:'johto'},
+  {id:210,name:'Granbull',s:'🐕',t:['fairy'],bst:450,st:{hp:90,atk:120,def:75,spatk:60,spdef:60,spd:45},ab:['Intimidate','Quick Feet'],ha:'Rattled',desc:'120 Attack on a Fairy type. Play Rough hits hard.',region:'johto'},
+  {id:211,name:'Qwilfish',s:'🐡',t:['water','poison'],bst:440,st:{hp:65,atk:95,def:85,spatk:55,spdef:55,spd:85},ab:['Poison Point','Swift Swim'],ha:'Intimidate',desc:'Intimidate Qwilfish is a solid physical check and Spikes setter.',region:'johto'},
+  {id:212,name:'Scizor',s:'✂️',t:['bug','steel'],bst:500,st:{hp:70,atk:130,def:100,spatk:55,spdef:80,spd:65},ab:['Swarm','Technician'],ha:'Light Metal',desc:'Technician Bullet Punch is one of the most powerful priority moves.',region:'johto'},
+  {id:213,name:'Shuckle',s:'🪨',t:['bug','rock'],bst:505,st:{hp:20,atk:10,def:230,spatk:10,spdef:230,spd:5},ab:['Sturdy','Gluttony'],ha:'Contrary',desc:'Extreme defenses, zero offense. A stall wall.',region:'johto'},
+  {id:214,name:'Heracross',s:'🪲',t:['bug','fighting'],bst:500,st:{hp:80,atk:125,def:75,spatk:40,spdef:95,spd:85},ab:['Swarm','Guts'],ha:'Moxie',desc:'One of Johto\'s best. Guts + Flame Orb or Moxie sweeping is terrifying.',region:'johto'},
+  {id:215,name:'Sneasel',s:'❄️',t:['dark','ice'],bst:430,st:{hp:55,atk:95,def:55,spatk:35,spdef:75,spd:115},ab:['Inner Focus','Keen Eye'],ha:'Pickpocket',desc:'115 Speed is elite. Frail but hits fast.',region:'johto'},
+  {id:217,name:'Ursaring',s:'🐻',t:['normal'],bst:500,st:{hp:90,atk:130,def:75,spatk:75,spdef:75,spd:55},ab:['Guts','Quick Feet'],ha:'Unnerve',desc:'130 Attack and Guts. Flame Orb Ursaring is devastating.',region:'johto'},
+  {id:219,name:'Magcargo',s:'🐌',t:['fire','rock'],bst:410,st:{hp:60,atk:50,def:120,spatk:90,spdef:80,spd:30},ab:['Magma Armor','Flame Body'],ha:'Weak Armor',desc:'Unique Fire/Rock typing. Slow but surprisingly bulky.',region:'johto'},
+  {id:221,name:'Piloswine',s:'🦣',t:['ice','ground'],bst:450,st:{hp:100,atk:100,def:80,spatk:60,spdef:60,spd:50},ab:['Oblivious','Snow Cloak'],ha:'Thick Fat',desc:'Great mixed bulk. Thick Fat covers its weaknesses.',region:'johto'},
+  {id:224,name:'Octillery',s:'🐙',t:['water'],bst:480,st:{hp:75,atk:105,def:75,spatk:105,spdef:75,spd:45},ab:['Suction Cups','Sniper'],ha:'Moody',desc:'Balanced 105/105 offenses. Sniper + crit moves is a strong niche.',region:'johto'},
+  {id:226,name:'Mantine',s:'🦈',t:['water','flying'],bst:485,st:{hp:65,atk:40,def:70,spatk:80,spdef:140,spd:70},ab:['Swift Swim','Water Absorb'],ha:'Water Veil',desc:'140 SpDef is elite. Water Absorb grants Water immunity.',region:'johto'},
+  {id:227,name:'Skarmory',s:'⚔️',t:['steel','flying'],bst:465,st:{hp:65,atk:80,def:140,spatk:40,spdef:70,spd:70},ab:['Keen Eye','Sturdy'],ha:'Weak Armor',desc:'140 Defense and typing make it one of the best physical walls.',region:'johto'},
+  {id:229,name:'Houndoom',s:'🐾',t:['dark','fire'],bst:500,st:{hp:75,atk:90,def:50,spatk:110,spdef:80,spd:95},ab:['Early Bird','Flash Fire'],ha:'Unnerve',desc:'110 SpAtk on a fast Dark/Fire. A powerful wallbreaker.',region:'johto'},
+  {id:230,name:'Kingdra',s:'🐲',t:['water','dragon'],bst:540,st:{hp:75,atk:95,def:95,spatk:95,spdef:95,spd:85},ab:['Swift Swim','Sniper'],ha:'Damp',desc:'Balanced stats and Dragon/Water typing makes it near unwallable.',region:'johto'},
+  {id:232,name:'Donphan',s:'🦏',t:['ground'],bst:500,st:{hp:90,atk:120,def:120,spatk:60,spdef:60,spd:50},ab:['Sturdy'],ha:'Sand Veil',desc:'Massive physical bulk and Attack. Rapid Spin removes hazards.',region:'johto'},
+  {id:237,name:'Hitmontop',s:'🌀',t:['fighting'],bst:455,st:{hp:50,atk:95,def:95,spatk:35,spdef:110,spd:70},ab:['Intimidate','Technician'],ha:'Steadfast',desc:'Intimidate + Rapid Spin makes it a great defensive pivot.',region:'johto'},
+  {id:241,name:'Miltank',s:'🐄',t:['normal'],bst:490,st:{hp:95,atk:80,def:105,spatk:40,spdef:70,spd:100},ab:['Thick Fat','Scrappy'],ha:'Sap Sipper',desc:'Whitney\'s notorious Miltank. 100 Speed + Milk Drink + Rollout is a nightmare.',region:'johto'},
+  {id:242,name:'Blissey',s:'💕',t:['normal'],bst:540,st:{hp:255,atk:10,def:10,spatk:75,spdef:135,spd:55},ab:['Natural Cure','Serene Grace'],ha:'Healer',desc:'255 HP and 135 SpDef. The premier special wall in competitive.',region:'johto'},
+  {id:243,name:'Raikou',s:'⚡',t:['electric'],bst:580,st:{hp:90,atk:85,def:75,spatk:115,spdef:100,spd:115},ab:['Pressure'],ha:'Volt Absorb',desc:'115 SpAtk and 115 Speed. One of Johto\'s strongest.',region:'johto'},
+  {id:244,name:'Entei',s:'🔥',t:['fire'],bst:580,st:{hp:115,atk:115,def:85,spatk:90,spdef:75,spd:100},ab:['Pressure'],ha:'Flash Fire',desc:'115 HP and 115 Attack. A formidable physical threat.',region:'johto'},
+  {id:245,name:'Suicune',s:'💧',t:['water'],bst:580,st:{hp:100,atk:75,def:115,spatk:90,spdef:115,spd:85},ab:['Pressure'],ha:'Inner Focus',desc:'Exceptional bulk. Calm Mind Suicune is a famous setup sweeper.',region:'johto'},
+  {id:248,name:'Tyranitar',s:'🦖',t:['rock','dark'],bst:600,st:{hp:100,atk:134,def:110,spatk:95,spdef:100,spd:61},ab:['Sand Stream'],ha:'Unnerve',desc:'134 Attack and Sand Stream. A tier-defining competitive threat.',region:'johto'},
+];
+
+// ===== KANTO DATA =====
+const KANTO_MONS = [
+  {id:1,name:'Bulbasaur',s:'🌱',t:['grass','poison'],bst:318,st:{hp:45,atk:49,def:49,spatk:65,spdef:65,spd:45},ab:['Overgrow'],ha:'Chlorophyll',desc:'Its seed grows larger as it absorbs nutrients.',region:'kanto'},
+  {id:2,name:'Ivysaur',s:'🌿',t:['grass','poison'],bst:405,st:{hp:60,atk:62,def:63,spatk:80,spdef:80,spd:60},ab:['Overgrow'],ha:'Chlorophyll',desc:'The bud on its back begins to bloom into a large flower.',region:'kanto'},
+  {id:3,name:'Venusaur',s:'🌻',t:['grass','poison'],bst:525,st:{hp:80,atk:82,def:83,spatk:100,spdef:100,spd:80},ab:['Overgrow'],ha:'Chlorophyll',desc:'Thick Plant can take a hit. Chlorophyll makes it a dangerous sun sweeper.',region:'kanto'},
+  {id:4,name:'Charmander',s:'🦎',t:['fire'],bst:309,st:{hp:39,atk:52,def:43,spatk:60,spdef:50,spd:65},ab:['Blaze'],ha:'Solar Power',desc:'The flame on its tail is a sign of life force. If it goes out, it perishes.',region:'kanto'},
+  {id:5,name:'Charmeleon',s:'🔥',t:['fire'],bst:405,st:{hp:58,atk:64,def:58,spatk:80,spdef:65,spd:80},ab:['Blaze'],ha:'Solar Power',desc:'Fiercely aggressive and powerful. Train carefully.',region:'kanto'},
+  {id:6,name:'Charizard',s:'🐉',t:['fire','flying'],bst:534,st:{hp:78,atk:84,def:78,spatk:109,spdef:85,spd:100},ab:['Blaze'],ha:'Solar Power',desc:'109 SpAtk and Solar Power in sun. One of the most iconic Pokémon ever.',region:'kanto'},
+  {id:7,name:'Squirtle',s:'🐢',t:['water'],bst:314,st:{hp:44,atk:48,def:65,spatk:50,spdef:64,spd:43},ab:['Torrent'],ha:'Rain Dish',desc:'Squirts water from its mouth. Its shell is extremely hard.',region:'kanto'},
+  {id:8,name:'Wartortle',s:'🌊',t:['water'],bst:405,st:{hp:59,atk:63,def:80,spatk:65,spdef:80,spd:58},ab:['Torrent'],ha:'Rain Dish',desc:'Its tail is covered in rich fur and grows darker with age.',region:'kanto'},
+  {id:9,name:'Blastoise',s:'💦',t:['water'],bst:530,st:{hp:79,atk:83,def:100,spatk:85,spdef:105,spd:78},ab:['Torrent'],ha:'Rain Dish',desc:'Powerful hydro cannons on its back. Excellent bulk and Rain Dish recovery.',region:'kanto'},
+  {id:25,name:'Pikachu',s:'⚡',t:['electric'],bst:320,st:{hp:35,atk:55,def:30,spatk:50,spdef:40,spd:90},ab:['Static'],ha:'Lightning Rod',desc:'The iconic mascot. Lightning Rod is its best ability competitively.',region:'kanto'},
+  {id:26,name:'Raichu',s:'⚡',t:['electric'],bst:485,st:{hp:60,atk:90,def:55,spatk:90,spdef:80,spd:110},ab:['Static'],ha:'Lightning Rod',desc:'Fast and hits hard from both sides. Lightning Rod absorbs Electric moves.',region:'kanto'},
+  {id:35,name:'Clefairy',s:'🌙',t:['fairy'],bst:323,st:{hp:70,atk:45,def:48,spatk:60,spdef:65,spd:35},ab:['Cute Charm','Magic Guard'],ha:'Friend Guard',desc:'Magic Guard makes it immune to residual damage — strong competitive trait.',region:'kanto'},
+  {id:36,name:'Clefable',s:'🌟',t:['fairy'],bst:483,st:{hp:95,atk:70,def:73,spatk:95,spdef:90,spd:60},ab:['Cute Charm','Magic Guard'],ha:'Unaware',desc:'Magic Guard Clefable is one of competitive\'s best utility Pokémon.',region:'kanto'},
+  {id:39,name:'Jigglypuff',s:'🎵',t:['normal','fairy'],bst:270,st:{hp:115,atk:45,def:20,spatk:45,spdef:25,spd:20},ab:['Cute Charm','Competitive'],ha:'Friend Guard',desc:'Massive HP but extremely fragile. Sing can be useful in trick room.',region:'kanto'},
+  {id:40,name:'Wigglytuff',s:'🎶',t:['normal','fairy'],bst:435,st:{hp:140,atk:70,def:45,spatk:85,spdef:50,spd:45},ab:['Cute Charm','Competitive'],ha:'Frisk',desc:'140 HP is genuinely impressive. Competitive raises SpAtk when stats drop.',region:'kanto'},
+  {id:52,name:'Meowth',s:'😺',t:['normal'],bst:290,st:{hp:40,atk:45,def:35,spatk:40,spdef:40,spd:90},ab:['Pickup','Technician'],ha:'Unnerve',desc:'Technician boosts weaker moves. Fast but frail.',region:'kanto'},
+  {id:53,name:'Persian',s:'🐱',t:['normal'],bst:440,st:{hp:65,atk:70,def:60,spatk:65,spdef:65,spd:115},ab:['Limber','Technician'],ha:'Unnerve',desc:'115 Speed. Technician Fake Out is strong in doubles.',region:'kanto'},
+  {id:58,name:'Growlithe',s:'🐶',t:['fire'],bst:350,st:{hp:55,atk:70,def:45,spatk:70,spdef:50,spd:60},ab:['Intimidate','Flash Fire'],ha:'Justified',desc:'Intimidate on a Fire type is excellent utility.',region:'kanto'},
+  {id:59,name:'Arcanine',s:'🐕',t:['fire'],bst:555,st:{hp:90,atk:110,def:80,spatk:100,spdef:80,spd:95},ab:['Intimidate','Flash Fire'],ha:'Justified',desc:'Intimidate + 110 Attack. One of the best Fire types. Extreme Speed is deadly.',region:'kanto'},
+  {id:60,name:'Poliwag',s:'🌀',t:['water'],bst:300,st:{hp:40,atk:50,def:40,spatk:40,spdef:40,spd:90},ab:['Water Absorb','Damp'],ha:'Swift Swim',desc:'Swift Swim doubles speed in rain. Evolves into multiple powerful forms.',region:'kanto'},
+  {id:62,name:'Poliwrath',s:'💪',t:['water','fighting'],bst:510,st:{hp:90,atk:95,def:95,spatk:70,spdef:90,spd:70},ab:['Water Absorb','Damp'],ha:'Swift Swim',desc:'Great bulk and unique Water/Fighting typing. Water Absorb absorbs Water moves.',region:'kanto'},
+  {id:63,name:'Abra',s:'🔮',t:['psychic'],bst:310,st:{hp:25,atk:20,def:15,spatk:105,spdef:55,spd:90},ab:['Synchronize','Inner Focus'],ha:'Magic Guard',desc:'Magic Guard makes it immune to all residual damage. Very frail.',region:'kanto'},
+  {id:65,name:'Alakazam',s:'🧠',t:['psychic'],bst:500,st:{hp:55,atk:50,def:45,spatk:135,spdef:95,spd:120},ab:['Synchronize','Inner Focus'],ha:'Magic Guard',desc:'135 SpAtk and 120 Speed. Magic Guard Alakazam is deadly.',region:'kanto'},
+  {id:66,name:'Machop',s:'💪',t:['fighting'],bst:305,st:{hp:70,atk:80,def:50,spatk:35,spdef:35,spd:35},ab:['Guts','No Guard'],ha:'Steadfast',desc:'No Guard makes all moves bypass accuracy checks.',region:'kanto'},
+  {id:68,name:'Machamp',s:'🥊',t:['fighting'],bst:505,st:{hp:90,atk:130,def:80,spatk:65,spdef:85,spd:55},ab:['Guts','No Guard'],ha:'Steadfast',desc:'No Guard Machamp Dynamic Punch gives 100% confusion. A nightmare.',region:'kanto'},
+  {id:74,name:'Geodude',s:'🪨',t:['rock','ground'],bst:300,st:{hp:40,atk:80,def:100,spatk:30,spdef:30,spd:20},ab:['Rock Head','Sturdy'],ha:'Sand Veil',desc:'Rock Head allows Double-Edge without recoil damage.',region:'kanto'},
+  {id:76,name:'Golem',s:'🏔️',t:['rock','ground'],bst:495,st:{hp:80,atk:120,def:130,spatk:55,spdef:65,spd:45},ab:['Rock Head','Sturdy'],ha:'Sand Force',desc:'120 Attack and 130 Defense. Sturdy guarantees at least one action.',region:'kanto'},
+  {id:77,name:'Ponyta',s:'🐴',t:['fire'],bst:410,st:{hp:50,atk:85,def:55,spatk:65,spdef:65,spd:90},ab:['Run Away','Flash Fire'],ha:'Flame Body',desc:'Flash Fire Ponyta is a solid Fire-type option.',region:'kanto'},
+  {id:78,name:'Rapidash',s:'🦄',t:['fire'],bst:500,st:{hp:65,atk:100,def:70,spatk:80,spdef:80,spd:105},ab:['Run Away','Flash Fire'],ha:'Flame Body',desc:'105 Speed and Flash Fire. A fast physical Fire-type threat.',region:'kanto'},
+  {id:80,name:'Slowbro',s:'🐌',t:['water','psychic'],bst:490,st:{hp:95,atk:75,def:110,spatk:100,spdef:80,spd:30},ab:['Oblivious','Own Tempo'],ha:'Regenerator',desc:'Regenerator + massive bulk makes it an excellent pivot.',region:'kanto'},
+  {id:82,name:'Magneton',s:'🔌',t:['electric','steel'],bst:465,st:{hp:50,atk:60,def:95,spatk:120,spdef:70,spd:70},ab:['Magnet Pull','Sturdy'],ha:'Analytic',desc:'Magnet Pull traps Steel types. 120 SpAtk is excellent.',region:'kanto'},
+  {id:83,name:'Farfetch\'d',s:'🦆',t:['normal','flying'],bst:377,st:{hp:52,atk:90,def:55,spatk:58,spdef:62,spd:60},ab:['Keen Eye','Inner Focus'],ha:'Defiant',desc:'Defiant raises Attack when stats are lowered. Niche but real.',region:'kanto'},
+  {id:89,name:'Muk',s:'☣️',t:['poison'],bst:500,st:{hp:105,atk:105,def:75,spatk:65,spdef:100,spd:50},ab:['Stench','Sticky Hold'],ha:'Poison Touch',desc:'Excellent bulk and good offenses. Poison Touch gives passive poisoning.',region:'kanto'},
+  {id:91,name:'Cloyster',s:'🐚',t:['water','ice'],bst:525,st:{hp:50,atk:95,def:180,spatk:85,spdef:45,spd:70},ab:['Shell Armor','Skill Link'],ha:'Overcoat',desc:'180 Defense and Skill Link for multi-hit moves. Shell Smash + Skill Link is terrifying.',region:'kanto'},
+  {id:94,name:'Gengar',s:'👻',t:['ghost','poison'],bst:500,st:{hp:60,atk:65,def:60,spatk:130,spdef:75,spd:110},ab:['Cursed Body'],ha:'Levitate',desc:'130 SpAtk and 110 Speed. Levitate grants Ground immunity. A classic sweeper.',region:'kanto'},
+  {id:95,name:'Onix',s:'⛰️',t:['rock','ground'],bst:385,st:{hp:35,atk:45,def:160,spatk:30,spdef:45,spd:70},ab:['Rock Head','Sturdy'],ha:'Weak Armor',desc:'160 Defense but very weak offensively. Evolves into Steelix.',region:'kanto'},
+  {id:97,name:'Hypno',s:'🌀',t:['psychic'],bst:483,st:{hp:85,atk:73,def:70,spatk:73,spdef:115,spd:67},ab:['Insomnia','Forewarn'],ha:'Inner Focus',desc:'115 SpDef and Insomnia. A solid special wall with status immunity.',region:'kanto'},
+  {id:99,name:'Kingler',s:'🦀',t:['water'],bst:475,st:{hp:55,atk:130,def:115,spatk:50,spdef:50,spd:75},ab:['Hyper Cutter','Shell Armor'],ha:'Sheer Force',desc:'130 Attack and Sheer Force. One of the highest physical Attack stats in Gen 1.',region:'kanto'},
+  {id:101,name:'Electrode',s:'💣',t:['electric'],bst:490,st:{hp:60,atk:50,def:70,spatk:80,spdef:80,spd:150},ab:['Soundproof','Static'],ha:'Aftermath',desc:'150 Speed — one of the fastest Pokémon. Aftermath punishes KOs.',region:'kanto'},
+  {id:103,name:'Exeggutor',s:'🌴',t:['grass','psychic'],bst:530,st:{hp:95,atk:95,def:85,spatk:125,spdef:65,spd:55},ab:['Chlorophyll'],ha:'Harvest',desc:'125 SpAtk. Chlorophyll in sun is powerful. Harvest recycles Berries.',region:'kanto'},
+  {id:105,name:'Marowak',s:'🦴',t:['ground'],bst:425,st:{hp:60,atk:80,def:110,spatk:50,spdef:80,spd:45},ab:['Rock Head','Lightning Rod'],ha:'Battle Armor',desc:'Rock Head removes recoil from Double-Edge. Lightning Rod absorbs Electric.',region:'kanto'},
+  {id:106,name:'Hitmonlee',s:'🦵',t:['fighting'],bst:455,st:{hp:50,atk:120,def:53,spatk:35,spdef:110,spd:87},ab:['Limber','Reckless'],ha:'Unburden',desc:'Reckless powers up recoil moves. Unburden doubles Speed after item use.',region:'kanto'},
+  {id:107,name:'Hitmonchan',s:'🥊',t:['fighting'],bst:455,st:{hp:50,atk:105,def:79,spatk:35,spdef:110,spd:76},ab:['Keen Eye','Iron Fist'],ha:'Inner Focus',desc:'Iron Fist boosts punching moves. Great special bulk.',region:'kanto'},
+  {id:110,name:'Weezing',s:'💨',t:['poison'],bst:490,st:{hp:65,atk:90,def:120,spatk:85,spdef:70,spd:60},ab:['Levitate','Neutralizing Gas'],ha:'Stench',desc:'Levitate grants Ground immunity. Neutralizing Gas shuts down all abilities.',region:'kanto'},
+  {id:112,name:'Rhydon',s:'🦏',t:['ground','rock'],bst:485,st:{hp:105,atk:130,def:120,spatk:45,spdef:45,spd:40},ab:['Lightning Rod','Rock Head'],ha:'Reckless',desc:'Massive Attack and bulk. Lightning Rod absorbs Electric for itself.',region:'kanto'},
+  {id:113,name:'Chansey',s:'🥚',t:['normal'],bst:450,st:{hp:250,atk:5,def:5,spatk:35,spdef:105,spd:50},ab:['Natural Cure','Serene Grace'],ha:'Healer',desc:'Evolves into Blissey. Natural Cure is excellent for healing status.',region:'kanto'},
+  {id:114,name:'Tangela',s:'🍃',t:['grass'],bst:435,st:{hp:65,atk:55,def:115,spatk:100,spdef:40,spd:60},ab:['Chlorophyll','Leaf Guard'],ha:'Regenerator',desc:'115 Defense and Regenerator is excellent for a pivot. 100 SpAtk hits hard.',region:'kanto'},
+  {id:115,name:'Kangaskhan',s:'🦘',t:['normal'],bst:490,st:{hp:105,atk:95,def:80,spatk:40,spdef:80,spd:90},ab:['Early Bird','Scrappy'],ha:'Inner Focus',desc:'Scrappy lets it hit Ghost types with Normal moves. Excellent all-rounder.',region:'kanto'},
+  {id:117,name:'Seadra',s:'🐠',t:['water'],bst:440,st:{hp:55,atk:65,def:95,spatk:95,spdef:45,spd:85},ab:['Poison Point','Sniper'],ha:'Damp',desc:'Evolves into Kingdra. Sniper is a powerful crit-focused ability.',region:'kanto'},
+  {id:119,name:'Seaking',s:'🐟',t:['water'],bst:450,st:{hp:80,atk:92,def:65,spatk:65,spdef:80,spd:68},ab:['Swift Swim','Water Veil'],ha:'Lightning Rod',desc:'Lightning Rod in doubles absorbs Electric for teammates. Swift Swim in rain.',region:'kanto'},
+  {id:121,name:'Starmie',s:'⭐',t:['water','psychic'],bst:520,st:{hp:60,atk:75,def:85,spatk:100,spdef:85,spd:115},ab:['Illuminate','Natural Cure'],ha:'Analytic',desc:'115 Speed and 100 SpAtk. Natural Cure heals status. A premier competitive threat.',region:'kanto'},
+  {id:122,name:'Mr. Mime',s:'🎭',t:['psychic','fairy'],bst:460,st:{hp:40,atk:45,def:65,spatk:100,spdef:120,spd:90},ab:['Soundproof','Filter'],ha:'Technician',desc:'120 SpDef and Filter reduces super-effective damage. Underrated wall.',region:'kanto'},
+  {id:123,name:'Scyther',s:'🦗',t:['bug','flying'],bst:500,st:{hp:70,atk:110,def:80,spatk:55,spdef:80,spd:105},ab:['Swarm','Technician'],ha:'Steadfast',desc:'110 Attack and 105 Speed. Technician boosts Aerial Ace and Quick Attack.',region:'kanto'},
+  {id:124,name:'Jynx',s:'💋',t:['ice','psychic'],bst:455,st:{hp:65,atk:50,def:35,spatk:115,spdef:95,spd:95},ab:['Oblivious','Forewarn'],ha:'Dry Skin',desc:'115 SpAtk and fast. Dry Skin heals in rain and in water.',region:'kanto'},
+  {id:125,name:'Electabuzz',s:'⚡',t:['electric'],bst:490,st:{hp:65,atk:83,def:57,spatk:95,spdef:85,spd:105},ab:['Static'],ha:'Vital Spirit',desc:'Vital Spirit grants immunity to sleep. Decent mixed attacker.',region:'kanto'},
+  {id:126,name:'Magmar',s:'🔥',t:['fire'],bst:495,st:{hp:65,atk:95,def:57,spatk:100,spdef:85,spd:93},ab:['Flame Body'],ha:'Vital Spirit',desc:'100 SpAtk. Flame Body gives 30% burn chance on contact.',region:'kanto'},
+  {id:127,name:'Pinsir',s:'🦀',t:['bug'],bst:500,st:{hp:65,atk:125,def:100,spatk:55,spdef:70,spd:85},ab:['Hyper Cutter','Mold Breaker'],ha:'Moxie',desc:'125 Attack. Mold Breaker bypasses abilities. Moxie snowballs on KOs.',region:'kanto'},
+  {id:128,name:'Tauros',s:'🐂',t:['normal'],bst:490,st:{hp:75,atk:100,def:95,spatk:40,spdef:70,spd:110},ab:['Intimidate','Anger Point'],ha:'Sheer Force',desc:'110 Speed and Sheer Force. One of Gen 1\'s most feared sweepers.',region:'kanto'},
+  {id:130,name:'Gyarados',s:'🐉',t:['water','flying'],bst:540,st:{hp:95,atk:125,def:79,spatk:60,spdef:100,spd:81},ab:['Intimidate'],ha:'Moxie',desc:'Intimidate on switch. Moxie Gyarados after Dragon Dance is terrifying.',region:'kanto'},
+  {id:131,name:'Lapras',s:'🦕',t:['water','ice'],bst:535,st:{hp:130,atk:85,def:80,spatk:85,spdef:95,spd:60},ab:['Water Absorb','Shell Armor'],ha:'Hydration',desc:'130 HP makes it incredibly tanky. Water Absorb heals from Water moves.',region:'kanto'},
+  {id:134,name:'Vaporeon',s:'💧',t:['water'],bst:525,st:{hp:130,atk:65,def:60,spatk:110,spdef:95,spd:65},ab:['Water Absorb'],ha:'Hydration',desc:'130 HP and Water Absorb. Wish support is excellent. 110 SpAtk hits hard.',region:'kanto'},
+  {id:135,name:'Jolteon',s:'⚡',t:['electric'],bst:525,st:{hp:65,atk:65,def:60,spatk:110,spdef:95,spd:130},ab:['Volt Absorb'],ha:'Quick Feet',desc:'130 Speed and Volt Absorb. One of the fastest Eeveelutions.',region:'kanto'},
+  {id:136,name:'Flareon',s:'🔥',t:['fire'],bst:525,st:{hp:65,atk:130,def:60,spatk:95,spdef:110,spd:65},ab:['Flash Fire'],ha:'Guts',desc:'130 Attack and Guts. Guts with Flame Orb is devastating despite its slow speed.',region:'kanto'},
+  {id:137,name:'Porygon',s:'🤖',t:['normal'],bst:395,st:{hp:65,atk:60,def:70,spatk:85,spdef:75,spd:40},ab:['Trace','Download'],ha:'Analytic',desc:'Download boosts Attack or SpAtk based on the foe\'s defenses.',region:'kanto'},
+  {id:139,name:'Omastar',s:'🐙',t:['rock','water'],bst:495,st:{hp:70,atk:60,def:125,spatk:115,spdef:70,spd:55},ab:['Swift Swim','Shell Armor'],ha:'Weak Armor',desc:'115 SpAtk and 125 Defense. Swift Swim in rain is deadly.',region:'kanto'},
+  {id:141,name:'Kabutops',s:'🦂',t:['rock','water'],bst:495,st:{hp:60,atk:115,def:105,spatk:65,spdef:70,spd:80},ab:['Swift Swim','Battle Armor'],ha:'Weak Armor',desc:'115 Attack and Swift Swim. A fearsome physical Rain sweeper.',region:'kanto'},
+  {id:142,name:'Aerodactyl',s:'🦅',t:['rock','flying'],bst:515,st:{hp:80,atk:105,def:65,spatk:60,spdef:75,spd:130},ab:['Rock Head','Pressure'],ha:'Unnerve',desc:'130 Speed and Rock Head for Double-Edge. One of the fastest Pokémon.',region:'kanto'},
+  {id:143,name:'Snorlax',s:'😴',t:['normal'],bst:540,st:{hp:160,atk:110,def:65,spatk:65,spdef:110,spd:30},ab:['Immunity','Thick Fat'],ha:'Gluttony',desc:'160 HP and Thick Fat. Immunity blocks Toxic. Impossible to wear down.',region:'kanto'},
+  {id:144,name:'Articuno',s:'❄️',t:['ice','flying'],bst:580,st:{hp:90,atk:85,def:100,spatk:95,spdef:125,spd:85},ab:['Pressure'],ha:'Snow Cloak',desc:'125 SpDef and solid bulk. Snow Cloak in Hail gives evasion.',region:'kanto'},
+  {id:145,name:'Zapdos',s:'⚡',t:['electric','flying'],bst:580,st:{hp:90,atk:90,def:85,spatk:125,spdef:90,spd:100},ab:['Pressure'],ha:'Static',desc:'125 SpAtk and 100 Speed. One of the best Legendary birds competitively.',region:'kanto'},
+  {id:146,name:'Moltres',s:'🔥',t:['fire','flying'],bst:580,st:{hp:90,atk:100,def:90,spatk:125,spdef:85,spd:90},ab:['Pressure'],ha:'Flame Body',desc:'125 SpAtk and Flame Body. Flame Body burns contact move users.',region:'kanto'},
+  {id:147,name:'Dratini',s:'🐉',t:['dragon'],bst:300,st:{hp:41,atk:64,def:45,spatk:50,spdef:50,spd:50},ab:['Shed Skin'],ha:'Marvel Scale',desc:'Marvel Scale boosts Defense when statused. Worth training for Dragonite.',region:'kanto'},
+  {id:149,name:'Dragonite',s:'🐲',t:['dragon','flying'],bst:600,st:{hp:91,atk:134,def:95,spatk:100,spdef:100,spd:80},ab:['Inner Focus'],ha:'Multiscale',desc:'Multiscale halves damage at full HP. 134 Attack with Dragon Dance is devastating.',region:'kanto'},
+  {id:150,name:'Mewtwo',s:'👾',t:['psychic'],bst:680,st:{hp:106,atk:110,def:90,spatk:154,spdef:90,spd:130},ab:['Pressure'],ha:'Unnerve',desc:'154 SpAtk and 130 Speed. The most powerful non-Mega Pokémon in the original games.',region:'kanto'},
+];
+
+const ALL_MONS = [...JOHTO_MONS, ...KANTO_MONS];
+
+// ===== STATE =====
+const TC_LIST = [...new Set(ALL_MONS.flatMap(m => m.t))].sort();
+let activeType = null;
+let sortMode = 'num';
+let team = [];
+let modalMon = null;
+let currentRegion = 'johto';
+let favourites = JSON.parse(localStorage.getItem('pkmn_favs') || '[]');
+let trainerData = JSON.parse(localStorage.getItem('pkmn_trainer') || 'null');
+
+// ===== NAVIGATION =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  if (id === 'builder') tabs[0].classList.add('active');
+  if (id === 'trainer') { tabs[1].classList.add('active'); drawTrainer(); }
+  if (id === 'favs') { tabs[2].classList.add('active'); renderFavs(); }
+}
+
+// ===== REGION =====
+function setRegion(r) {
+  currentRegion = r;
+  ['johto','kanto','both'].forEach(x => document.getElementById('rtab-'+x).classList.remove('active'));
+  document.getElementById('rtab-'+r).classList.add('active');
+  rebuildTypeGrid();
+  render();
+}
+
+function getActiveMons() {
+  if (currentRegion === 'johto') return JOHTO_MONS;
+  if (currentRegion === 'kanto') return KANTO_MONS;
+  return ALL_MONS;
+}
+
+// ===== TYPE FILTER =====
+function rebuildTypeGrid() {
+  const g = document.getElementById('typeGrid');
+  g.innerHTML = '';
+  const types = [...new Set(getActiveMons().flatMap(m => m.t))].sort();
+  if (!types.includes(activeType)) activeType = null;
+  types.forEach(tp => {
+    const b = document.createElement('button');
+    b.className = 't-btn';
+    b.dataset.t = tp;
+    b.textContent = tp.toUpperCase();
+    b.style.background = TC[tp] || '#555';
+    if (activeType === tp) b.classList.add('on');
+    b.onclick = () => {
+      activeType = activeType === tp ? null : tp;
+      document.querySelectorAll('.t-btn').forEach(x => x.classList.toggle('on', x.dataset.t === activeType));
+      render();
+    };
+    g.appendChild(b);
+  });
+}
+
+function clearType() {
+  activeType = null;
+  document.querySelectorAll('.t-btn').forEach(x => x.classList.remove('on'));
+  render();
+}
+
+function setSort(m) {
+  sortMode = m;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('sort-' + m).classList.add('on');
+  render();
+}
+
+// ===== RENDER POKEMON GRID =====
+function render() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const teamFull = team.length >= 6;
+  let list = getActiveMons().filter(m => {
+    return m.name.toLowerCase().includes(q) && (!activeType || m.t.includes(activeType));
+  });
+  if (sortMode === 'bst') list.sort((a,b) => b.bst - a.bst);
+  else if (sortMode === 'atk') list.sort((a,b) => b.st.atk - a.st.atk);
+  else if (sortMode === 'spd') list.sort((a,b) => b.st.spd - a.st.spd);
+  else list.sort((a,b) => a.id - b.id);
+
+  document.getElementById('countBar').innerHTML = `<span>${list.length}</span> Pokémon · ${currentRegion.toUpperCase()}`;
+  const grid = document.getElementById('pokeGrid');
+  grid.innerHTML = '';
+  if (!list.length) { grid.innerHTML = '<div class="no-res">NO MON FOUND</div>'; return; }
+
+  list.forEach(m => {
+    const inTeam = team.some(t => t.id === m.id);
+    const card = document.createElement('div');
+    card.className = 'poke-card' + (inTeam ? ' in-team' : '') + (teamFull && !inTeam ? ' locked' : '');
+    const regionBadge = m.region === 'kanto' ? `<span style="position:absolute;top:3px;left:4px;font-size:5px;color:var(--blue);font-family:'Press Start 2P',monospace">K</span>` : `<span style="position:absolute;top:3px;left:4px;font-size:5px;color:var(--yellow);font-family:'Press Start 2P',monospace">J</span>`;
+    card.innerHTML = `${currentRegion==='both'?regionBadge:''}
+      <span class="pc-num">#${String(m.id).padStart(3,'0')}</span>
+      ${getSpriteImg(m.id,'52px','margin-bottom:4px;')}
+      <span class="pc-name">${m.name.toUpperCase()}</span>
+      <div class="pc-types">${m.t.map(t=>`<span class="t-chip" style="background:${TC[t]||'#555'}">${t.toUpperCase()}</span>`).join('')}</div>
+    `;
+    card.onclick = () => { if (inTeam) { openModal(m); return; } if (!teamFull) addToTeam(m); };
+    card.ondblclick = () => openModal(m);
+    grid.appendChild(card);
+  });
+}
+
+// ===== TEAM =====
+function addToTeam(mon) {
+  if (team.length >= 6 || team.some(t => t.id === mon.id)) return;
+  team.push(mon);
+  updateTeam();
+}
+function removeFromTeam(id) {
+  team = team.filter(t => t.id !== id);
+  updateTeam();
+}
+function clearTeam() {
+  team = [];
+  updateTeam();
+  document.getElementById('evalBox').innerHTML = '<div class="eval-empty">Add Pokémon &amp; hit<br>ANALYSE TEAM</div>';
+  document.getElementById('evalBox').classList.remove('glowing');
+}
+function updateTeam() {
+  document.getElementById('teamCt').textContent = team.length;
+  document.getElementById('evalBtn').disabled = team.length < 1;
+  const hp = document.getElementById('headerPreview');
+  hp.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const s = document.createElement('div');
+    s.className = 'htp-slot' + (team[i] ? ' filled' : '');
+    if(team[i]) {
+      const img = document.createElement('img');
+      img.src = SPRITE_DATA[team[i].id] || '';
+      img.style.cssText = 'width:22px;height:22px;image-rendering:pixelated';
+      s.appendChild(img);
+    }
+    hp.appendChild(s);
+  }
+  const tg = document.getElementById('teamGrid');
+  tg.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'team-slot' + (team[i] ? ' filled' : '');
+    if (team[i]) {
+      const m = team[i];
+      slot.innerHTML = `<button class="ts-rm" onclick="removeFromTeam(${m.id})">✖</button>
+        ${getSpriteImg(m.id,'44px','margin-bottom:2px;')}
+        <span class="ts-name">${m.name.toUpperCase()}</span>
+        <div class="ts-types">${m.t.map(t=>`<span class="t-chip" style="background:${TC[t]||'#555'}">${t.slice(0,3).toUpperCase()}</span>`).join('')}</div>`;
+    } else {
+      slot.innerHTML = '<span class="empty-txt">EMPTY<br>SLOT</span>';
+    }
+    tg.appendChild(slot);
+  }
+  const cov = document.getElementById('coverageRow');
+  if (!team.length) { cov.innerHTML = '<span style="font-size:7px;color:var(--text-dim)">Add Pokémon to see coverage</span>'; }
+  else {
+    const types = [...new Set(team.flatMap(m => m.t))];
+    cov.innerHTML = types.map(t => `<span class="cov-tag" style="background:${TC[t]||'#555'}">${t.toUpperCase()}</span>`).join('');
+  }
+  render();
+}
+
+// ===== MODAL =====
+function openModal(m) {
+  modalMon = m;
+  document.getElementById('mSprite').innerHTML = getSpriteImg(m.id,'80px','margin:0 auto 4px');
+  document.getElementById('mName').textContent = m.name.toUpperCase();
+  document.getElementById('mNum').textContent = `#${String(m.id).padStart(3,'0')} · ${m.region.toUpperCase()} · BST ${m.bst}`;
+  document.getElementById('mTypes').innerHTML = m.t.map(t=>`<span class="t-chip" style="background:${TC[t]||'#555'};padding:3px 8px;font-size:7px">${t.toUpperCase()}</span>`).join('');
+  document.getElementById('mDesc').textContent = m.desc;
+  const sn = {hp:'HP',atk:'ATK',def:'DEF',spatk:'SpATK',spdef:'SpDEF',spd:'SPD'};
+  document.getElementById('mStats').innerHTML = Object.entries(m.st).map(([k,v]) => `
+    <div class="stat-row"><span class="stat-lbl">${sn[k]}</span>
+    <div class="stat-bar-bg"><div class="stat-bar" style="width:${Math.round(v/STAT_MAX[k]*100)}%;background:${STAT_COL[k]}"></div></div>
+    <span class="stat-val">${v}</span></div>`).join('');
+  document.getElementById('mAbilities').innerHTML = [
+    ...m.ab.map(a=>`<div class="ability-item"><span class="ability-name">${a}</span><span class="ability-badge">ABILITY</span></div>`),
+    `<div class="ability-item"><span class="ability-name">${m.ha}</span><span class="ability-badge hidden">HIDDEN</span></div>`
+  ].join('');
+  const inTeam = team.some(t => t.id === m.id);
+  const btn = document.getElementById('mAddBtn');
+  if (inTeam) { btn.textContent = '✖ REMOVE FROM TEAM'; btn.className = 'modal-add-btn remove'; btn.disabled = false; btn.onclick = () => { removeFromTeam(m.id); closeModal(); }; }
+  else if (team.length >= 6) { btn.textContent = 'TEAM FULL'; btn.className = 'modal-add-btn'; btn.disabled = true; }
+  else { btn.textContent = '➕ ADD TO TEAM'; btn.className = 'modal-add-btn'; btn.disabled = false; btn.onclick = () => { addToTeam(m); closeModal(); }; }
+  document.getElementById('mFavBtn').onclick = () => { quickAddFav(m); closeModal(); };
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+function maybeCloseModal(e) { if (e.target === document.getElementById('modalBg')) closeModal(); }
+
+// ===== EVALUATOR =====
+const SUPER_EFFECTIVE={fire:['grass','ice','bug','steel'],water:['fire','ground','rock'],grass:['water','ground','rock'],electric:['water','flying'],ice:['grass','ground','flying','dragon'],fighting:['normal','ice','rock','dark','steel'],poison:['grass','fairy'],ground:['fire','electric','poison','rock','steel'],flying:['grass','fighting','bug'],psychic:['fighting','poison'],bug:['grass','psychic','dark'],rock:['fire','ice','flying','bug'],ghost:['psychic','ghost'],dragon:['dragon'],dark:['psychic','ghost'],steel:['ice','rock','fairy'],fairy:['fighting','dragon','dark'],normal:[]};
+const WEAK_TO={normal:['fighting'],fire:['water','ground','rock'],water:['grass','electric'],grass:['fire','ice','poison','flying','bug'],electric:['ground'],ice:['fire','fighting','rock','steel'],fighting:['flying','psychic','fairy'],poison:['ground','psychic'],ground:['water','grass','ice'],flying:['electric','ice','rock'],psychic:['bug','ghost','dark'],bug:['fire','flying','rock'],rock:['water','grass','fighting','ground','steel'],ghost:['ghost','dark'],dragon:['ice','dragon','fairy'],dark:['fighting','bug','fairy'],steel:['fire','fighting','ground'],fairy:['poison','steel']};
+
+function evaluateTeam() {
+  if (!team.length) return;
+  const box = document.getElementById('evalBox');
+  box.classList.remove('glowing');
+  box.innerHTML = `<div style="text-align:center;padding:20px 0"><div class="dot-anim"><span>▪</span><span>▪</span><span>▪</span></div><p style="font-size:7px;color:var(--text-dim);margin-top:10px">ANALYSING...</p></div>`;
+  setTimeout(() => { const r = runAnalysis(); renderEval(r); }, 500);
+}
+
+function runAnalysis() {
+  const strengths=[], weaknesses=[], tips=[];
+  const teamTypes=[...new Set(team.flatMap(m=>m.t))];
+  const coveredOffense=[...new Set(teamTypes.flatMap(t=>SUPER_EFFECTIVE[t]||[]))];
+  const uncoveredOffense=['fire','water','grass','electric','ice','fighting','ground','rock','flying','psychic','dark','steel','dragon','ghost','fairy','bug'].filter(t=>!coveredOffense.includes(t));
+  if(coveredOffense.length>=10) strengths.push(`Excellent offensive coverage — hits ${coveredOffense.length} types super effectively.`);
+  else if(coveredOffense.length>=7) strengths.push(`Decent offensive coverage across ${coveredOffense.length} types.`);
+  else weaknesses.push(`Limited offense — only ${coveredOffense.length} types covered SE. ${uncoveredOffense.slice(0,3).map(t=>t.toUpperCase()).join(', ')} may wall you.`);
+
+  const weaknessCounts={};
+  team.forEach(m=>m.t.forEach(type=>(WEAK_TO[type]||[]).forEach(w=>{weaknessCounts[w]=(weaknessCounts[w]||0)+1})));
+  Object.entries(weaknessCounts).filter(([,c])=>c>=3).sort((a,b)=>b[1]-a[1]).forEach(([type,count])=>weaknesses.push(`${type.toUpperCase()} threatens ${count} members — a single ${type}-type could sweep.`));
+
+  const doubleWeakMons=team.filter(m=>{const wks=m.t.flatMap(t=>WEAK_TO[t]||[]);return wks.length!==new Set(wks).size});
+  if(doubleWeakMons.length) weaknesses.push(`${doubleWeakMons.map(m=>m.name).join(' & ')} have a double weakness — a SE hit could OHKO them.`);
+
+  const Object_entries_wk=Object.entries(weaknessCounts).filter(([,c])=>c===1);
+  if(!Object.entries(weaknessCounts).some(([,c])=>c>=3)&&Object_entries_wk.length<=3) strengths.push('Solid defensive spread — no type threatens more than 2 members.');
+
+  const fastMons=team.filter(m=>m.st.spd>=90), slowMons=team.filter(m=>m.st.spd<50);
+  const avgSpd=Math.round(team.reduce((a,m)=>a+m.st.spd,0)/team.length);
+  if(fastMons.length>=3) strengths.push(`High-tempo speed — ${fastMons.map(m=>m.name).slice(0,3).join(', ')} all hit 90+ Speed.`);
+  else if(slowMons.length>=3) weaknesses.push(`Sluggish team — ${slowMons.map(m=>m.name).join(', ')} are all below 50 Speed.`);
+  else if(avgSpd<65) weaknesses.push(`Below-average avg Speed of ${avgSpd}. Fast threats will outspeed consistently.`);
+
+  const highBST=team.filter(m=>m.bst>=500), lowBST=team.filter(m=>m.bst<=350);
+  if(highBST.length>=3) strengths.push(`Power house roster — ${highBST.slice(0,3).map(m=>m.name).join(', ')} all hit 500+ BST.`);
+  if(lowBST.length>=2) weaknesses.push(`${lowBST.map(m=>m.name).join(' & ')} drag the power down with sub-350 BST.`);
+
+  const physMons=team.filter(m=>m.st.atk>=90), specMons=team.filter(m=>m.st.spatk>=90);
+  if(physMons.length>=2&&specMons.length>=2) strengths.push(`Balanced mixed offense forces foes to maintain both defensive stats.`);
+  else if(physMons.length>=4&&specMons.length<=1) weaknesses.push(`Heavy physical bias — one physical wall could shut down multiple members.`);
+  else if(specMons.length>=4&&physMons.length<=1) weaknesses.push(`Heavy special bias — Blissey or Umbreon can hard-wall multiple members.`);
+
+  const bulky=team.filter(m=>(m.st.hp+m.st.def+m.st.spdef)>=230);
+  const frail=team.filter(m=>(m.st.hp+m.st.def+m.st.spdef)<=160);
+  if(bulky.length>=3) strengths.push(`Durable core — ${bulky.map(m=>m.name).join(', ')} have 230+ combined bulk.`);
+  if(frail.length>=3) weaknesses.push(`${frail.map(m=>m.name).join(', ')} are quite frail — priority moves are a serious threat.`);
+
+  const powerAbs=['Guts','Huge Power','Technician','Sheer Force','Moxie','Speed Boost','Magic Bounce','Drizzle','Sand Stream','Prankster','Multiscale','Intimidate','No Guard'];
+  const powerAbMons=team.filter(m=>[...m.ab,m.ha].some(a=>powerAbs.includes(a)));
+  if(powerAbMons.length>=2) strengths.push(`Strong abilities — ${powerAbMons.slice(0,2).map(m=>{const a=[...m.ab,m.ha].find(x=>powerAbs.includes(x));return`${m.name} (${a})`}).join(', ')}.`);
+
+  const weatherSetter=team.find(m=>[...m.ab,m.ha].some(a=>['Drizzle','Sand Stream'].includes(a)));
+  const weatherAbuser=team.find(m=>[...m.ab,m.ha].some(a=>['Swift Swim','Chlorophyll','Sand Rush'].includes(a)));
+  if(weatherSetter&&weatherAbuser) strengths.push(`Weather synergy — ${weatherSetter.name} sets, ${weatherAbuser.name} abuses for double Speed.`);
+
+  const johtoCount=team.filter(m=>m.region==='johto').length;
+  const kantoCount=team.filter(m=>m.region==='kanto').length;
+  if(johtoCount>0&&kantoCount>0) strengths.push(`Mixed-region team with ${johtoCount} Johto + ${kantoCount} Kanto Pokémon — maximises the available gene pool.`);
+  else if(kantoCount===team.length) tips.push('Pure Kanto team — consider a Johto legendary for a power boost.');
+
+  const typeCounts={};
+  team.forEach(m=>m.t.forEach(t=>{typeCounts[t]=(typeCounts[t]||0)+1}));
+  Object.entries(typeCounts).filter(([,c])=>c>=3).forEach(([t,c])=>weaknesses.push(`${c}× ${t.toUpperCase()} types is risky — one coverage move threatens multiple members.`));
+
+  const uniqueTypes=[...new Set(team.flatMap(m=>m.t))].length;
+  if(uniqueTypes>=8) strengths.push(`High type diversity (${uniqueTypes} types) — hard to predict and counter.`);
+  else if(uniqueTypes<=3&&team.length>=4) weaknesses.push(`Very low type diversity (${uniqueTypes} types) — predictable and easy to counter.`);
+
+  let score=5;
+  score+=Math.min(strengths.length*0.4,3);
+  score-=Math.min(weaknesses.length*0.5,3);
+  score=Math.max(1,Math.min(10,Math.round(score*10)/10));
+
+  const ratings=[{min:9,label:'Elite Squad'},{min:8,label:'Solid Competitive Build'},{min:7,label:'Well-Rounded Core'},{min:6,label:'Decent but Patchable'},{min:5,label:'Work in Progress'},{min:3,label:'Needs Rebuilding'},{min:0,label:'Start Over, Trainer'}];
+  const rating=ratings.find(r=>score>=r.min)?.label||'Unrated';
+  const avgBST=Math.round(team.reduce((a,m)=>a+m.bst,0)/team.length);
+  let verdict='';
+  if(score>=8){verdict=`Strong build with good synergy. Avg BST of ${avgBST} is ${avgBST>=490?'excellent':'healthy'}. ${weaknesses.length?'Address the flagged weaknesses and this becomes a top-tier team.':'Near-perfect construction.'}`}
+  else if(score>=6){verdict=`Serviceable team that covers most bases. Avg BST ${avgBST} — ${avgBST>=470?'power is on your side':'consider swapping weak links'}. Patch the flagged weaknesses to compete at higher levels.`}
+  else{verdict=`Significant issues holding this team back. Avg BST ${avgBST} is ${avgBST<430?'low — prioritise evolved forms':'okay but synergy is the problem'}. Focus on type coverage and removing the weakest links first.`}
+  if(tips.length) verdict+=' Tip: '+tips[0];
+  return{score,rating,strengths,weaknesses,verdict};
+}
+
+function renderEval({score,rating,strengths,weaknesses,verdict}){
+  const box=document.getElementById('evalBox');
+  const sc=score>=7?'var(--rose)':score>=5?'var(--lip-gloss)':'var(--red)';
+  let html='<div class="eval-content">';
+  html+=`<div class="eval-score-row"><span class="big-score" style="color:${sc}">${score}/10</span><div><div style="font-size:13px;color:var(--text);line-height:1.3">${rating}</div><div class="score-label">${team.length} MON · AVG BST ${Math.round(team.reduce((a,m)=>a+m.bst,0)/team.length)}</div></div></div>`;
+  if(strengths.length) html+=`<div class="eval-section"><div class="eval-section-title good">✿ STRENGTHS (${strengths.length})</div>${strengths.map(s=>`<p style="margin-bottom:8px;padding-left:10px;border-left:2px solid var(--pink-dim)">✿ ${s}</p>`).join('')}</div>`;
+  if(weaknesses.length) html+=`<div class="eval-section"><div class="eval-section-title bad">✗ WEAKNESSES (${weaknesses.length})</div>${weaknesses.map(w=>`<p style="margin-bottom:8px;padding-left:10px;border-left:2px solid rgba(224,80,112,0.4)">✗ ${w}</p>`).join('')}</div>`;
+  html+=`<div class="eval-section"><div class="eval-section-title neutral">✦ VERDICT</div><p>${verdict}</p></div></div>`;
+  box.innerHTML=html;
+  box.classList.add('glowing');
+}
+
+// ===== TRAINER CREATOR =====
+const SKIN_TONES=['#FDDBB4','#F5C28A','#E8A96B','#C88050','#A0603A','#7A3A20','#4A2010'];
+const HAIR_COLORS=['#1a0a00','#3d1a00','#7a3a00','#c8a040','#f0e040','#e05030','#d030b0','#2050e0','#208050','#e0e0e0'];
+const HAIR_STYLES=['SHORT','LONG','SPIKY','CURLY','BALD'];
+const OUTFITS=['RED','BLUE','GREEN','YELLOW','BLACK','WHITE','PURPLE'];
+
+let trainerOpts={skin:0,hair:0,hairStyle:0,outfit:0};
+
+function initTrainer(){
+  const ss=document.getElementById('skinSwatches');
+  SKIN_TONES.forEach((c,i)=>{
+    const s=document.createElement('div');
+    s.className='swatch'+(i===trainerOpts.skin?' active':'');
+    s.style.background=c;
+    s.onclick=()=>{trainerOpts.skin=i;document.querySelectorAll('#skinSwatches .swatch').forEach((x,j)=>x.classList.toggle('active',j===i));drawTrainer()};
+    ss.appendChild(s);
+  });
+  const hs=document.getElementById('hairSwatches');
+  HAIR_COLORS.forEach((c,i)=>{
+    const s=document.createElement('div');
+    s.className='swatch'+(i===trainerOpts.hair?' active':'');
+    s.style.background=c;
+    s.onclick=()=>{trainerOpts.hair=i;document.querySelectorAll('#hairSwatches .swatch').forEach((x,j)=>x.classList.toggle('active',j===i));drawTrainer()};
+    hs.appendChild(s);
+  });
+  const hso=document.getElementById('hairStyleOpts');
+  HAIR_STYLES.forEach((h,i)=>{
+    const b=document.createElement('button');
+    b.className='opt-btn'+(i===trainerOpts.hairStyle?' active':'');
+    b.textContent=h;
+    b.onclick=()=>{trainerOpts.hairStyle=i;document.querySelectorAll('#hairStyleOpts .opt-btn').forEach((x,j)=>x.classList.toggle('active',j===i));drawTrainer()};
+    hso.appendChild(b);
+  });
+  const oo=document.getElementById('outfitOpts');
+  OUTFITS.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt-btn'+(i===trainerOpts.outfit?' active':'');
+    b.textContent=o;
+    b.onclick=()=>{trainerOpts.outfit=i;document.querySelectorAll('#outfitOpts .opt-btn').forEach((x,j)=>x.classList.toggle('active',j===i));drawTrainer()};
+    oo.appendChild(b);
+  });
+  if(trainerData){
+    trainerOpts={...trainerData.opts};
+    document.getElementById('trainerNameInput').value=trainerData.name||'';
+    document.getElementById('trainerQuote').value=trainerData.quote||'';
+    updateAllSwatchOpts();
+    showSavedTrainer();
+  }
+  drawTrainer();
+}
+
+function updateAllSwatchOpts(){
+  document.querySelectorAll('#skinSwatches .swatch').forEach((x,i)=>x.classList.toggle('active',i===trainerOpts.skin));
+  document.querySelectorAll('#hairSwatches .swatch').forEach((x,i)=>x.classList.toggle('active',i===trainerOpts.hair));
+  document.querySelectorAll('#hairStyleOpts .opt-btn').forEach((x,i)=>x.classList.toggle('active',i===trainerOpts.hairStyle));
+  document.querySelectorAll('#outfitOpts .opt-btn').forEach((x,i)=>x.classList.toggle('active',i===trainerOpts.outfit));
+}
+
+function drawTrainer(targetId='trainerCanvas'){
+  const canvas=document.getElementById(targetId);
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const scale=W/160;
+  ctx.clearRect(0,0,W,H);
+  ctx.imageSmoothingEnabled=false;
+
+  const skin=SKIN_TONES[trainerOpts.skin];
+  const hair=HAIR_COLORS[trainerOpts.hair];
+  const outfitColors=[['#e03020','#c02010'],['#2050c0','#1030a0'],['#208040','#106030'],['#d0b020','#a08010'],['#202020','#101010'],['#e8e8e8','#c0c0c0'],['#8020c0','#601090']];
+  const [oc1,oc2]=outfitColors[trainerOpts.outfit];
+
+  const px=(x,y,w,h,c)=>{ctx.fillStyle=c;ctx.fillRect(x*scale,y*scale,w*scale,h*scale)};
+
+  // Body / torso
+  px(56,80,48,50,oc1);
+  px(60,90,40,35,oc2);
+
+  // Collar
+  px(72,78,16,10,skin);
+
+  // Arms
+  px(36,80,22,40,oc1);
+  px(102,80,22,40,oc1);
+
+  // Hands
+  px(36,118,20,12,skin);
+  px(104,118,20,12,skin);
+
+  // Legs
+  px(58,128,18,42,oc2==='#101010'?'#1a1a3a':'#1a1a1a');
+  px(84,128,18,42,oc2==='#101010'?'#1a1a3a':'#1a1a1a');
+
+  // Shoes
+  px(54,168,26,16,'#101010');
+  px(80,168,26,16,'#101010');
+
+  // Neck
+  px(68,68,24,16,skin);
+
+  // Head
+  px(48,28,64,50,skin);
+
+  // Ears
+  px(44,44,10,16,skin);
+  px(106,44,10,16,skin);
+
+  // Eyes
+  ctx.fillStyle='#fff';
+  ctx.fillRect(60*scale,48*scale,14*scale,10*scale);
+  ctx.fillRect(86*scale,48*scale,14*scale,10*scale);
+  ctx.fillStyle='#1a0a00';
+  ctx.fillRect(65*scale,50*scale,7*scale,7*scale);
+  ctx.fillRect(91*scale,50*scale,7*scale,7*scale);
+  // Eye shine
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(67*scale,51*scale,2*scale,2*scale);
+  ctx.fillRect(93*scale,51*scale,2*scale,2*scale);
+
+  // Nose
+  px(76,60,8,6,SKIN_TONES[Math.min(trainerOpts.skin+2,SKIN_TONES.length-1)]);
+
+  // Mouth - smile
+  ctx.fillStyle='#8a3020';
+  ctx.fillRect(66*scale,66*scale,28*scale,4*scale);
+  ctx.fillStyle='#fff';
+  ctx.fillRect(68*scale,66*scale,24*scale,3*scale);
+
+  // HAIR
+  const hs=trainerOpts.hairStyle;
+  ctx.fillStyle=hair;
+  if(hs===0){// SHORT
+    ctx.fillRect(48*scale,22*scale,64*scale,16*scale); // top
+    ctx.fillRect(44*scale,28*scale,10*scale,20*scale); // left
+    ctx.fillRect(106*scale,28*scale,10*scale,20*scale); // right
+    ctx.fillRect(48*scale,22*scale,64*scale,10*scale);
+  } else if(hs===1){// LONG
+    ctx.fillRect(48*scale,22*scale,64*scale,12*scale);
+    ctx.fillRect(44*scale,28*scale,12*scale,70*scale); // long sides
+    ctx.fillRect(104*scale,28*scale,12*scale,70*scale);
+    ctx.fillRect(52*scale,22*scale,56*scale,10*scale);
+  } else if(hs===2){// SPIKY
+    ctx.fillRect(48*scale,26*scale,64*scale,12*scale);
+    // spikes
+    [[54,8],[68,4],[82,6],[96,10]].forEach(([x,y])=>{
+      ctx.beginPath();ctx.moveTo((x-6)*scale,26*scale);ctx.lineTo(x*scale,y*scale);ctx.lineTo((x+6)*scale,26*scale);ctx.fill();
+    });
+    ctx.fillRect(44*scale,28*scale,10*scale,18*scale);
+    ctx.fillRect(106*scale,28*scale,10*scale,18*scale);
+  } else if(hs===3){// CURLY
+    for(let cx2=50;cx2<110;cx2+=12){
+      for(let cy2=14;cy2<34;cy2+=10){
+        ctx.beginPath();ctx.arc(cx2*scale,cy2*scale,6*scale,0,Math.PI*2);ctx.fill();
+      }
+    }
+    ctx.fillRect(44*scale,28*scale,10*scale,18*scale);
+    ctx.fillRect(106*scale,28*scale,10*scale,18*scale);
+  }
+  // BALD = no hair drawn
+
+  // Hat brim (always)
+  if(hs!==1){
+    ctx.fillStyle=oc2;
+    ctx.fillRect(44*scale,34*scale,72*scale,6*scale);
+    ctx.fillStyle=oc1;
+    ctx.fillRect(56*scale,20*scale,48*scale,16*scale);
+    ctx.fillStyle='#ffffff';
+    ctx.fillRect(60*scale,24*scale,40*scale,8*scale);
+  }
+}
+
+function saveTrainer(){
+  const name=document.getElementById('trainerNameInput').value.trim()||'TRAINER';
+  const quote=document.getElementById('trainerQuote').value.trim()||'Ready to battle!';
+  trainerData={name,quote,opts:{...trainerOpts}};
+  localStorage.setItem('pkmn_trainer',JSON.stringify(trainerData));
+  showSavedTrainer();
+  // flash
+  const btn=document.querySelector('.save-trainer-btn');
+  btn.textContent='✓ SAVED!';
+  setTimeout(()=>btn.textContent='💾 SAVE TRAINER',1500);
+}
+
+function showSavedTrainer(){
+  if(!trainerData) return;
+  const card=document.getElementById('trainerCardSaved');
+  card.style.display='block';
+  document.getElementById('savedTrainerName').textContent=trainerData.name.toUpperCase();
+  document.getElementById('savedTrainerQuote').textContent='"'+trainerData.quote+'"';
+  setTimeout(()=>{
+    const saved=document.getElementById('trainerCanvasSaved');
+    const main=document.getElementById('trainerCanvas');
+    const ctx=saved.getContext('2d');
+    ctx.imageSmoothingEnabled=false;
+    ctx.drawImage(main,0,0,saved.width,saved.height);
+  },100);
+}
+
+// ===== FAVOURITES =====
+function populateFavSelect(){
+  const allSort=[...ALL_MONS].sort((a,b)=>a.id-b.id);
+  const sel=document.getElementById('favSelect');
+  const regionSel=document.getElementById('favRegionSelect');
+  const region=regionSel.value;
+  sel.innerHTML='';
+  allSort.filter(m=>region==='all'||m.region===region).forEach(m=>{
+    const o=document.createElement('option');
+    o.value=m.id;
+    o.textContent=`#${String(m.id).padStart(3,'0')} ${m.name} (${m.region})`;
+    sel.appendChild(o);
+  });
+}
+
+function addFavourite(){
+  const sel=document.getElementById('favSelect');
+  const reason=document.getElementById('favReason').value.trim();
+  if(!sel.value||!reason){alert('Please select a Pokémon and write your reason!');return;}
+  const mon=ALL_MONS.find(m=>m.id===parseInt(sel.value));
+  if(!mon) return;
+  const fav={id:mon.id,name:mon.name,s:mon.s,t:mon.t,region:mon.region,reason,date:new Date().toLocaleDateString()};
+  favourites.unshift(fav);
+  localStorage.setItem('pkmn_favs',JSON.stringify(favourites));
+  document.getElementById('favReason').value='';
+  renderFavs();
+}
+
+function quickAddFav(m){
+  const reason=prompt(`Why do you love ${m.name}?`)||'A true favourite!';
+  const fav={id:m.id,name:m.name,s:m.s,t:m.t,region:m.region,reason,date:new Date().toLocaleDateString()};
+  favourites.unshift(fav);
+  localStorage.setItem('pkmn_favs',JSON.stringify(favourites));
+}
+
+function deleteFav(idx){
+  favourites.splice(idx,1);
+  localStorage.setItem('pkmn_favs',JSON.stringify(favourites));
+  renderFavs();
+}
+
+function renderFavs(){
+  const grid=document.getElementById('favsGrid');
+  if(!favourites.length){grid.innerHTML='<div class="fav-empty">No favourites yet!<br><br>Add a Pokémon you love and write why it\'s special to you.</div>';return;}
+  grid.innerHTML=favourites.map((f,i)=>`
+    <div class="fav-card">
+      <button class="fav-del" onclick="deleteFav(${i})">✖</button>
+      <div class="fav-card-top">
+        <div class="fav-sprite">${getSpriteImg(f.id,'52px')}</div>
+        <div class="fav-info">
+          <span class="fav-name">${f.name.toUpperCase()}</span>
+          <span class="fav-num">#${String(f.id).padStart(3,'0')} · ${f.region.toUpperCase()}</span>
+          <div class="fav-types">${f.t.map(t=>`<span class="t-chip" style="background:${TC[t]||'#555'}">${t.slice(0,3).toUpperCase()}</span>`).join('')}</div>
+        </div>
+      </div>
+      <div class="fav-reason">${f.reason}</div>
+      <div class="fav-date">Added ${f.date}</div>
+    </div>`).join('');
+}
+
+// ===== INIT =====
+rebuildTypeGrid();
+render();
+updateTeam();
+initTrainer();
+populateFavSelect();
+renderFavs();
+document.getElementById('favRegionSelect').onchange=populateFavSelect;
+document.getElementById('trainerNameInput').oninput=drawTrainer;
+</script>
+</body>
+</html>
